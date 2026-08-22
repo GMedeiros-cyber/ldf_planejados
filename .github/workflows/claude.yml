@@ -1,0 +1,72 @@
+name: Claude Code
+
+on:
+  # (a) Menções @claude em issues, PRs e comentários de review
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+  # (b) Review automático em todo PR que aponta para main
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+jobs:
+  # ---------------------------------------------------------------
+  # Responde quando alguém escreve @claude
+  # ---------------------------------------------------------------
+  claude-mention:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+  # ---------------------------------------------------------------
+  # Review automático de todo PR para main
+  # ---------------------------------------------------------------
+  claude-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          track_progress: true
+          prompt: |
+            Revise este PR e comente em português do Brasil.
+
+            Este repositório acompanha um site feito no Framer. As mudanças
+            costumam ser de duas naturezas:
+
+            1. Documentos de projeto e design (PRODUCT.md, DESIGN.md, README).
+               Avalie clareza, contradição com o que já estava escrito, e
+               decisões registradas sem justificativa.
+
+            2. Código (code components do Framer, scripts, configuração).
+               Avalie corretude, casos de borda, acessibilidade e performance.
+
+            Priorize poucos achados de alta confiança em vez de uma lista longa.
+            Se não houver problema real, diga isso em uma linha e não invente
+            achado para parecer útil.
