@@ -1,0 +1,17 @@
+# Skills de terceiros instaladas via CLI — restauráveis, não versionar (3,5 MB / 151 arquivos)
+# Restaurar com os comandos no README
+.claude/skills/
+
+# Configuração local/pessoal do Claude Code (hooks do Impeccable, permissões)
+.claude/settings.local.json
+
+# Diretório de trabalho do Impeccable (mocks gerados, config do modo live)
+.impeccable/
+
+# Dependências
+node_modules/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
