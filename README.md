@@ -1,39 +1,62 @@
-# ldf_planejados
+# LDF Planejados
 
-Projeto de site em Framer, com infraestrutura de agentes para design e revisão.
+Site da **LDF Planejados** — fábrica de móveis planejados em Guarulhos/SP.
 
-## Stack de agentes
+## Stack
 
-| Ferramenta | Papel | Escopo |
-|---|---|---|
-| [@framer/agent](https://www.npmjs.com/package/@framer/agent) | Controle programático do projeto Framer | global |
-| [Impeccable](https://github.com/pbakaus/impeccable) | Orientação de design, 23 comandos, 59 detectores | projeto |
-| [Caveman](https://github.com/JuliusBrussee/caveman) | Proxy de compressão de input | global |
-| [taste-skill](https://github.com/Leonxlnx/taste-skill) | `brandkit` + `full-output-enforcement` | projeto |
+| | |
+|---|---|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| UI | React 19 · TypeScript |
+| Estilo | CSS puro com custom properties — sem framework de utilitários |
+| Fontes | Archivo e Libre Caslon Text, auto-hospedadas via `next/font` |
 
-## Restaurar o ambiente em outra máquina
+Rotas são pré-renderizadas estaticamente. Não há banco, API nem build server —
+o resultado roda em qualquer hospedagem estática ou VPS.
 
-As skills não são versionadas (ver `.gitignore`). Para reinstalar:
+## Rodar
 
 ```bash
-# Framer
-npx @framer/agent@latest setup
-
-# Impeccable (escopo de projeto, com hooks)
-npx impeccable install --providers=claude --scope=project
-
-# brandkit + full-output-enforcement (a partir do skills-lock.json)
-npx skills add https://github.com/Leonxlnx/taste-skill \
-  --skill brandkit --skill full-output-enforcement \
-  --agent claude-code --copy -y
-
-# Caveman (CLI + binários)
-npm install -g @caveman-ai/cli && caveman setup --install
+npm install
+npm run dev          # http://localhost:3000
+npm run build        # produção
 ```
 
 Requer Node.js 24+.
 
-## Notas
+## Estrutura
 
-- O proxy do Caveman só age em sessões abertas com `caveman claude`, não com `claude` direto.
-- `caveman setup --agent-native claude` falha nesta máquina (postflight indisponível).
+```
+app/
+  layout.tsx              fontes, metadata, <body data-fin>
+  page.tsx                home
+  globals.css             o sistema de design inteiro
+  ambientes/cozinha/      página de ambiente
+components/               uma seção por arquivo
+lib/dados.ts              dados do cliente e conteúdo — fonte única
+```
+
+**Para editar conteúdo, comece por [`lib/dados.ts`](lib/dados.ts).** Contato,
+acabamentos, ambientes, as onze etapas e a ficha técnica estão todos ali.
+
+## O sistema de design
+
+Chama-se **O Amostrário**: a amostra de acabamento é o material da página, não um
+filtro. O visitante veste a peça antes de falar com alguém.
+
+- O `<body>` carrega `data-fin` com o acabamento selecionado
+- A elevação da cozinha é **desenhada em CSS**, não fotografada — e é assim de
+  propósito, porque ainda não há fotos dos ambientes executados
+- `#DF0100` tem três usos e nenhum a mais: tinta de instrumento, etiqueta de
+  amostra viva e preenchimento da ação primária
+
+Restrição medida: `#DF0100` sobre o fundo `#131211` dá **3,69:1** — serve só para
+display grande, nunca para texto corrido ou rótulo pequeno.
+
+## Verificação de design
+
+```bash
+npm run detect
+```
+
+Roda os detectores determinísticos do Impeccable.

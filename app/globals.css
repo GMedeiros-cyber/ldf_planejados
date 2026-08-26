@@ -1,0 +1,991 @@
+/* ==========================================================================
+   LDF Planejados — O Amostrário
+   Sistema visual: a amostra de acabamento como material primário da página.
+   ========================================================================== */
+
+/* --- 1. Fundação ---------------------------------------------------------- */
+
+:root {
+  /* Terra. Varredura de estúdio fotográfico, não preto puro. */
+  --ground:        #131211;
+  --ground-lift:   #1C1A18;
+  --ground-deep:   #0A0909;
+  --ground-paper:  #EDEAE4;
+
+  /* Tinta */
+  --ink:           #EFEBE5;
+  --ink-2:         #A8A099;
+  --ink-3:         #8A827A;
+  --ink-on-paper:  #17150F;
+  --ink-on-paper-2:#5A544A;
+
+  /* Marca. O vermelho é tinta de instrumento e etiqueta de amostra —
+     nunca preenchimento de banner, nunca texto corrido. */
+  --red:           #DF0100;
+  --red-bright:    #FF4436;
+
+  /* Arestas */
+  --edge:          #2C2825;
+  --edge-2:        #443D37;
+  --edge-3:        #5A524A;
+
+  /* Brancos e vermelhos de sistema */
+  --white:         #FFFFFF;
+  --black:         #000000;
+  --red-hot:       #C90E00;
+
+  /* Materiais do desenho de elevação */
+  --splash:        #4A4844;
+  --ground-red:    #241110;
+  --light-warm:    rgba(255,244,228,0.20);
+  --edge-paper:    #CFC9BE;
+
+  /* Ritmo. Uma escala, a página inteira. */
+  --s1: 0.25rem;  --s2: 0.5rem;   --s3: 0.75rem;  --s4: 1rem;
+  --s5: 1.5rem;   --s6: 2rem;     --s7: 3rem;     --s8: 4rem;
+  --s9: 6rem;     --s10: 8rem;    --s11: 12rem;
+
+  /* Escala de micro-tipo. Quatro degraus, não dez decisões avulsas. */
+  --t-2xs: 0.72rem;
+  --t-xs:  0.75rem;
+  --t-sm:  0.86rem;
+  --t-md:  0.95rem;
+  --t-h3:    clamp(1.2rem, 1rem + 0.9vw, 1.55rem);
+  --t-card:  clamp(1.35rem, 1.1rem + 1vw, 1.8rem);
+  --t-stat:  clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem);
+  --t-numeral: 1.5rem;
+  --t-numeral-sm: 1.15rem;
+
+  --r-hairline: 2px;
+  --r-pill: 99px;
+
+  /* Par serifada/sans. A serifada só na manchete do herói e nos nomes de
+     ambiente; todo o resto é Archivo. Inter é anti-padrão e não entra. */
+  --font-serif: var(--ff-caslon), "Iowan Old Style", Georgia, serif;
+
+  --gutter: clamp(1.25rem, 5vw, 5rem);
+  --measure: 68ch;
+
+  /* Movimento. Um easing, a página inteira. */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur:  520ms;
+
+  /* --- Acabamento vigente. Trocado pelo amostrário. --- */
+  --fin-face:   #4A3423;
+  --fin-light:  #5E4430;
+  --fin-dark:   #33231684;
+  --fin-band:   #6B4E36;
+  --fin-grain:  0.5;
+  --fin-sheen:  0.10;
+  --fin-sheen-end: 22%;
+  --fin-shade:  14%;
+}
+
+/* Acabamentos. Nomes descritivos — os códigos de catálogo do fornecedor
+   ainda não foram informados pelo cliente (ver PRODUCT.md). */
+[data-fin="nogueira"] {
+  --fin-face: #4A3423; --fin-light: #63482F; --fin-dark: #2C1D12;
+  --fin-band: #6B4E36; --fin-grain: 0.55; --fin-sheen: 0.10; --fin-sheen-end: 22%; --fin-shade: 14%;
+}
+[data-fin="freijo"] {
+  --fin-face: #8B6640; --fin-light: #A47C52; --fin-dark: #5E4227;
+  --fin-band: #A67F55; --fin-grain: 0.50; --fin-sheen: 0.12; --fin-sheen-end: 22%; --fin-shade: 14%;
+}
+[data-fin="carvalho"] {
+  --fin-face: #C2A177; --fin-light: #D8BA92; --fin-dark: #9A7C55;
+  --fin-band: #D4B68D; --fin-grain: 0.42; --fin-sheen: 0.14; --fin-sheen-end: 22%; --fin-shade: 14%;
+}
+[data-fin="cinza"] {
+  --fin-face: #8E8A83; --fin-light: #A5A099; --fin-dark: #6B6862;
+  --fin-band: #9C978F; --fin-grain: 0.30; --fin-sheen: 0.13; --fin-sheen-end: 20%; --fin-shade: 13%;
+}
+[data-fin="laca-branca"] {
+  --fin-face: #E4E0D8; --fin-light: #F2EFE9; --fin-dark: #C3BFB6;
+  --fin-band: #EDEAE3; --fin-grain: 0.00; --fin-sheen: 0.15; --fin-sheen-end: 8%;  --fin-shade: 7%;
+}
+[data-fin="laca-grafite"] {
+  --fin-face: #3B3B39; --fin-light: #4C4C49; --fin-dark: #262624;
+  --fin-band: #45443F; --fin-grain: 0.00; --fin-sheen: 0.13; --fin-sheen-end: 8%;  --fin-shade: 9%;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--ff-archivo), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-variation-settings: "wdth" 100;
+  font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+/* --- 2. Superfícies do navegador ------------------------------------------
+   As partes que não desenhamos também carregam o desenho. ------------------ */
+
+::selection { background: var(--red); color: var(--white); }
+
+:focus-visible {
+  outline: 2px solid var(--red-bright);
+  outline-offset: 3px;
+  border-radius: var(--r-hairline);
+}
+
+* { scrollbar-width: thin; scrollbar-color: var(--edge-2) var(--ground); }
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: var(--ground); }
+::-webkit-scrollbar-thumb {
+  background: var(--edge-2);
+  border: 3px solid var(--ground);
+  border-radius: var(--r-pill);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--edge-3); }
+
+/* --- 3. Tipografia --------------------------------------------------------
+   Uma superfamília. O eixo de largura é o dispositivo do sistema:
+   estreita para etiqueta de amostra, normal para leitura. ------------------- */
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.display {
+  font-size: clamp(2.75rem, 1.2rem + 7.2vw, 6rem);
+  font-variation-settings: "wdth" 92;
+  font-weight: 800;
+  letter-spacing: -0.038em;
+}
+
+.h2 {
+  font-size: clamp(1.9rem, 1.1rem + 3.2vw, 3.4rem);
+  font-variation-settings: "wdth" 95;
+  letter-spacing: -0.032em;
+}
+
+.h3 {
+  font-size: var(--t-h3);
+  font-weight: 700;
+  letter-spacing: -0.018em;
+  line-height: 1.18;
+}
+
+/* Etiqueta de amostra: caixa-alta condensada com código. */
+.label {
+  font-variation-settings: "wdth" 66;
+  font-weight: 600;
+  font-size: var(--t-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1.2;
+}
+
+.lede {
+  font-size: clamp(1.0625rem, 1rem + 0.5vw, 1.3rem);
+  line-height: 1.52;
+  color: var(--ink-2);
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+
+p { margin: 0 0 var(--s4); max-width: var(--measure); text-wrap: pretty; }
+p:last-child { margin-bottom: 0; }
+
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+a { color: inherit; }
+
+/* --- 4. Materiais autorais ------------------------------------------------
+   O veio e o brilho são desenhados, não fotografados. Todo campo de
+   acabamento nesta página é desenho — nenhum se apresenta como foto. ------- */
+
+.mat {
+  position: relative;
+  background-color: var(--fin-face);
+  background-image:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--white) calc(var(--fin-sheen) * 100%), transparent) 0%,
+      transparent var(--fin-sheen-end),
+      transparent 74%,
+      color-mix(in srgb, var(--black) var(--fin-shade), transparent) 100%);
+  transition: background-color var(--dur) var(--ease);
+  overflow: hidden;
+}
+
+/* Veio: turbulência esticada no eixo vertical. */
+.mat::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  opacity: var(--fin-grain);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62 0.006' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='400' filter='url(%23g)' opacity='0.62'/%3E%3C/svg%3E");
+  background-size: 240px 100%;
+  transition: opacity var(--dur) var(--ease);
+}
+
+/* Fita de borda: a linha física que separa uma amostra de um chip de cor. */
+.mat::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: var(--fin-band);
+  opacity: 0.85;
+  transition: background var(--dur) var(--ease);
+}
+
+.mat--stone {
+  background-color: #AFA99E;
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,0.30), rgba(0,0,0,0.16) 62%, rgba(0,0,0,0.28)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='3' seed='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23s)' opacity='0.30'/%3E%3C/svg%3E");
+}
+.mat--stone::before, .mat--stone::after { display: none; }
+
+/* --- 5. Layout ------------------------------------------------------------ */
+
+.wrap { padding-inline: var(--gutter); }
+
+.section {
+  padding-block: clamp(var(--s8), 7vw, var(--s10));
+  border-top: 1px solid var(--edge);
+}
+
+.section__head { margin-bottom: var(--s8); }
+.section__head .label { margin-bottom: var(--s4); display: block; }
+.section__head .lede { margin-top: var(--s5); }
+
+/* --- 6. Navegação --------------------------------------------------------- */
+
+/* Navegação editorial: flutua sobre o palco, sem borda, sem preenchimento,
+   sem sombra. O fundo e a régua só existem depois do scroll — nunca fixos. */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 60;
+  display: flex; align-items: center; gap: var(--s6);
+  padding: var(--s4) var(--gutter);
+  background: transparent;
+  transition: background 320ms var(--ease), backdrop-filter 320ms var(--ease);
+}
+
+.nav::after {
+  content: ""; position: absolute; inset: auto 0 0 0;
+  height: 1px; background: var(--edge);
+  opacity: 0;
+  transition: opacity 320ms var(--ease);
+}
+
+.nav[data-rolado] {
+  background: color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(1.3);
+}
+.nav[data-rolado]::after { opacity: 1; }
+
+/* Âncoras não podem parar embaixo da navegação flutuante. */
+.section, .hero, [id] { scroll-margin-top: 6rem; }
+
+.nav__logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; margin-right: auto; }
+
+/* Logotipo de palavra, no idioma da referência: sem container, sem bloco. */
+.nav__marca {
+  font-weight: 800;
+  font-size: 1.32rem;
+  font-variation-settings: "wdth" 96;
+  letter-spacing: -0.045em;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.nav__links { display: flex; gap: var(--s6); align-items: center; }
+
+.nav__link {
+  font-size: var(--t-2xs); font-weight: 500;
+  letter-spacing: 0.13em; text-transform: uppercase;
+  text-decoration: none; color: var(--ink-3);
+  padding-block: var(--s2);
+  position: relative;
+  transition: color 200ms var(--ease);
+}
+.nav__link::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 1px; background: var(--red);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 320ms var(--ease);
+}
+.nav__link:hover { color: var(--ink); }
+.nav__link:hover::after, .nav__link[aria-current="page"]::after { transform: scaleX(1); }
+.nav__link[aria-current="page"] { color: var(--ink); }
+
+/* Menu em telas estreitas: painel, não desaparecimento. */
+.nav__burger {
+  display: none;
+  width: 2.6rem; height: 2.6rem;
+  padding: 0; border: 0; cursor: pointer;
+  background: transparent; color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--edge-2);
+}
+.nav__burger svg { width: 18px; height: 18px; margin-inline: auto; }
+.nav__burger .x { display: none; }
+.nav__burger[aria-expanded="true"] .x { display: block; }
+.nav__burger[aria-expanded="true"] .bars { display: none; }
+
+@media (max-width: 900px) {
+  .nav { gap: var(--s3); }
+  .nav__burger { display: grid; place-items: center; }
+  .nav__links {
+    position: absolute; inset: 100% 0 auto 0;
+    display: grid; gap: 0;
+    padding: var(--s2) var(--gutter) var(--s5);
+    background: var(--ground);
+    border-bottom: 1px solid var(--edge);
+    box-shadow: 0 24px 40px rgba(0,0,0,0.5);
+    clip-path: inset(0 0 100% 0);
+    pointer-events: none;
+    transition: clip-path 360ms var(--ease);
+  }
+  .nav__links[data-open] { clip-path: inset(0 0 0 0); pointer-events: auto; }
+  .nav__link { padding-block: var(--s4); border-bottom: 1px solid var(--edge); }
+  .nav__link::after { display: none; }
+}
+
+.btn__curto { display: none; }
+@media (max-width: 620px) {
+  .nav .btn-capsula .btn__longo { display: none; }
+  .nav .btn-capsula .btn__curto { display: inline; }
+}
+
+/* --- 7. Botões ------------------------------------------------------------ */
+
+/* Ação primária em cápsula: um texto e um disco com a seta que atravessa.
+   É a única forma arredondada do sistema — ver Shapes no DESIGN.md. */
+.btn-capsula {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  padding: 0; border: 0; background: none;
+  text-decoration: none; cursor: pointer;
+  font-weight: 600; font-size: var(--t-sm);
+  font-variation-settings: "wdth" 96;
+}
+
+.btn-capsula__texto,
+.btn-capsula__disco {
+  background: var(--red);
+  color: var(--white);
+  border-radius: var(--r-pill);
+  transition: background 500ms var(--ease), color 500ms var(--ease);
+}
+
+.btn-capsula__texto { padding: 0.72rem 1.4rem; white-space: nowrap; }
+
+.btn-capsula__disco {
+  position: relative;
+  display: grid; place-items: center;
+  width: 2.75rem; height: 2.75rem;
+  overflow: hidden;
+  flex: none;
+}
+
+.btn-capsula__disco svg {
+  position: absolute;
+  width: 17px; height: 17px;
+  transition: transform 500ms var(--ease);
+}
+.btn-capsula__disco svg:last-child { transform: translateX(-2.6rem); }
+
+.btn-capsula:hover .btn-capsula__disco svg:first-of-type { transform: translateX(2.6rem); }
+.btn-capsula:hover .btn-capsula__disco svg:last-child { transform: translateX(0); }
+
+/* A troca no hover é inversão, não escurecimento: a mesma que o WhatsApp usa. */
+.btn-capsula:hover .btn-capsula__texto,
+.btn-capsula:hover .btn-capsula__disco {
+  background: var(--ink);
+  color: var(--ground-deep);
+}
+
+@media (max-width: 620px) {
+  .btn-capsula__texto { padding: 0.6rem 1rem; font-size: var(--t-2xs); }
+  .btn-capsula__disco { width: 2.3rem; height: 2.3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-capsula__disco svg { transition: none; }
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  padding: 0.85rem 1.4rem;
+  font-size: var(--t-sm); font-weight: 700;
+  font-variation-settings: "wdth" 88;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  border: 0; cursor: pointer;
+  background: var(--red); color: var(--white);
+  transition: background 220ms var(--ease), transform 220ms var(--ease);
+}
+.btn:hover { background: var(--red-hot); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn--ghost {
+  background: transparent; color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--edge-2);
+}
+.btn--ghost:hover { background: var(--ground-lift); box-shadow: inset 0 0 0 1px var(--ink-3); }
+
+.btn__arrow { width: 14px; height: 14px; flex: none; }
+
+/* Régua de cabelo: 1px, largura total, sem ornamento. O único divisor. */
+.regua { display: block; height: 1px; background: var(--edge); border: 0; }
+
+/* --- 8. Herói ------------------------------------------------------------- */
+
+.hero { position: relative; }
+
+/* Palco full-bleed: a elevação é o fundo, o texto se sobrepõe a ~30% do topo.
+   Sem duas colunas — o desenho ocupa a largura inteira. */
+.hero__stage {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: start;
+  min-height: clamp(34rem, 52vw, 51rem);
+  padding-block: clamp(var(--s8), 17vw, 16rem) clamp(var(--s7), 6vw, var(--s9));
+  padding-inline: var(--gutter);
+  background: var(--ground-deep);
+}
+
+.hero__stage > .elev { position: absolute; inset: 0; z-index: 0; }
+
+/* Véu de leitura. É superfície e temperatura, não sombra: escurece o lado
+   do texto e deixa o material inteiro à direita. */
+.hero__stage::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(97deg,
+      var(--ground-deep) 0%,
+      color-mix(in srgb, var(--ground-deep) 97%, transparent) 34%,
+      color-mix(in srgb, var(--ground-deep) 74%, transparent) 52%,
+      color-mix(in srgb, var(--ground-deep) 24%, transparent) 70%,
+      transparent 84%),
+    linear-gradient(0deg, color-mix(in srgb, var(--ground-deep) 70%, transparent), transparent 30%),
+    linear-gradient(180deg, var(--ground-deep) 0%, color-mix(in srgb, var(--ground-deep) 62%, transparent) 9%, transparent 20%);
+}
+
+.hero__overlay {
+  position: relative; z-index: 2;
+  display: grid; gap: var(--s5);
+  max-width: 44rem;
+}
+
+.hero .display {
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 1rem + 3.8vw, 4.25rem);
+  font-variation-settings: normal;
+  font-weight: 700;
+  letter-spacing: -0.021em;
+  line-height: 1.06;
+}
+
+.hero .display .swap {
+  color: var(--red-bright);
+  font-style: italic;
+  transition: color var(--dur) var(--ease);
+}
+
+.hero__actions { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s3); }
+
+.hero__note {
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--edge-2);
+  max-width: 44ch;
+}
+.hero__note p { font-size: var(--t-md); color: var(--ink-2); margin: 0; }
+
+/* Em tela estreita o texto não se sobrepõe ao desenho: as linhas de porta e
+   os puxadores cortavam a leitura. O palco empilha — texto, depois material. */
+@media (max-width: 940px) {
+  .hero__stage {
+    min-height: 0;
+    display: grid;
+    gap: var(--s7);
+    padding: calc(var(--s8) + 4.5rem) 0 0;
+  }
+  .hero__stage::after { display: none; }
+  .hero__overlay {
+    order: 1;
+    padding-inline: var(--gutter);
+    max-width: none;
+  }
+  .hero__stage > .elev {
+    order: 2;
+    position: static;
+    min-height: clamp(17rem, 62vw, 22rem);
+  }
+}
+
+/* --- 9. Elevação de ambiente (desenho, não fotografia) -------------------- */
+
+.elev {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1.05fr 0.30fr 0.095fr 1.15fr 0.13fr;
+  background: var(--ground-deep);
+  min-height: 460px;
+  isolation: isolate;
+}
+
+@media (max-width: 940px) { .elev { min-height: clamp(17rem, 62vw, 22rem); } }
+
+.elev__row { display: grid; gap: 3px; padding-inline: 3px; }
+.elev__row:first-child { padding-top: 3px; }
+
+.elev__uppers  { grid-template-columns: 1.2fr 1fr 1fr 1.35fr; }
+.elev__lowers  { grid-template-columns: 1.35fr 1fr 1.4fr; grid-template-rows: repeat(3, 1fr); }
+
+.elev__door { position: relative; }
+
+/* Puxador: uma linha, não um ícone. */
+.elev__door::after {
+  content: ""; position: absolute; z-index: 3;
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.elev__uppers .elev__door::after {
+  left: 18%; right: 18%; bottom: 7%; height: 3px; border-radius: 2px;
+}
+.elev__lowers .elev__door::after {
+  left: 22%; right: 22%; top: 42%; height: 3px; border-radius: 2px;
+}
+
+.elev__splash {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.34), rgba(0,0,0,0.06)),
+    repeating-linear-gradient(90deg, var(--splash) 0 58px, color-mix(in srgb, var(--splash) 84%, var(--black)) 58px 60px);
+}
+
+.elev__counter { background: none; }
+.elev__counter .mat--stone { height: 100%; box-shadow: 0 6px 18px rgba(0,0,0,0.55); }
+
+.elev__toe { background: #0A0908; box-shadow: inset 0 8px 14px rgba(0,0,0,0.7); }
+
+/* Luz de estúdio: dura, direcional, sombra funda. A mesma doutrina em
+   todas as imagens do site. */
+.elev::after {
+  content: ""; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background:
+    radial-gradient(120% 85% at 74% 8%, var(--light-warm), transparent 52%),
+    linear-gradient(255deg, transparent 40%, rgba(0,0,0,0.42) 100%);
+}
+
+/* Escalonamento do re-vestimento: a amostra corre pela peça. */
+.elev .mat { transition-delay: calc(var(--i, 0) * 42ms); }
+.elev .mat::after { transition-delay: calc(var(--i, 0) * 42ms); }
+
+/* --- 10. Amostrário (a interação assinatura) ------------------------------ */
+
+/* Rótulo em coluna lateral estreita, ligado ao trilho por régua horizontal.
+   Gramática do In Common With; libera o trilho para usar a largura inteira. */
+.amostrario-head {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr auto;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s5) var(--gutter) var(--s4);
+  border-top: 1px solid var(--edge);
+}
+.amostrario-head__estado {
+  display: flex; align-items: baseline; gap: var(--s3);
+  font-size: var(--t-sm);
+}
+.amostrario-head__estado strong { font-weight: 700; color: var(--ink); }
+.amostrario-head__estado span { color: var(--ink-3); }
+
+@media (max-width: 620px) {
+  .amostrario-head { grid-template-columns: auto 1fr; row-gap: var(--s3); }
+  .amostrario-head .regua { display: none; }
+  .amostrario-head__estado { grid-column: 1 / -1; }
+}
+
+.amostrario {
+  position: relative; z-index: 5;
+  display: flex; align-items: stretch;
+  gap: 0;
+  background: var(--ground-lift);
+  border-top: 1px solid var(--edge);
+  border-bottom: 1px solid var(--edge);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+
+.amostrario { border-top: 0; }
+
+
+.sample {
+  flex: 1 0 7.5rem;
+  scroll-snap-align: start;
+  position: relative;
+  display: block;
+  padding: 0; border: 0;
+  background: none;
+  cursor: pointer;
+  min-height: 5.5rem;
+  border-right: 1px solid var(--edge);
+  transition: flex-basis 380ms var(--ease);
+}
+
+.sample__face { position: absolute; inset: 0; }
+
+/* Cada amostra pinta o seu próprio acabamento: o botão redefine as
+   variáveis do sistema para o seu subtree, e .mat as lê normalmente. */
+
+.sample__name {
+  position: absolute; inset: auto 0 0 0; z-index: 2;
+  padding: var(--s3);
+  font-variation-settings: "wdth" 66;
+  font-weight: 600; font-size: var(--t-2xs);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--white);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.85);
+  background: linear-gradient(0deg, rgba(0,0,0,0.55), transparent);
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 260ms var(--ease), transform 260ms var(--ease);
+}
+.sample:hover .sample__name, .sample:focus-visible .sample__name { opacity: 1; transform: none; }
+
+/* A amostra viva é a que você está segurando: mais larga, e a própria
+   etiqueta vira vermelha. O vermelho é a etiqueta, não uma borda. */
+.sample[aria-pressed="true"] { flex-basis: 10rem; }
+.sample[aria-pressed="true"] .sample__name {
+  opacity: 1; transform: none;
+  background: var(--red);
+  text-shadow: none;
+  padding-block: var(--s3);
+}
+
+/* Nota de provisório: a cartela real do cliente ainda não chegou. */
+.provisorio {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3);
+  margin: 0; padding: var(--s3) var(--gutter);
+  max-width: none;
+  background: var(--ground-deep);
+  border-bottom: 1px solid var(--edge);
+  color: var(--ink-3); font-size: var(--t-sm);
+}
+.provisorio .slot__tag { position: static; }
+
+/* --- 11. Índice de ambientes --------------------------------------------- */
+
+.ambientes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px;
+  background: var(--edge);
+  border: 1px solid var(--edge);
+}
+
+@media (max-width: 1080px) { .ambientes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px)  { .ambientes { grid-template-columns: 1fr; } }
+
+.amb {
+  position: relative;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  min-height: clamp(15rem, 26vw, 21rem);
+  padding: var(--s5);
+  text-decoration: none;
+  background: var(--ground-lift);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.amb__plate {
+  position: absolute; inset: 0; z-index: -2;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+  background: var(--ground-deep);
+  transition: transform 700ms var(--ease);
+}
+.amb__plate .mat { position: relative; }
+.amb__plate::after {
+  content: ""; position: absolute; z-index: 2;
+  left: 14%; right: 14%; top: 56%; height: 3px; border-radius: 2px;
+  /* Puxador metálico: meia altura de luz, meia de sombra. Lê sobre
+     madeira escura e sobre laca branca sem precisar de duas regras. */
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--ink) 62%, transparent) 0 50%,
+    rgba(12,10,9,0.55) 50% 100%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.42);
+}
+
+.amb::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  /* Scrim só onde o rótulo vive. Acima dele o material fica limpo,
+     para que a laca branca leia como laca e não como cromo. */
+  background: linear-gradient(0deg, rgba(10,9,8,0.95) 0%, rgba(10,9,8,0.88) 24%, rgba(10,9,8,0) 56%);
+}
+.amb:hover .amb__plate { transform: scale(1.035); }
+
+.amb__name {
+  font-family: var(--font-serif);
+  font-size: var(--t-card);
+  font-weight: 700; font-variation-settings: "wdth" 92;
+  letter-spacing: -0.025em;
+}
+.amb__meta { color: var(--ink-2); font-size: var(--t-sm); margin-top: var(--s2); }
+
+.amb__go {
+  position: absolute; top: var(--s5); right: var(--s5);
+  width: 30px; height: 30px;
+  opacity: 0; transform: translate(-6px, 6px);
+  transition: opacity 340ms var(--ease), transform 340ms var(--ease);
+  color: var(--red-bright);
+}
+.amb:hover .amb__go, .amb:focus-visible .amb__go { opacity: 1; transform: none; }
+
+/* --- 12. A fábrica -------------------------------------------------------- */
+
+.fabrica { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s8); align-items: start; }
+@media (max-width: 880px) { .fabrica { grid-template-columns: 1fr; gap: var(--s7); } }
+
+.cadeia { display: grid; gap: 2px; }
+.cadeia__row {
+  display: grid; grid-template-columns: 8.5rem 1fr;
+  gap: var(--s4);
+  padding: var(--s4);
+  background: var(--ground-lift);
+  align-items: baseline;
+}
+.cadeia__row--ldf { background: var(--ground-red); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 45%, transparent); }
+.cadeia__who { font-variation-settings: "wdth" 70; font-weight: 700; font-size: var(--t-xs); letter-spacing: 0.14em; text-transform: uppercase; }
+.cadeia__row--ldf .cadeia__who { color: var(--red-bright); }
+.cadeia__what { font-size: var(--t-md); color: var(--ink-2); }
+.cadeia__row--ldf .cadeia__what { color: var(--ink); }
+
+/* --- 13. Processo: as 11 etapas, inteiras -------------------------------- */
+
+.etapas { display: grid; gap: 0; counter-reset: etapa; }
+
+.etapa {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  gap: var(--s5);
+  padding-block: var(--s5);
+  border-top: 1px solid var(--edge);
+  align-items: start;
+}
+.etapa:last-child { border-bottom: 1px solid var(--edge); }
+
+.etapa__n {
+  counter-increment: etapa;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-numeral); font-weight: 700;
+  font-variation-settings: "wdth" 70;
+  color: var(--ink-3);
+  line-height: 1;
+  padding-top: 0.2rem;
+}
+.etapa__n::before { content: counter(etapa, decimal-leading-zero); }
+
+.etapa--marco { background: var(--ground-lift); padding-inline: var(--s5); }
+/* A sangria só onde o gutter a absorve. */
+@media (min-width: 720px) { .etapa--marco { margin-inline: calc(var(--s5) * -1); } }
+.etapa--marco .etapa__n { color: var(--red-bright); }
+.etapa__t { display: block; font-weight: 700; letter-spacing: -0.015em; }
+.etapa__d { color: var(--ink-2); font-size: var(--t-md); margin-top: var(--s2); max-width: 56ch; }
+
+@media (max-width: 620px) {
+  .etapa { grid-template-columns: 3rem 1fr; gap: var(--s4); }
+  .etapa__n { font-size: var(--t-numeral-sm); }
+}
+
+/* --- 13b. Lista de módulos (páginas de ambiente) ------------------------- */
+
+.mods { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+
+.mod {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: var(--s5);
+  align-items: stretch;
+  background: var(--ground-lift);
+}
+.mod__chip { position: relative; min-height: 100%; }
+.mod__body { padding: var(--s5) var(--s5) var(--s5) 0; }
+.mod__t { display: block; font-weight: 700; letter-spacing: -0.015em; }
+.mod__d { color: var(--ink-2); font-size: var(--t-md); margin-top: var(--s2); max-width: 58ch; }
+
+@media (max-width: 620px) {
+  .mod { grid-template-columns: 2rem 1fr; gap: var(--s4); }
+  .mod__body { padding-block: var(--s4); }
+}
+
+.migalha { display: flex; gap: var(--s3); align-items: center; margin-bottom: var(--s4); }
+.migalha a { color: var(--ink-3); text-decoration: none; }
+.migalha a:hover { color: var(--ink); }
+.migalha svg { width: 12px; height: 12px; color: var(--ink-3); flex: none; }
+
+/* --- 14. Ficha técnica --------------------------------------------------- */
+
+.ficha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1px;
+  background: var(--edge);
+  border: 1px solid var(--edge);
+}
+.ficha__cell { background: var(--ground); padding: var(--s6) var(--s5); }
+.ficha__k { display: block; margin-bottom: var(--s3); }
+.ficha__v {
+  font-size: var(--t-stat);
+  font-weight: 800; font-variation-settings: "wdth" 88;
+  letter-spacing: -0.035em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.ficha__v--sm { font-size: var(--t-h3); }
+.ficha__u { display: inline-block; margin-left: 0.15em; font-size: var(--t-md); font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
+.ficha__d { display: block; color: var(--ink-2); font-size: var(--t-sm); margin-top: var(--s3); }
+
+/* --- 15. Comercial -------------------------------------------------------- */
+
+.comercial { background: var(--ground-lift); }
+.comercial__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s8); align-items: center; }
+@media (max-width: 880px) { .comercial__grid { grid-template-columns: 1fr; } }
+
+.tipos { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s5); }
+.tipo {
+  padding: 0.45rem 0.85rem;
+  font-size: var(--t-sm); font-weight: 600;
+  font-variation-settings: "wdth" 82;
+  letter-spacing: 0.03em;
+  background: var(--ground);
+  box-shadow: inset 0 0 0 1px var(--edge-2);
+}
+
+/* --- 16. Vazio honesto: os ativos que ainda não chegaram ----------------- */
+
+.aguardando {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--s4);
+}
+
+.slot {
+  position: relative;
+  min-height: 11rem;
+  padding: var(--s5);
+  display: flex; flex-direction: column; justify-content: flex-end; gap: var(--s2);
+  background:
+    repeating-linear-gradient(135deg,
+      transparent 0 9px,
+      color-mix(in srgb, var(--ink) 4%, transparent) 9px 10px);
+  box-shadow: inset 0 0 0 1px var(--edge-2);
+}
+.slot__tag {
+  position: absolute; top: var(--s4); left: var(--s4);
+  padding: 0.25rem 0.5rem;
+  background: var(--red); color: var(--white);
+  font-variation-settings: "wdth" 66;
+  font-weight: 700; font-size: var(--t-2xs);
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.slot__what { font-weight: 700; }
+.slot__why { color: var(--ink-3); font-size: var(--t-sm); }
+
+/* --- 17. Fechamento e rodapé --------------------------------------------- */
+
+.fechamento { position: relative; text-align: center; padding-block: clamp(var(--s9), 9vw, var(--s11)); }
+.fechamento .display { margin-inline: auto; max-width: 16ch; }
+.fechamento .lede { margin: var(--s5) auto 0; text-align: center; }
+.fechamento .hero__actions { justify-content: center; margin-top: var(--s7); }
+
+.footer { border-top: 1px solid var(--edge); background: var(--ground-deep); }
+.footer__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+  gap: var(--s7);
+  padding-block: var(--s8);
+}
+@media (max-width: 880px) { .footer__grid { grid-template-columns: 1fr 1fr; gap: var(--s6); } }
+@media (max-width: 520px) { .footer__grid { grid-template-columns: 1fr; } }
+
+.footer h4 { margin-bottom: var(--s4); }
+.footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
+.footer a { color: var(--ink-2); text-decoration: none; font-size: var(--t-md); transition: color 200ms var(--ease); }
+.footer a:hover { color: var(--ink); }
+.footer address { font-style: normal; color: var(--ink-2); font-size: var(--t-md); line-height: 1.75; }
+
+.footer__legal {
+  border-top: 1px solid var(--edge);
+  padding-block: var(--s5);
+  display: flex; flex-wrap: wrap; gap: var(--s4) var(--s6);
+  align-items: center;
+  color: var(--ink-3); font-size: var(--t-sm);
+}
+
+/* --- 18. WhatsApp persistente -------------------------------------------- */
+
+.zap {
+  position: fixed; right: clamp(1rem, 3vw, 2rem); bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 80;
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  padding: 0.8rem 1.15rem;
+  background: var(--ink); color: var(--ground-deep);
+  text-decoration: none;
+  font-size: var(--t-sm); font-weight: 700;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4);
+  transition: transform 260ms var(--ease), background 260ms var(--ease);
+}
+.zap:hover { transform: translateY(-2px); background: var(--white); }
+.zap svg { width: 18px; height: 18px; flex: none; }
+@media (max-width: 520px) { .zap span { display: none; } .zap { padding: 0.85rem; border-radius: 50%; } }
+
+/* --- 19. Revelação ------------------------------------------------------- */
+
+.rise { opacity: 0; transform: translateY(18px); }
+.rise.in { opacity: 1; transform: none; transition: opacity 760ms var(--ease), transform 760ms var(--ease); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .rise.in { opacity: 1; transform: none; transition: none; }
+  *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+}
+
+/* ===========================================================================
+   Utilitários da migração para Next: substituem os style= inline que existiam
+   no HTML estático. Mesmos valores, agora nomeados.
+   =========================================================================== */
+
+.hero__note strong { color: var(--ink); }
+
+.lede--espacada { margin-top: var(--s5); }
+
+.paragrafo-secundario { margin-top: var(--s5); color: var(--ink-2); }
+
+.hero__actions--afastada { margin-top: var(--s6); }
+
+.elev--comercial { min-height: 340px; }
+
+.footer__legal-fim { margin-left: auto; }
+
+/* Ficha sem moldura: usada dentro da cadeia, onde a caixa externa já existe. */
+.ficha--nua {
+  margin-top: var(--s5);
+  border: 0;
+  background: transparent;
+  gap: 2px;
+}
+.ficha--nua .ficha__cell { background: var(--ground-lift); }
+
+/* A lista de etapas é ordenada semanticamente; o numeral vem do counter. */
+.etapas { list-style: none; margin: 0; padding: 0; }
