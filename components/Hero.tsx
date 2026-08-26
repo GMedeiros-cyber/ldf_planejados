@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Elevacao from "./Elevacao";
-import Amostrario from "./Amostrario";
 import { Seta } from "./Icones";
 
 /* Palco full-bleed: a elevação ocupa a largura inteira como fundo e o texto
@@ -30,16 +29,8 @@ export default function Hero() {
               Ver como funciona
             </Link>
           </div>
-          <div className="hero__note">
-            <p>
-              <strong>Toque um acabamento</strong> para vestir a peça. Na loja, o mesmo leque fica
-              na sua mão, e o puxador você escolhe pessoalmente.
-            </p>
-          </div>
         </div>
       </div>
-
-      <Amostrario />
     </section>
   );
 }
