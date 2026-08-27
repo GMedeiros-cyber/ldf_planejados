@@ -1,18 +1,24 @@
+import type { CSSProperties } from "react";
+
 import { obras } from "@/lib/dados";
 
 /* Carrossel de obras, full-bleed. A pista corre sozinha em loop por
-   animação de transform — nada de requestAnimationFrame nem scrollLeft.
-   A lista é renderizada duas vezes: com duas cópias, o -50% dos keyframes
-   cai exatamente no início da segunda e a emenda fica invisível.
+   animação de transform — nada de requestAnimationFrame nem scrollLeft, e
+   nada de pausa: ela não para com o ponteiro em cima.
+
+   A lista é renderizada em DUAS METADES idênticas, cada uma um contêiner
+   flex de largura fixa. É isso que mantém o -50% dos keyframes honesto
+   mesmo com um card aberto: o crescimento acontece dentro de uma metade,
+   os vizinhos daquela metade encolhem na mesma medida e a largura dela não
+   muda. Com um flex só, a metade que contivesse o card aberto ficaria mais
+   larga que a outra e a emenda saltaria.
    Ver a seção 8b em globals.css. */
 
 type Obra = (typeof obras)[number];
 
 function Cartao({ obra, copia }: { obra: Obra; copia?: boolean }) {
   return (
-    /* A segunda cópia existe só para fechar o loop: fica fora da árvore de
-       acessibilidade para o leitor de tela não anunciar tudo duas vezes. */
-    <li className="obra" aria-hidden={copia || undefined}>
+    <li className="obra">
       <figure className="obra__figura">
         <span className="obra__quadro">
           <img
@@ -33,24 +39,45 @@ function Cartao({ obra, copia }: { obra: Obra; copia?: boolean }) {
   );
 }
 
-export default function Obras() {
+/* A segunda metade existe só para fechar o loop: sai da árvore de
+   acessibilidade para o leitor de tela não anunciar tudo duas vezes. */
+function Metade({ copia }: { copia?: boolean }) {
   return (
-    <section className="section obras" id="obras" aria-labelledby="t-obras">
+    <ul className="obras__metade" aria-hidden={copia || undefined}>
+      {obras.map((obra) => (
+        <Cartao key={obra.nome} obra={obra} copia={copia} />
+      ))}
+    </ul>
+  );
+}
+
+export default function Obras() {
+  /* O CSS precisa saber quantas obras existem para calcular a largura de
+     cada metade. Sai daqui para não virar um número repetido na folha. */
+  const medida = { "--obras-n": obras.length } as CSSProperties;
+
+  return (
+    <section
+      className="section obras"
+      id="obras"
+      aria-labelledby="t-obras"
+      style={medida}
+    >
       <div className="wrap section__head rise">
         <h2 className="h2" id="t-obras">
           Trabalho que fala por nós.
         </h2>
+        <p className="lede">
+          Projeto, corte, montagem e entrega: tudo sai da nossa fábrica em
+          Guarulhos, sem intermediário no caminho.
+        </p>
       </div>
 
       <div className="obras__trilho" role="region" aria-label="Obras entregues" tabIndex={0}>
-        <ul className="obras__pista">
-          {obras.map((obra) => (
-            <Cartao key={obra.nome} obra={obra} />
-          ))}
-          {obras.map((obra) => (
-            <Cartao key={`${obra.nome}-2`} obra={obra} copia />
-          ))}
-        </ul>
+        <div className="obras__pista">
+          <Metade />
+          <Metade copia />
+        </div>
       </div>
     </section>
   );
