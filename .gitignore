@@ -30,3 +30,7 @@ CLAUDE.md
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Originais da capa: 7 MB de foto de terceiro, regeneráveis.
+# As variantes WebP em public/hero/*.webp sobem, senão o site quebra.
+public/hero/originais/
