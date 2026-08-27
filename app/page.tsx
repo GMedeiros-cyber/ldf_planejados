@@ -10,7 +10,6 @@ import Comercial from "@/components/Comercial";
 import Prova from "@/components/Prova";
 import Fechamento from "@/components/Fechamento";
 import Footer from "@/components/Footer";
-import Zap from "@/components/Zap";
 
 /*
 THESIS: A home abre por fotografia. Três capas full-bleed se cruzam por
@@ -47,7 +46,6 @@ export default function Home() {
         <Fechamento />
       </main>
       <Footer />
-      <Zap />
     </>
   );
 }

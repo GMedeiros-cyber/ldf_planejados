@@ -40,7 +40,8 @@ type PropsIcone = { className?: string };
 const tracado = {
   fill: "none",
   stroke: "currentColor",
-  strokeWidth: 1.5,
+  /* 2 e nao 1.5: a 40px o traco fino deixava o icone apagado. */
+  strokeWidth: 2,
   strokeLinecap: "round",
   strokeLinejoin: "round",
 } as const;
