@@ -537,9 +537,9 @@ a { color: inherit; }
 }
 
 /* --- 8c. Capa da home ------------------------------------------------------
-   Fotografia full-bleed com o texto centrado por cima. Tudo aqui é escopado
-   em .hero--capa: as regras de .hero__stage e .hero__overlay continuam
-   servindo a página de ambiente, que não muda. */
+   Fotografia full-bleed, vinheta, texto centrado e a faixa dos três pilares.
+   Tudo escopado em .hero--capa: as regras de .hero__stage, .hero__overlay e
+   .hero__note continuam servindo app/ambientes/cozinha, que não muda. */
 
 .hero--capa {
   position: relative;
@@ -563,23 +563,31 @@ a { color: inherit; }
   object-position: center;
 }
 
-/* Vinheta: mais densa embaixo e à esquerda, que é por onde o texto passa. */
+/* Base a 0.5, não 0.35: a 0.35 a navegação e o selo sumiam contra a foto.
+   O scrub leva a 0.85 conforme o texto sai. */
 .hero__vinheta {
   position: absolute; inset: 0; z-index: 1;
   pointer-events: none;
+  opacity: 0.5;
   background:
     linear-gradient(0deg,
       var(--ground-deep) 0%,
-      color-mix(in srgb, var(--ground-deep) 82%, transparent) 32%,
-      color-mix(in srgb, var(--ground-deep) 52%, transparent) 66%,
-      color-mix(in srgb, var(--ground-deep) 22%, transparent) 100%),
+      color-mix(in srgb, var(--ground-deep) 86%, transparent) 34%,
+      color-mix(in srgb, var(--ground-deep) 46%, transparent) 68%,
+      color-mix(in srgb, var(--ground-deep) 18%, transparent) 100%),
     linear-gradient(90deg,
-      color-mix(in srgb, var(--ground-deep) 78%, transparent) 0%,
-      color-mix(in srgb, var(--ground-deep) 40%, transparent) 38%,
-      transparent 72%),
+      color-mix(in srgb, var(--ground-deep) 74%, transparent) 0%,
+      color-mix(in srgb, var(--ground-deep) 34%, transparent) 40%,
+      transparent 74%),
     linear-gradient(180deg,
-      color-mix(in srgb, var(--ground-deep) 72%, transparent) 0%,
-      transparent 24%);
+      color-mix(in srgb, var(--ground-deep) 92%, transparent) 0%,
+      transparent 18%),
+    /* Banda central: é onde o texto passa, e a foto é clara justamente ali. */
+    linear-gradient(180deg,
+      transparent 16%,
+      color-mix(in srgb, var(--ground-deep) 62%, transparent) 42%,
+      color-mix(in srgb, var(--ground-deep) 62%, transparent) 66%,
+      transparent 88%);
 }
 
 .hero__conteudo {
@@ -595,7 +603,7 @@ a { color: inherit; }
   font-size: var(--t-xs);
   text-transform: uppercase;
   letter-spacing: 0.24em;
-  /* ink-2, não ink-3: sobre fotografia o terciário some. */
+  /* ink-2, não ink-3: sobre fotografia o terciário fica ilegível. */
   color: var(--ink-2);
 }
 
@@ -625,39 +633,73 @@ a { color: inherit; }
 
 .hero--capa .lede { margin-inline: auto; }
 
-/* Entrada em cascata. Sem observador: a capa já está na tela ao carregar. */
-@keyframes hero-entra {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: none; }
+/* --- Os três pilares --- */
+
+.hero__pilares {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: var(--s4);
+  width: 100%;
+  max-width: 68rem;
+  margin: var(--s8) auto 0;
+  list-style: none;
+  padding: 0;
 }
 
-.hero__conteudo > .cascata {
-  animation: hero-entra 620ms var(--ease) both;
+.pilar {
+  display: grid;
+  gap: var(--s2);
+  height: 100%;
+  padding: var(--s5);
+  text-decoration: none;
+  background: color-mix(in srgb, var(--ground-deep) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--edge);
+  transition: background 320ms var(--ease), border-color 320ms var(--ease);
 }
-.hero__conteudo > .cascata:nth-child(1) { animation-delay: 0ms; }
-.hero__conteudo > .cascata:nth-child(2) { animation-delay: 90ms; }
-.hero__conteudo > .cascata:nth-child(3) { animation-delay: 180ms; }
-.hero__conteudo > .cascata:nth-child(4) { animation-delay: 270ms; }
+.pilar:hover { background: color-mix(in srgb, var(--ground-lift) 92%, transparent); border-color: var(--edge-2); }
 
-@media (max-width: 767px) {
-  .hero--capa .display { font-size: clamp(1.9rem, 1rem + 5.6vw, 2.9rem); }
-  .hero--capa .hero__actions {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
+.pilar__titulo {
+  font-family: var(--font-serif);
+  font-size: var(--t-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.pilar__texto { font-size: var(--t-sm); color: var(--ink-2); }
+
+/* Acima de 992px a faixa é absoluta: o scrub move o top de 84svh a 0svh.
+   O foco por teclado precisa continuar visível durante o pin. */
+@media (min-width: 992px) {
+  .hero__pilares {
+    position: absolute;
+    left: 0; right: 0;
+    /* 84svh: a 50 a faixa cortava o h1, a 78 encostava nos CTAs. Daqui ela
+       aparece como uma tira no pé da tela, convidando a rolar. */
+    top: 84svh;
+    margin: 0;
+    padding-inline: var(--gutter);
+    max-width: none;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+@media (max-width: 991.98px) {
+  .hero--capa { min-height: 0; padding-block: calc(var(--altura-nav) + var(--s7)) var(--s8); }
+  .hero--capa .hero__actions { flex-direction: column; align-items: stretch; width: 100%; }
   .hero--capa .hero__actions > * { justify-content: center; }
 }
 
-/* Movimento reduzido: a cascata não corre, e os elementos já nascem no
-   estado final. Sem isso ficariam presos em opacity 0. Nenhuma propriedade
-   de layout é tocada. */
+@media (max-width: 767px) {
+  .hero--capa .display { font-size: clamp(1.9rem, 1rem + 5.6vw, 2.9rem); }
+}
+
+/* Movimento reduzido: o ScrollTrigger nem chega a ser criado (ver Hero.tsx).
+   Aqui só garantimos o estado final; nenhuma propriedade de layout sai. */
 @media (prefers-reduced-motion: reduce) {
-  .hero__conteudo > .cascata {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
+  .hero__pilares { position: relative; top: auto; margin-top: var(--s8); }
+  .pilar { transition: none; }
 }
 
 /* --- 8b. Obras entregues ---------------------------------------------------

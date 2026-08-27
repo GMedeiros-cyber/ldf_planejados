@@ -13,9 +13,11 @@ import Zap from "@/components/Zap";
 
 /*
 THESIS: A home abre por fotografia: uma capa full-bleed com a promessa
-centrada por cima, e logo abaixo a parede de obras entregues. É o arranjo
-padrão da categoria, adotado de propósito — a LDF é desconhecida e precisa
-afirmar antes de explicar.
+centrada por cima. Ao rolar, a capa prende no topo, a foto escurece e os
+três pilares — residencial, comercial e fábrica própria — sobem por cima do
+texto: a promessa vira índice sem trocar de tela. Logo abaixo, a parede de
+obras entregues. É o arranjo padrão da categoria, adotado de propósito — a
+LDF é desconhecida e precisa afirmar antes de explicar.
 
 O amostrário e a elevação desenhada continuam sendo a ideia própria do
 sistema, mas saíram da capa: agora vivem na página de ambiente, onde quem
