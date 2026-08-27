@@ -272,22 +272,29 @@ export const obras = [
   },
 ] as const;
 
-/* --- Os três pilares da capa ---------------------------------------------- */
+/* --- Slides da capa --------------------------------------------------------
+   MOCKUP — imagens de terceiros, uso interno para aprovação de layout.
+   NÃO PUBLICAR. Substituir por fotos da LDF antes do deploy.
 
-export const pilares = [
+   Os arquivos vivem em public/hero/originais/{1,2,3}.jpg. Para trocar:
+   substitua os três e rode `node scripts/hero-imagens.mjs`. */
+
+export const heroSlides = [
   {
-    titulo: "Residencial",
-    texto: "Cozinha, dormitório, closet, home office e área gourmet.",
-    href: "#ambientes",
+    titulo: ["Móveis planejados", "de fábrica"],
+    img: "/hero/1",
+    alt: "Sala de estar com marcenaria planejada, painel ripado e iluminação embutida.",
   },
   {
-    titulo: "Comercial",
-    texto: "Escola, clínica, escritório e loja. Uso intenso, obra que não para.",
-    href: "#comercial",
+    titulo: ["Projeto 3D", "antes do orçamento"],
+    img: "/hero/2",
+    alt: "Ambiente integrado com armários planejados e bancada em tom claro.",
   },
   {
-    titulo: "Fábrica própria",
-    texto: "Produção em Guarulhos, sem revenda entre você e quem fabrica.",
-    href: "#fabrica",
+    titulo: ["Sem revenda", "no meio"],
+    img: "/hero/3",
+    alt: "Detalhe de marcenaria sob medida, com prateleiras e nichos em madeira.",
   },
 ] as const;
+
+export const heroLarguras = [2048, 1920, 1280, 768] as const;

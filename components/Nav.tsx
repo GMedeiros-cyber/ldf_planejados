@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-/* Navegação: fundo e régua só depois do scroll; painel em telas estreitas. */
+import Logo from "./Logo";
+
+/* Navegação fixa: transparente sobre a capa; ganha fundo e régua depois do
+   scroll. Todos os destinos abaixo apontam para ids que existem em
+   app/page.tsx — conferido, nenhum órfão. */
 
 const links = [
   { href: "/#ambientes", texto: "Ambientes" },
@@ -38,8 +42,8 @@ export default function Nav() {
 
   return (
     <header className="nav" {...(rolado ? { "data-rolado": "" } : {})}>
-      <Link className="nav__logo" href="/">
-        <span className="nav__marca">ldf.</span>
+      <Link className="nav__logo" href="/" aria-label="LDF Móveis Planejados, ir para o início">
+        <Logo className="nav__marca" />
       </Link>
 
       <nav
@@ -64,7 +68,7 @@ export default function Nav() {
           <span className="btn__curto">Projeto 3D</span>
         </span>
         <span className="btn-capsula__disco" aria-hidden="true">
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none">
             <path
               d="M6 14L14 6M14 6H7M14 6v7"
               stroke="currentColor"
@@ -72,7 +76,7 @@ export default function Nav() {
               strokeLinecap="square"
             />
           </svg>
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none">
             <path
               d="M6 14L14 6M14 6H7M14 6v7"
               stroke="currentColor"
@@ -83,15 +87,16 @@ export default function Nav() {
         </span>
       </Link>
 
+      {/* Em tela estreita o rótulo alterna junto com o ícone, como na referência. */}
       <button
         ref={burgerRef}
         className="nav__burger"
         type="button"
         aria-expanded={aberto}
         aria-controls="menu"
-        aria-label={aberto ? "Fechar menu" : "Abrir menu"}
         onClick={() => setAberto((v) => !v)}
       >
+        <span className="nav__burger-texto">{aberto ? "Close" : "Menu"}</span>
         <svg className="bars" viewBox="0 0 18 18" fill="none" aria-hidden="true">
           <path
             d="M1 4h16M1 9h16M1 14h16"

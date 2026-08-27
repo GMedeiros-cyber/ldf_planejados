@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Libre_Caslon_Text } from "next/font/google";
+import { Archivo, Instrument_Serif } from "next/font/google";
 import { acabamentoInicial } from "@/lib/dados";
 import Reveal from "@/components/Reveal";
 import "./globals.css";
@@ -16,12 +16,12 @@ const archivo = Archivo({
   variable: "--ff-archivo",
 });
 
-const caslon = Libre_Caslon_Text({
+const serif = Instrument_Serif({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400"],
   style: ["normal", "italic"],
   display: "swap",
-  variable: "--ff-caslon",
+  variable: "--ff-serif",
 });
 
 export const metadata: Metadata = {
@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${archivo.variable} ${caslon.variable}`}>
+    <html lang="pt-BR" className={`${archivo.variable} ${serif.variable}`}>
       <body data-fin={acabamentoInicial}>
         {children}
         <Reveal />

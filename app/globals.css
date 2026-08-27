@@ -62,7 +62,10 @@
 
   /* Par serifada/sans. A serifada só na manchete do herói e nos nomes de
      ambiente; todo o resto é Archivo. Inter é anti-padrão e não entra. */
-  --font-serif: var(--ff-caslon), "Iowan Old Style", Georgia, serif;
+  /* Instrument Serif tem um peso só (400) e é fonte de display. O contraste
+     tipográfico do sistema passa a vir do TAMANHO, nunca do peso: pedir bold
+     faz o navegador sintetizar um falso-negrito sujo. */
+  --font-serif: var(--ff-serif), "Iowan Old Style", Georgia, serif;
 
   /* A navegação é fixed e mede 81px; o sticky da pilha cola abaixo dela. */
   --altura-nav: 5.25rem;
@@ -306,13 +309,23 @@ a { color: inherit; }
 .nav__logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; margin-right: auto; }
 
 /* Logotipo de palavra, no idioma da referência: sem container, sem bloco. */
+/* Logotipo vetorial inline. A proporção 413:251 vem do próprio arquivo;
+   a altura manda e a largura acompanha. O wordmark herda a tinta clara. */
+.nav__logo { color: var(--ink); }
 .nav__marca {
-  font-weight: 800;
-  font-size: 1.32rem;
-  font-variation-settings: "wdth" 96;
-  letter-spacing: -0.045em;
-  color: var(--ink);
-  line-height: 1;
+  display: block;
+  height: 34px;
+  width: auto;
+  aspect-ratio: 413.29 / 250.65;
+}
+@media (max-width: 900px) { .nav__marca { height: 28px; } }
+
+/* Rótulo que alterna com o ícone no botão de menu. */
+.nav__burger-texto {
+  font-size: var(--t-2xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
 }
 
 .nav__links { display: flex; gap: var(--s6); align-items: center; }
@@ -338,7 +351,8 @@ a { color: inherit; }
 /* Menu em telas estreitas: painel, não desaparecimento. */
 .nav__burger {
   display: none;
-  width: 2.6rem; height: 2.6rem;
+  align-items: center; gap: 0.5rem;
+  height: 2.6rem; padding-inline: 0.7rem;
   padding: 0; border: 0; cursor: pointer;
   background: transparent; color: var(--ink);
   box-shadow: inset 0 0 0 1px var(--edge-2);
@@ -350,7 +364,7 @@ a { color: inherit; }
 
 @media (max-width: 900px) {
   .nav { gap: var(--s3); }
-  .nav__burger { display: grid; place-items: center; }
+  .nav__burger { display: inline-flex; }
   .nav__links {
     position: absolute; inset: 100% 0 auto 0;
     display: grid; gap: 0;
@@ -496,11 +510,11 @@ a { color: inherit; }
 
 .hero .display {
   font-family: var(--font-serif);
-  font-size: clamp(2.4rem, 1rem + 3.8vw, 4.25rem);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 1rem + 4.2vw, 4.75rem);
   font-variation-settings: normal;
-  font-weight: 700;
-  letter-spacing: -0.021em;
-  line-height: 1.06;
+  letter-spacing: -0.008em;
+  line-height: 1.12;
 }
 
 
@@ -537,9 +551,10 @@ a { color: inherit; }
 }
 
 /* --- 8c. Capa da home ------------------------------------------------------
-   Fotografia full-bleed, vinheta, texto centrado e a faixa dos três pilares.
-   Tudo escopado em .hero--capa: as regras de .hero__stage, .hero__overlay e
-   .hero__note continuam servindo app/ambientes/cozinha, que não muda. */
+   Três slides sobrepostos que se cruzam por opacidade. A headline pertence ao
+   slide, então atravessa junto com a foto — nada é animado em separado.
+   As regras de .hero__stage e .hero__overlay ficam onde estão: servem
+   app/ambientes/cozinha, que não muda. */
 
 .hero--capa {
   position: relative;
@@ -547,159 +562,91 @@ a { color: inherit; }
   overflow: hidden;
   /* svh, não vh: no celular a barra do navegador faz a altura saltar. */
   min-height: 100svh;
-  display: grid;
-  place-items: center;
-  padding-block: calc(var(--altura-nav) + var(--s7)) var(--s8);
-  padding-inline: var(--gutter);
   background: var(--ground-deep);
 }
 
-.hero__fundo { position: absolute; inset: 0; z-index: 0; }
-.hero__fundo img {
+.hero--capa .hero__slides {
+  position: absolute; inset: 0;
+  list-style: none; margin: 0; padding: 0;
+}
+
+.hero--capa .hero__slide {
+  position: absolute; inset: 0;
+  opacity: 0;
+  /* Valor exato da referência: não mexer. */
+  transition: opacity 2000ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+.hero--capa .hero__slide[data-ativo] { opacity: 1; }
+
+.hero--capa .hero__foto {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   object-fit: cover;
   object-position: center;
 }
 
-/* Base a 0.5, não 0.35: a 0.35 a navegação e o selo sumiam contra a foto.
-   O scrub leva a 0.85 conforme o texto sai. */
-.hero__vinheta {
-  position: absolute; inset: 0; z-index: 1;
+/* Vinheta concentrada no canto inferior esquerdo, onde a headline vive. As
+   três fotos têm luminâncias bem diferentes; isto segura o contraste em todas. */
+.hero--capa .hero__vinheta {
+  position: absolute; inset: 0;
   pointer-events: none;
-  opacity: 0.5;
   background:
     linear-gradient(0deg,
-      var(--ground-deep) 0%,
-      color-mix(in srgb, var(--ground-deep) 86%, transparent) 34%,
-      color-mix(in srgb, var(--ground-deep) 46%, transparent) 68%,
-      color-mix(in srgb, var(--ground-deep) 18%, transparent) 100%),
-    linear-gradient(90deg,
-      color-mix(in srgb, var(--ground-deep) 74%, transparent) 0%,
-      color-mix(in srgb, var(--ground-deep) 34%, transparent) 40%,
-      transparent 74%),
-    linear-gradient(180deg,
       color-mix(in srgb, var(--ground-deep) 92%, transparent) 0%,
-      transparent 18%),
-    /* Banda central: é onde o texto passa, e a foto é clara justamente ali. */
+      color-mix(in srgb, var(--ground-deep) 62%, transparent) 30%,
+      transparent 62%),
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--ground-deep) 80%, transparent) 0%,
+      color-mix(in srgb, var(--ground-deep) 38%, transparent) 42%,
+      transparent 76%),
     linear-gradient(180deg,
-      transparent 16%,
-      color-mix(in srgb, var(--ground-deep) 62%, transparent) 42%,
-      color-mix(in srgb, var(--ground-deep) 62%, transparent) 66%,
-      transparent 88%);
+      color-mix(in srgb, var(--ground-deep) 60%, transparent) 0%,
+      transparent 22%);
 }
 
-.hero__conteudo {
-  position: relative; z-index: 2;
-  display: grid;
-  justify-items: center;
-  gap: var(--s5);
-  max-width: 60rem;
-  text-align: center;
-}
-
-.hero__selo {
-  font-size: var(--t-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.24em;
-  /* ink-2, não ink-3: sobre fotografia o terciário fica ilegível. */
-  color: var(--ink-2);
-}
-
-.hero--capa .display {
+.hero--capa .hero__titulo {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  /* Longe o bastante do rodapé para não colidir com a seta. */
+  bottom: clamp(6rem, 12vh, 9rem);
+  max-width: 22ch;
+  margin: 0;
   font-family: var(--font-serif);
-  font-size: clamp(2.4rem, 1rem + 4.4vw, 5rem);
+  font-size: clamp(2.6rem, 1rem + 6.4vw, 7.5rem);
+  font-weight: 400;
   font-variation-settings: normal;
-  font-weight: 700;
-  letter-spacing: -0.022em;
-  line-height: 1.05;
-  /* Fallback: sem background-clip, o texto fica sólido. */
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
   color: var(--ink);
 }
 
-@supports ((background-clip: text) or (-webkit-background-clip: text)) {
-  .hero--capa .display {
-    background-image: linear-gradient(
-      180deg,
-      var(--ink),
-      color-mix(in srgb, var(--ink) 62%, transparent)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+.hero--capa .hero__seta {
+  position: absolute;
+  left: 50%;
+  bottom: var(--s6);
+  transform: translateX(-50%);
+  z-index: 2;
+  color: var(--ink-2);
+  animation: hero-seta 2400ms var(--ease) infinite;
 }
+.hero--capa .hero__seta svg { width: 18px; height: 30px; }
 
-.hero--capa .lede { margin-inline: auto; }
-
-/* --- Os três pilares --- */
-
-.hero__pilares {
-  position: relative;
-  z-index: 3;
-  display: grid;
-  gap: var(--s4);
-  width: 100%;
-  max-width: 68rem;
-  margin: var(--s8) auto 0;
-  list-style: none;
-  padding: 0;
-}
-
-.pilar {
-  display: grid;
-  gap: var(--s2);
-  height: 100%;
-  padding: var(--s5);
-  text-decoration: none;
-  background: color-mix(in srgb, var(--ground-deep) 82%, transparent);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--edge);
-  transition: background 320ms var(--ease), border-color 320ms var(--ease);
-}
-.pilar:hover { background: color-mix(in srgb, var(--ground-lift) 92%, transparent); border-color: var(--edge-2); }
-
-.pilar__titulo {
-  font-family: var(--font-serif);
-  font-size: var(--t-h3);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-.pilar__texto { font-size: var(--t-sm); color: var(--ink-2); }
-
-/* Acima de 992px a faixa é absoluta: o scrub move o top de 84svh a 0svh.
-   O foco por teclado precisa continuar visível durante o pin. */
-@media (min-width: 992px) {
-  .hero__pilares {
-    position: absolute;
-    left: 0; right: 0;
-    /* 84svh: a 50 a faixa cortava o h1, a 78 encostava nos CTAs. Daqui ela
-       aparece como uma tira no pé da tela, convidando a rolar. */
-    top: 84svh;
-    margin: 0;
-    padding-inline: var(--gutter);
-    max-width: none;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 991.98px) {
-  .hero--capa { min-height: 0; padding-block: calc(var(--altura-nav) + var(--s7)) var(--s8); }
-  .hero--capa .hero__actions { flex-direction: column; align-items: stretch; width: 100%; }
-  .hero--capa .hero__actions > * { justify-content: center; }
+@keyframes hero-seta {
+  0%, 100% { transform: translate(-50%, 0); }
+  50%      { transform: translate(-50%, 8px); }
 }
 
 @media (max-width: 767px) {
-  .hero--capa .display { font-size: clamp(1.9rem, 1rem + 5.6vw, 2.9rem); }
+  .hero--capa .hero__titulo { bottom: clamp(5rem, 14vh, 7rem); max-width: none; }
 }
 
-/* Movimento reduzido: o ScrollTrigger nem chega a ser criado (ver Hero.tsx).
-   Aqui só garantimos o estado final; nenhuma propriedade de layout sai. */
+/* Movimento reduzido: o setInterval nem começa (ver Hero.tsx) e a seta para.
+   O crossfade some, mas nenhuma propriedade de layout sai. */
 @media (prefers-reduced-motion: reduce) {
-  .hero__pilares { position: relative; top: auto; margin-top: var(--s8); }
-  .pilar { transition: none; }
+  .hero--capa .hero__slide { transition: none; }
+  .hero--capa .hero__seta { animation: none; }
 }
 
 /* --- 8b. Obras entregues ---------------------------------------------------
@@ -1050,9 +997,11 @@ a { color: inherit; }
 
 .amb__name {
   font-family: var(--font-serif);
+  font-weight: 400;
   font-size: var(--t-card);
-  font-weight: 700; font-variation-settings: "wdth" 92;
-  letter-spacing: -0.025em;
+  font-variation-settings: normal;
+  letter-spacing: -0.008em;
+  line-height: 1.16;
 }
 .amb__meta { color: var(--ink-2); font-size: var(--t-sm); margin-top: var(--s2); }
 
@@ -1123,10 +1072,10 @@ a { color: inherit; }
 
 .pilha__nome {
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 1.2rem + 3vw, 3.6rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.02;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 1.2rem + 3.4vw, 4rem);
+  letter-spacing: -0.012em;
+  line-height: 1.08;
   color: var(--ink);
   text-decoration: none;
 }
