@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
+import Historia from "@/components/Historia";
 import Obras from "@/components/Obras";
 import Ambientes from "@/components/Ambientes";
 import Fabrica from "@/components/Fabrica";
@@ -35,6 +36,7 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
+        <Historia />
         <Obras />
         <Fabrica />
         <Ambientes />

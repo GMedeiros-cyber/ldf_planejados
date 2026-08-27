@@ -298,3 +298,23 @@ export const heroSlides = [
 ] as const;
 
 export const heroLarguras = [2048, 1920, 1280, 768] as const;
+
+/* --- História --------------------------------------------------------------
+   Texto original da LDF, escrito a partir dos fatos já registrados aqui:
+   fábrica própria em Guarulhos, ausência de revenda, projeto 3D antes do
+   orçamento, 45 dias úteis de produção, 5 anos de garantia em madeiras.
+   Nada de ano de fundação, número de funcionários ou cargo — não temos. */
+
+export const historia = {
+  titulo: ["De Guarulhos,", "direto da fábrica"],
+  paragrafos: [
+    "Entre quem desenha o seu móvel e quem corta a chapa não existe ninguém. A fábrica é nossa, fica em Guarulhos, e é de lá que sai cada peça.",
+    "O projeto 3D vem antes do orçamento. Você aprova o móvel desenhado no seu ambiente — não um número solto numa planilha.",
+    "Da assinatura à entrega são até 45 dias úteis, e a garantia das madeiras é de cinco anos. Prazo e garantia são nossos, não de um fornecedor distante.",
+  ],
+  /* TODO: confirmar nome completo e cargo com o cliente. */
+  assinatura: { nome: "Renan", cargo: "" },
+  /* MOCKUP — substituir por foto da fábrica da LDF. */
+  img: "/historia/fabrica.webp",
+  alt: "Marcenaria em produção, com chapas e bancada de trabalho.",
+} as const;
