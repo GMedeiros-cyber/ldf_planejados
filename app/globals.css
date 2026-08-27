@@ -753,31 +753,36 @@ a { color: inherit; }
 .hero--capa .hero__sociais {
   position: absolute;
   right: var(--gutter);
-  /* Acima do botão de WhatsApp, que é fixo e mora exatamente neste canto.
-     Na altura da seta os dois se sobrepõem — medido: os dois ícones da
-     direita ficavam debaixo da pílula, invisíveis e sem clique. */
-  bottom: calc(var(--s6) + 4.25rem);
+  /* De volta à altura da seta: o botão fixo de WhatsApp, que ocupava este
+     canto e obrigava a fila a subir, deixou de existir. */
+  bottom: var(--s6);
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: var(--s4);
+  /* Dobro do vão anterior, porque o ícone dobrou. */
+  gap: var(--s6);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .hero--capa .hero__social {
-  /* Alvo de toque de 44x44 com desenho de 20: o vazio em volta e o alvo. */
+  /* Alvo de 48 para um desenho de 40: acima do mínimo de 44 e com folga
+     visual suficiente para o ícone não encostar na borda da caixa. */
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  color: var(--ink-3);
+  width: 48px;
+  height: 48px;
+  /* Um degrau mais claro que os ícones de 20px: no tamanho grande o traço
+     cobre mais área da foto, e em ink-3 ele sumia sobre os quadros claros
+     das três capas. A sombra garante o contorno sobre qualquer uma delas. */
+  color: var(--ink-2);
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.55));
   transition: color 200ms var(--ease);
 }
 .hero--capa .hero__social:hover,
 .hero--capa .hero__social:focus-visible { color: var(--ink); }
-.hero--capa .hero__social svg { width: 20px; height: 20px; }
+.hero--capa .hero__social svg { width: 40px; height: 40px; }
 
 @media (max-width: 767px) {
   .hero--capa .hero__titulo { bottom: clamp(5rem, 14vh, 7rem); max-width: none; }
@@ -915,6 +920,19 @@ a { color: inherit; }
   --obra-base: clamp(240px, 22vw, 320px);
   --obra-vao: var(--s5);
   --obra-alt: calc(var(--obra-base) * 3 / 4);
+}
+
+/* Mesma tipografia do titulo da Historia: Instrument Serif em 400. Local,
+   nao global -- a .h2 das outras secoes continua em Archivo. O peso 400 e o
+   font-variation-settings: normal sao obrigatorios, e nao decoracao: a .h2
+   herda peso 800 e um eixo wdth, e o Instrument Serif nao tem nem um nem
+   outro. O navegador sintetizaria um falso-negrito. */
+.obras .h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: normal;
+  letter-spacing: -0.005em;
+  line-height: 1.08;
 }
 
 /* A lede desta secao e maior que a das outras. Local, nao global. */
@@ -1573,23 +1591,6 @@ a { color: inherit; }
   align-items: center;
   color: var(--ink-3); font-size: var(--t-sm);
 }
-
-/* --- 18. WhatsApp persistente -------------------------------------------- */
-
-.zap {
-  position: fixed; right: clamp(1rem, 3vw, 2rem); bottom: clamp(1rem, 3vw, 2rem);
-  z-index: 80;
-  display: inline-flex; align-items: center; gap: 0.6rem;
-  padding: 0.8rem 1.15rem;
-  background: var(--ink); color: var(--ground-deep);
-  text-decoration: none;
-  font-size: var(--t-sm); font-weight: 700;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4);
-  transition: transform 260ms var(--ease), background 260ms var(--ease);
-}
-.zap:hover { transform: translateY(-2px); background: var(--white); }
-.zap svg { width: 18px; height: 18px; flex: none; }
-@media (max-width: 520px) { .zap span { display: none; } .zap { padding: 0.85rem; border-radius: 50%; } }
 
 /* --- 19. Revelação ------------------------------------------------------- */
 

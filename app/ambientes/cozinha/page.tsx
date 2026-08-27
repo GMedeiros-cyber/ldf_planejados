@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import Zap from "@/components/Zap";
 import Elevacao from "@/components/Elevacao";
 import Amostrario from "@/components/Amostrario";
 import { Seta } from "@/components/Icones";
@@ -215,7 +214,6 @@ export default function Cozinha() {
         </section>
       </main>
       <Footer />
-      <Zap />
     </>
   );
 }
