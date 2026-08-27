@@ -5,9 +5,8 @@ import { useEffect, useRef, useState } from "react";
 
 import Logo from "./Logo";
 
-/* Navegação fixa: transparente sobre a capa; ganha fundo e régua depois do
-   scroll. Todos os destinos abaixo apontam para ids que existem em
-   app/page.tsx — conferido, nenhum órfão. */
+/* Navegação em painel flutuante. Todos os destinos abaixo apontam para ids
+   que existem em app/page.tsx — conferido, nenhum órfão. */
 
 const links = [
   { href: "/#ambientes", texto: "Ambientes" },
@@ -20,6 +19,7 @@ const links = [
 export default function Nav() {
   const [rolado, setRolado] = useState(false);
   const [aberto, setAberto] = useState(false);
+  const [atual, setAtual] = useState("");
   const burgerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -27,6 +27,29 @@ export default function Nav() {
     marcar();
     window.addEventListener("scroll", marcar, { passive: true });
     return () => window.removeEventListener("scroll", marcar);
+  }, []);
+
+  /* Qual seção está sendo lida. Sem isto o [aria-current] do CSS nunca
+     casaria e o link atual jamais apagaria. A margem negativa de 45% em cima
+     e embaixo reduz a área de observação a uma faixa no meio da tela: só a
+     seção que cruza essa faixa conta como atual, então não há dois links
+     apagados ao mesmo tempo. Em páginas internas nada casa e o efeito
+     simplesmente não acontece. */
+  useEffect(() => {
+    const secoes = links
+      .map((l) => document.getElementById(l.href.slice(2)))
+      .filter((e): e is HTMLElement => e !== null);
+    if (!secoes.length) return;
+
+    const obs = new IntersectionObserver(
+      (entradas) => {
+        const dentro = entradas.find((e) => e.isIntersecting);
+        if (dentro) setAtual(dentro.target.id);
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+    );
+    secoes.forEach((s) => obs.observe(s));
+    return () => obs.disconnect();
   }, []);
 
   useEffect(() => {
@@ -62,7 +85,14 @@ export default function Nav() {
             }}
           >
             {links.map((l) => (
-              <Link key={l.href} className="nav__link" href={l.href}>
+              <Link
+                key={l.href}
+                className="nav__link"
+                href={l.href}
+                /* "true" e não "location": é o valor com suporte largo em
+                   leitores de tela, e aqui basta dizer "é esta". */
+                aria-current={atual === l.href.slice(2) ? "true" : undefined}
+              >
                 {l.texto}
               </Link>
             ))}

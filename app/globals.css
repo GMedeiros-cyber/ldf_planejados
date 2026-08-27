@@ -284,12 +284,16 @@ a { color: inherit; }
 
 /* --- 6. Navegação --------------------------------------------------------- */
 
-/* Navegação editorial: flutua sobre o palco, sem borda, sem preenchimento,
-   sem sombra. O fundo e a régua só existem depois do scroll — nunca fixos. */
+/* A navegação é um PAINEL flutuante, não um cabeçalho de largura total.
+   A barra fixa carrega só o afastamento das bordas; quem tem fundo, raio e
+   sombra é .nav__interno. O fundo é sólido desde o primeiro quadro — nada
+   aqui espera o scroll para ficar legível sobre a foto da capa. */
 .nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 60;
-  background: transparent;
-  transition: background 320ms var(--ease), backdrop-filter 320ms var(--ease);
+  padding-block-start: var(--s4);
+  padding-inline: var(--gutter);
+  /* A faixa vazia em volta do painel não pode engolir cliques na capa. */
+  pointer-events: none;
   /* Entrada: desce do topo ao carregar. CSS puro. */
   animation: nav-desce 600ms var(--ease) 180ms both;
 }
@@ -299,45 +303,42 @@ a { color: inherit; }
   to   { transform: none; opacity: 1; }
 }
 
-/* O conteúdo vive num container centralizado: logo e botão nunca encostam
-   na borda da viewport. */
+/* O painel: é ele que se vê. */
 .nav__interno {
   position: relative;
+  pointer-events: auto;
   display: flex;
   align-items: center;
   gap: var(--s6);
   max-width: 84rem;
   margin-inline: auto;
-  padding: var(--s4) var(--gutter);
+  padding: var(--s3) var(--s5);
+  background: var(--ground-deep);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
+  transition: padding-block 320ms var(--ease), box-shadow 320ms var(--ease);
 }
 
 /* Links e botão viajam juntos, à direita. */
 .nav__direita {
   display: flex;
   align-items: center;
-  gap: var(--s6);
+  gap: var(--s5);
   margin-left: auto;
 }
 
-.nav::after {
-  content: ""; position: absolute; inset: auto 0 0 0;
-  height: 1px; background: var(--edge);
-  opacity: 0;
-  transition: opacity 320ms var(--ease);
+/* Rolado: o painel se aperta um pouco e a sombra cresce. O fundo não entra
+   em cena porque nunca saiu — já era opaco. */
+.nav[data-rolado] .nav__interno {
+  padding-block: var(--s2);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
 }
-
-.nav[data-rolado] {
-  background: color-mix(in srgb, var(--ground) 88%, transparent);
-  backdrop-filter: blur(14px) saturate(1.3);
-}
-.nav[data-rolado]::after { opacity: 1; }
 
 /* Âncoras não podem parar embaixo da navegação flutuante. */
 .section, .hero, [id] { scroll-margin-top: 6rem; }
 
 .nav__logo { display: flex; align-items: center; text-decoration: none; }
 
-/* Logotipo de palavra, no idioma da referência: sem container, sem bloco. */
 /* Logotipo vetorial inline. A proporção 413:251 vem do próprio arquivo;
    a altura manda e a largura acompanha. O wordmark herda a tinta clara. */
 .nav__logo { color: var(--ink); }
@@ -367,12 +368,17 @@ a { color: inherit; }
 .nav__burger[aria-expanded="true"] .nav__burger-menu { opacity: 0; transform: translateY(-6px); }
 .nav__burger[aria-expanded="true"] .nav__burger-close { opacity: 1; transform: none; }
 
-.nav__links { display: flex; gap: var(--s5); align-items: center; }
+/* Os links são serifados e em caixa mista, apertados uns contra os outros. */
+.nav__links { display: flex; gap: var(--s4); align-items: center; }
 
 .nav__link {
-  font-size: var(--t-2xs); font-weight: 500;
-  letter-spacing: 0.13em; text-transform: uppercase;
-  text-decoration: none; color: var(--ink-3);
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.06rem;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: none;
+  color: var(--ink);
   padding-block: var(--s2);
   position: relative;
   transition: color 200ms var(--ease);
@@ -383,20 +389,43 @@ a { color: inherit; }
   transform: scaleX(0); transform-origin: left;
   transition: transform 320ms var(--ease);
 }
+/* Lógica invertida: a seção em que o visitante já está não se oferece.
+   Quem apaga é o link atual; os outros é que ficam acesos. */
+.nav__link[aria-current] { color: var(--ink-3); }
+.nav__link[aria-current]::after { display: none; }
 .nav__link:hover { color: var(--ink); }
-.nav__link:hover::after, .nav__link[aria-current="page"]::after { transform: scaleX(1); }
-.nav__link[aria-current="page"] { color: var(--ink); }
+.nav__link:hover::after { transform: scaleX(1); }
+
+/* Botão de contato: contorno, não pílula sólida. A cápsula vermelha continua
+   definida na seção 7, para quem precisar dela fora da navegação. */
+.nav .btn-capsula__texto,
+.nav .btn-capsula__disco {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--edge-2);
+}
+/* No hover o contorno se preenche — o anel some junto com o vazio. */
+.nav .btn-capsula:hover .btn-capsula__texto,
+.nav .btn-capsula:hover .btn-capsula__disco {
+  background: var(--ink);
+  color: var(--ground-deep);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
 
 /* Menu em telas estreitas: painel, não desaparecimento. */
 .nav__burger {
   display: none;
   align-items: center; gap: 0.55rem;
   height: 2.6rem;
-  padding: 0 0.8rem;
+  padding: 0 0.9rem;
   border: 0; cursor: pointer;
+  border-radius: var(--r-pill);
   background: transparent; color: var(--ink);
   box-shadow: inset 0 0 0 1px var(--edge-2);
+  transition: background 320ms var(--ease), color 320ms var(--ease);
 }
+.nav__burger:hover { background: var(--ink); color: var(--ground-deep); }
+.nav__burger:hover .nav__burger-rotulo { color: inherit; }
 .nav__burger svg { width: 18px; height: 18px; flex: none; }
 .nav__burger .x { display: none; }
 .nav__burger[aria-expanded="true"] .x { display: block; }
@@ -407,20 +436,27 @@ a { color: inherit; }
   .nav__burger { display: inline-flex; }
   /* Em tela estreita o botão de menu sai do grupo e fica por último. */
   .nav__direita { margin-left: auto; gap: var(--s3); }
+
+  /* O menu abre ABAIXO do painel, com o mesmo raio. .nav__interno é o bloco
+     que o contém, então left/right 0 já reproduzem o recuo lateral do painel
+     sem repetir o cálculo do --gutter. O round no clip-path é obrigatório:
+     sem ele a revelação corta os cantos em quadrado. */
   .nav__links {
-    position: absolute; inset: 100% 0 auto 0;
+    position: absolute;
+    top: calc(100% + var(--s2)); left: 0; right: 0; bottom: auto;
     display: grid; gap: 0;
     z-index: 5;
-    padding: var(--s2) var(--gutter) var(--s5);
-    background: var(--ground);
-    border-bottom: 1px solid var(--edge);
-    box-shadow: 0 24px 40px rgba(0,0,0,0.5);
-    clip-path: inset(0 0 100% 0);
+    padding: var(--s2) var(--s5) var(--s4);
+    background: var(--ground-deep);
+    border-radius: 10px;
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
+    clip-path: inset(0 0 100% 0 round 10px);
     pointer-events: none;
     transition: clip-path 360ms var(--ease);
   }
-  .nav__links[data-open] { clip-path: inset(0 0 0 0); pointer-events: auto; }
+  .nav__links[data-open] { clip-path: inset(0 0 0 0 round 10px); pointer-events: auto; }
   .nav__link { padding-block: var(--s4); border-bottom: 1px solid var(--edge); }
+  .nav__link:last-child { border-bottom: 0; }
   .nav__link::after { display: none; }
 }
 
@@ -434,7 +470,9 @@ a { color: inherit; }
    propriedade de layout sai. */
 @media (prefers-reduced-motion: reduce) {
   .nav { animation: none; }
+  .nav__interno { transition: none; }
   .nav__burger-rotulo > span { transition: none; }
+  .nav__links { transition: none; }
 }
 
 /* --- 7. Botões ------------------------------------------------------------ */
