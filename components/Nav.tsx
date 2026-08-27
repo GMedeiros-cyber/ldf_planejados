@@ -42,78 +42,96 @@ export default function Nav() {
 
   return (
     <header className="nav" {...(rolado ? { "data-rolado": "" } : {})}>
-      <Link className="nav__logo" href="/" aria-label="LDF Móveis Planejados, ir para o início">
-        <Logo className="nav__marca" />
-      </Link>
+      <div className="nav__interno">
+        <Link
+          className="nav__logo"
+          href="/"
+          aria-label="LDF Móveis Planejados, ir para o início"
+        >
+          <Logo className="nav__marca" />
+        </Link>
 
-      <nav
-        className="nav__links"
-        id="menu"
-        aria-label="Principal"
-        {...(aberto ? { "data-open": "" } : {})}
-        onClick={(e) => {
-          if ((e.target as HTMLElement).closest("a")) setAberto(false);
-        }}
-      >
-        {links.map((l) => (
-          <Link key={l.href} className="nav__link" href={l.href}>
-            {l.texto}
+        <div className="nav__direita">
+          <nav
+            className="nav__links"
+            id="menu"
+            aria-label="Principal"
+            {...(aberto ? { "data-open": "" } : {})}
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest("a")) setAberto(false);
+            }}
+          >
+            {links.map((l) => (
+              <Link key={l.href} className="nav__link" href={l.href}>
+                {l.texto}
+              </Link>
+            ))}
+          </nav>
+
+          <Link className="btn-capsula" href="/#contato">
+            <span className="btn-capsula__texto">
+              <span className="btn__longo">Quero meu projeto</span>
+              <span className="btn__curto">Projeto 3D</span>
+            </span>
+            <span className="btn-capsula__disco" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M6 14L14 6M14 6H7M14 6v7"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="square"
+                />
+              </svg>
+              <svg viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M6 14L14 6M14 6H7M14 6v7"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="square"
+                />
+              </svg>
+            </span>
           </Link>
-        ))}
-      </nav>
 
-      <Link className="btn-capsula" href="/#contato">
-        <span className="btn-capsula__texto">
-          <span className="btn__longo">Quero meu projeto</span>
-          <span className="btn__curto">Projeto 3D</span>
-        </span>
-        <span className="btn-capsula__disco" aria-hidden="true">
-          <svg viewBox="0 0 20 20" fill="none">
+          {/* Em tela estreita o rótulo alterna junto com o ícone, como na referência. */}
+        </div>
+
+        <button
+          ref={burgerRef}
+          className="nav__burger"
+          type="button"
+          aria-expanded={aberto}
+          aria-controls="menu"
+          aria-label={aberto ? "Fechar menu" : "Abrir menu"}
+          onClick={() => setAberto((v) => !v)}
+        >
+          <span className="nav__burger-rotulo" aria-hidden="true">
+            <span className="nav__burger-menu">Menu</span>
+            <span className="nav__burger-close">Close</span>
+          </span>
+          <svg
+            className="bars"
+            viewBox="0 0 18 18"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
-              d="M6 14L14 6M14 6H7M14 6v7"
+              d="M1 4h16M1 9h16M1 14h16"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.6"
               strokeLinecap="square"
             />
           </svg>
-          <svg viewBox="0 0 20 20" fill="none">
+          <svg className="x" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path
-              d="M6 14L14 6M14 6H7M14 6v7"
+              d="M3 3l12 12M15 3L3 15"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="1.6"
               strokeLinecap="square"
             />
           </svg>
-        </span>
-      </Link>
-
-      {/* Em tela estreita o rótulo alterna junto com o ícone, como na referência. */}
-      <button
-        ref={burgerRef}
-        className="nav__burger"
-        type="button"
-        aria-expanded={aberto}
-        aria-controls="menu"
-        onClick={() => setAberto((v) => !v)}
-      >
-        <span className="nav__burger-texto">{aberto ? "Close" : "Menu"}</span>
-        <svg className="bars" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-          <path
-            d="M1 4h16M1 9h16M1 14h16"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="square"
-          />
-        </svg>
-        <svg className="x" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-          <path
-            d="M3 3l12 12M15 3L3 15"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="square"
-          />
-        </svg>
-      </button>
+        </button>
+      </div>
     </header>
   );
 }
