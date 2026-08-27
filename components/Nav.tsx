@@ -20,6 +20,10 @@ export default function Nav() {
   const [rolado, setRolado] = useState(false);
   const [aberto, setAberto] = useState(false);
   const [atual, setAtual] = useState("");
+  const [oculta, setOculta] = useState(false);
+  /* Em ref, não em estado: a posição anterior é insumo do cálculo, não algo
+     que a tela precise redesenhar a cada quadro de scroll. */
+  const anterior = useRef(0);
   const burgerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -27,6 +31,46 @@ export default function Nav() {
     marcar();
     window.addEventListener("scroll", marcar, { passive: true });
     return () => window.removeEventListener("scroll", marcar);
+  }, []);
+
+  /* A barra recolhe ao descer e volta ao subir. É independente do data-rolado
+     acima, e por isso tem o seu próprio listener: em movimento reduzido este
+     aqui não chega a existir e a barra fica sempre visível, enquanto o outro
+     continua trabalhando. */
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    anterior.current = window.scrollY;
+
+    const aoRolar = () => {
+      const y = window.scrollY;
+      const d = y - anterior.current;
+
+      /* O topo manda, e manda antes da zona morta: chegar em y=0 por um
+         salto de 3px ainda tem de revelar a barra. */
+      if (y <= 8) {
+        anterior.current = y;
+        setOculta(false);
+        return;
+      }
+
+      /* Zona morta. O scroll suave do trackpad e o bounce do iOS disparam
+         dezenas de eventos de um ou dois pixels, alternando de sinal — sem
+         este corte a barra treme. */
+      if (Math.abs(d) <= 6) return;
+      anterior.current = y;
+
+      if (d > 0 && y > 120) {
+        setOculta(true);
+        /* Menu aberto pendurado numa barra que saiu da tela não faz sentido. */
+        setAberto(false);
+      } else if (d < 0) {
+        setOculta(false);
+      }
+    };
+
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    return () => window.removeEventListener("scroll", aoRolar);
   }, []);
 
   /* Qual seção está sendo lida. Sem isto o [aria-current] do CSS nunca
@@ -64,7 +108,11 @@ export default function Nav() {
   }, [aberto]);
 
   return (
-    <header className="nav" {...(rolado ? { "data-rolado": "" } : {})}>
+    <header
+      className="nav"
+      {...(rolado ? { "data-rolado": "" } : {})}
+      {...(oculta ? { "data-oculta": "" } : {})}
+    >
       <div className="nav__interno">
         <Link
           className="nav__logo"

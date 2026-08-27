@@ -294,12 +294,20 @@ a { color: inherit; }
   padding-inline: var(--gutter);
   /* A faixa vazia em volta do painel não pode engolir cliques na capa. */
   pointer-events: none;
-  /* Entrada: desce do topo ao carregar. CSS puro. */
-  animation: nav-desce 600ms var(--ease) 180ms both;
+  /* Recolhimento ao descer. A animação de entrada NÃO pode morar aqui: as
+     duas escrevem em transform e animação vence transition na composição,
+     então com fill both o translateY do [data-oculta] nunca chegaria a
+     valer. A entrada foi para .nav__interno, que não recolhe. */
+  transition: transform 380ms var(--ease);
 }
 
+/* -120% e não -100%: a sombra do painel também precisa sair de vista. */
+.nav[data-oculta] { transform: translateY(-120%); }
+
+/* -130% porque quem se move agora é o painel: ele precisa vencer a própria
+   altura MAIS o afastamento do topo para sumir de vez. */
 @keyframes nav-desce {
-  from { transform: translateY(-100%); opacity: 0; }
+  from { transform: translateY(-130%); opacity: 0; }
   to   { transform: none; opacity: 1; }
 }
 
@@ -309,22 +317,28 @@ a { color: inherit; }
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: var(--s6);
+  /* Largura pelo conteúdo: o painel ocupa o que os elementos pedem e nada
+     mais, então o logo fica perto dos links. O max-width é só um teto. */
+  width: fit-content;
   max-width: 84rem;
+  /* É este gap que separa o logo do grupo da direita — não há mais
+     margin-left: auto empurrando nada. */
+  gap: var(--s7);
   margin-inline: auto;
   padding: var(--s3) var(--s5);
   background: var(--ground-deep);
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
   transition: padding-block 320ms var(--ease), box-shadow 320ms var(--ease);
+  /* Entrada: desce do topo ao carregar. CSS puro. */
+  animation: nav-desce 600ms var(--ease) 180ms both;
 }
 
-/* Links e botão viajam juntos, à direita. */
+/* Links e botão viajam juntos. */
 .nav__direita {
   display: flex;
   align-items: center;
   gap: var(--s5);
-  margin-left: auto;
 }
 
 /* Rolado: o painel se aperta um pouco e a sombra cresce. O fundo não entra
@@ -432,9 +446,11 @@ a { color: inherit; }
 .nav__burger[aria-expanded="true"] .bars { display: none; }
 
 @media (max-width: 900px) {
-  .nav__interno { gap: var(--s3); }
+  /* Aqui o painel volta a ser barra: ocupa a largura disponível, e por isso
+     o grupo da direita precisa do margin-left: auto de volta para encostar
+     o botão de menu na borda. */
+  .nav__interno { width: auto; gap: var(--s3); }
   .nav__burger { display: inline-flex; }
-  /* Em tela estreita o botão de menu sai do grupo e fica por último. */
   .nav__direita { margin-left: auto; gap: var(--s3); }
 
   /* O menu abre ABAIXO do painel, com o mesmo raio. .nav__interno é o bloco
@@ -469,8 +485,11 @@ a { color: inherit; }
 /* Movimento reduzido: a barra não desce, nasce no lugar. Nenhuma
    propriedade de layout sai. */
 @media (prefers-reduced-motion: reduce) {
-  .nav { animation: none; }
-  .nav__interno { transition: none; }
+  /* A barra não recolhe: o listener nem chega a ser criado em Nav.tsx.
+     O transform: none aqui é só cinto de segurança — não é layout. */
+  .nav { transition: none; }
+  .nav[data-oculta] { transform: none; }
+  .nav__interno { animation: none; transition: none; }
   .nav__burger-rotulo > span { transition: none; }
   .nav__links { transition: none; }
 }
