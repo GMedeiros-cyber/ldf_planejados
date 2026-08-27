@@ -503,11 +503,6 @@ a { color: inherit; }
   line-height: 1.06;
 }
 
-.hero .display .swap {
-  color: var(--red-bright);
-  font-style: italic;
-  transition: color var(--dur) var(--ease);
-}
 
 .hero__actions { display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s3); }
 
@@ -538,6 +533,130 @@ a { color: inherit; }
     order: 2;
     position: static;
     min-height: clamp(17rem, 62vw, 22rem);
+  }
+}
+
+/* --- 8c. Capa da home ------------------------------------------------------
+   Fotografia full-bleed com o texto centrado por cima. Tudo aqui é escopado
+   em .hero--capa: as regras de .hero__stage e .hero__overlay continuam
+   servindo a página de ambiente, que não muda. */
+
+.hero--capa {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  /* svh, não vh: no celular a barra do navegador faz a altura saltar. */
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding-block: calc(var(--altura-nav) + var(--s7)) var(--s8);
+  padding-inline: var(--gutter);
+  background: var(--ground-deep);
+}
+
+.hero__fundo { position: absolute; inset: 0; z-index: 0; }
+.hero__fundo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Vinheta: mais densa embaixo e à esquerda, que é por onde o texto passa. */
+.hero__vinheta {
+  position: absolute; inset: 0; z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(0deg,
+      var(--ground-deep) 0%,
+      color-mix(in srgb, var(--ground-deep) 82%, transparent) 32%,
+      color-mix(in srgb, var(--ground-deep) 52%, transparent) 66%,
+      color-mix(in srgb, var(--ground-deep) 22%, transparent) 100%),
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--ground-deep) 78%, transparent) 0%,
+      color-mix(in srgb, var(--ground-deep) 40%, transparent) 38%,
+      transparent 72%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--ground-deep) 72%, transparent) 0%,
+      transparent 24%);
+}
+
+.hero__conteudo {
+  position: relative; z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: var(--s5);
+  max-width: 60rem;
+  text-align: center;
+}
+
+.hero__selo {
+  font-size: var(--t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  /* ink-2, não ink-3: sobre fotografia o terciário some. */
+  color: var(--ink-2);
+}
+
+.hero--capa .display {
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 1rem + 4.4vw, 5rem);
+  font-variation-settings: normal;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.05;
+  /* Fallback: sem background-clip, o texto fica sólido. */
+  color: var(--ink);
+}
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .hero--capa .display {
+    background-image: linear-gradient(
+      180deg,
+      var(--ink),
+      color-mix(in srgb, var(--ink) 62%, transparent)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+.hero--capa .lede { margin-inline: auto; }
+
+/* Entrada em cascata. Sem observador: a capa já está na tela ao carregar. */
+@keyframes hero-entra {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.hero__conteudo > .cascata {
+  animation: hero-entra 620ms var(--ease) both;
+}
+.hero__conteudo > .cascata:nth-child(1) { animation-delay: 0ms; }
+.hero__conteudo > .cascata:nth-child(2) { animation-delay: 90ms; }
+.hero__conteudo > .cascata:nth-child(3) { animation-delay: 180ms; }
+.hero__conteudo > .cascata:nth-child(4) { animation-delay: 270ms; }
+
+@media (max-width: 767px) {
+  .hero--capa .display { font-size: clamp(1.9rem, 1rem + 5.6vw, 2.9rem); }
+  .hero--capa .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .hero--capa .hero__actions > * { justify-content: center; }
+}
+
+/* Movimento reduzido: a cascata não corre, e os elementos já nascem no
+   estado final. Sem isso ficariam presos em opacity 0. Nenhuma propriedade
+   de layout é tocada. */
+@media (prefers-reduced-motion: reduce) {
+  .hero__conteudo > .cascata {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 
