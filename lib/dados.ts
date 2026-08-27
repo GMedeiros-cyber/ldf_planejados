@@ -271,3 +271,23 @@ export const obras = [
     alt: "Gabinete de banheiro com espelheira e nicho.",
   },
 ] as const;
+
+/* --- Os três pilares da capa ---------------------------------------------- */
+
+export const pilares = [
+  {
+    titulo: "Residencial",
+    texto: "Cozinha, dormitório, closet, home office e área gourmet.",
+    href: "#ambientes",
+  },
+  {
+    titulo: "Comercial",
+    texto: "Escola, clínica, escritório e loja. Uso intenso, obra que não para.",
+    href: "#comercial",
+  },
+  {
+    titulo: "Fábrica própria",
+    texto: "Produção em Guarulhos, sem revenda entre você e quem fabrica.",
+    href: "#fabrica",
+  },
+] as const;
