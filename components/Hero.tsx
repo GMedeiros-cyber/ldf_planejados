@@ -2,13 +2,33 @@
 
 import { useEffect, useState } from "react";
 
-import { heroSlides, heroLarguras } from "@/lib/dados";
+import { heroSlides, heroLarguras, contato } from "@/lib/dados";
+import {
+  IconeFacebook,
+  IconeInstagram,
+  IconeLocal,
+  IconePinterest,
+} from "./Icones";
 
 /* Capa em três slides que se cruzam por opacidade. Sem efeito de scroll e sem
    biblioteca de animação: um setInterval troca o slide ativo e o CSS faz o
    crossfade. A headline pertence ao slide, então atravessa junto com a foto. */
 
 const INTERVALO = 6000;
+
+/* Instagram e Facebook são os endereços reais da LDF (lib/dados.ts). Os dois
+   últimos ainda não têm destino, e por isso não abrem em aba nova: mandar
+   alguém para uma aba em branco é pior do que não abrir nada. O target sai
+   de `href !== "#"`, então os dois passam a abrir sozinhos quando o link
+   chegar. */
+const sociais = [
+  { rotulo: "LDF no Facebook", href: contato.facebook, Icone: IconeFacebook },
+  { rotulo: "LDF no Instagram", href: contato.instagram, Icone: IconeInstagram },
+  /* TODO: perfil da LDF no Pinterest — não há conta documentada em cliente/ */
+  { rotulo: "LDF no Pinterest", href: "#", Icone: IconePinterest },
+  /* TODO: link do Google Maps da fábrica */
+  { rotulo: "Onde estamos", href: "#", Icone: IconeLocal },
+];
 
 const srcSet = (base: string) =>
   heroLarguras.map((w) => `${base}-${w}.webp ${w}w`).join(", ");
@@ -55,6 +75,23 @@ export default function Hero() {
               <br />
               {slide.titulo[1]}
             </h1>
+          </li>
+        ))}
+      </ul>
+
+      <ul className="hero__sociais">
+        {sociais.map(({ rotulo, href, Icone }) => (
+          <li key={rotulo}>
+            <a
+              className="hero__social"
+              href={href}
+              aria-label={rotulo}
+              {...(href !== "#"
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
+            >
+              <Icone />
+            </a>
           </li>
         ))}
       </ul>

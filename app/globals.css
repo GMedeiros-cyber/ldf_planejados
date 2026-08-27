@@ -51,6 +51,9 @@
   --t-xs:  0.75rem;
   --t-sm:  0.86rem;
   --t-md:  0.95rem;
+  /* Degrau de leitura, acima do micro-tipo e abaixo do h3. Nao existia:
+     entrou para a lede da secao de obras. */
+  --t-lg:  clamp(1.15rem, 1.02rem + 0.62vw, 1.5rem);
   --t-h3:    clamp(1.2rem, 1rem + 0.9vw, 1.55rem);
   --t-card:  clamp(1.35rem, 1.1rem + 1vw, 1.8rem);
   --t-stat:  clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem);
@@ -745,8 +748,42 @@ a { color: inherit; }
   50%      { transform: translate(-50%, 8px); }
 }
 
+/* Redes no canto inferior direito da capa. A seta vive no centro, entao em
+   tela larga os dois nao se encontram. */
+.hero--capa .hero__sociais {
+  position: absolute;
+  right: var(--gutter);
+  /* Acima do botão de WhatsApp, que é fixo e mora exatamente neste canto.
+     Na altura da seta os dois se sobrepõem — medido: os dois ícones da
+     direita ficavam debaixo da pílula, invisíveis e sem clique. */
+  bottom: calc(var(--s6) + 4.25rem);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hero--capa .hero__social {
+  /* Alvo de toque de 44x44 com desenho de 20: o vazio em volta e o alvo. */
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--ink-3);
+  transition: color 200ms var(--ease);
+}
+.hero--capa .hero__social:hover,
+.hero--capa .hero__social:focus-visible { color: var(--ink); }
+.hero--capa .hero__social svg { width: 20px; height: 20px; }
+
 @media (max-width: 767px) {
   .hero--capa .hero__titulo { bottom: clamp(5rem, 14vh, 7rem); max-width: none; }
+  /* Medido: a fila de redes tem 224px e o encontro com a seta comeca por
+     volta de 518px de viewport. Some antes disso, com folga. */
+  .hero--capa .hero__seta { display: none; }
 }
 
 /* Movimento reduzido: o setInterval nem começa (ver Hero.tsx) e a seta para.
@@ -861,45 +898,48 @@ a { color: inherit; }
 
 /* --- 8b. Obras entregues ---------------------------------------------------
    Carrossel horizontal full-bleed: sangra pelas duas bordas ignorando o
-   padding de .wrap. A pista corre sozinha, em loop, e para quando alguém
-   interage. A rolagem manual continua valendo em paralelo — as duas não se
-   sincronizam, e isso é aceito. */
+   padding de .wrap. A pista corre sozinha, em loop, e NAO para com o ponteiro
+   em cima -- e assim de proposito.
 
-.obras { background: var(--ground-deep); }
+   O loop depende de -50% cair exatamente no inicio da segunda copia, e o card
+   que cresce ameaca isso. Por isso as copias sao dois conteineres flex de
+   largura FIXA: o crescimento redistribui espaco dentro de uma metade, os
+   vizinhos dela encolhem na mesma medida, e a largura da metade nao muda.
+   Com um flex unico, a metade que contivesse o card aberto ficaria ~180px
+   mais larga que a outra e a emenda saltaria a cada volta. */
+
+.obras {
+  background: var(--ground-deep);
+  /* --obras-n vem de Obras.tsx: e obras.length. Todo o resto se calcula a
+     partir daqui, inclusive a posicao dos tracinhos. */
+  --obra-base: clamp(240px, 22vw, 320px);
+  --obra-vao: var(--s5);
+  --obra-alt: calc(var(--obra-base) * 3 / 4);
+}
+
+/* A lede desta secao e maior que a das outras. Local, nao global. */
+.obras .lede { font-size: var(--t-lg); max-width: 54ch; }
 
 .obras__trilho {
   position: relative;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-behavior: smooth;
-  /* Folga vertical: o card cresce 1.06 no hover e o overflow-x also recorta
-     no eixo Y. Sem esse respiro, o card ampliado sairia cortado. */
-  padding-block: var(--s8);
-  /* O gutter impede que o primeiro e o último card colem na borda. */
+  /* Menos folga que antes: o card nao cresce mais na vertical, entao nao ha
+     o que sobrar por cima e por baixo. */
+  padding-block: var(--s7);
+  /* O gutter impede que o primeiro e o ultimo card colem na borda. */
   padding-inline: var(--gutter);
   scrollbar-width: none;
+  /* As duas reguas da faixa. Como BORDA, nao como pseudo-elemento: dentro de
+     um conteiner de rolagem um ::before absoluto se ancora na origem rolada e
+     anda junto com o conteudo; para cobrir a faixa inteira precisaria ser
+     esticado para alem da direita, e isso inflava o scrollWidth. A borda e
+     pintada na caixa de borda, nao rola e nao entra no calculo. */
+  border-block: 1px solid var(--edge);
 }
 .obras__trilho::-webkit-scrollbar { display: none; }
 
-/* Marcadores de régua, acima e abaixo da faixa. Sem nó no DOM: são camadas
-   de background do próprio trilho. background-attachment: local faz o padrão
-   cobrir toda a área rolável — com pseudo-elemento absoluto seria preciso
-   estendê-lo para além da direita, e isso inflava o scrollWidth, deixando
-   rolar para o vazio depois do último card. */
-.obras__trilho {
-  background-attachment: local;
-  background-repeat: no-repeat, repeat-x, no-repeat, repeat-x;
-  background-size: 100% 1px, 64px 7px, 100% 1px, 64px 7px;
-  background-position: 0 0, 0 0, 0 100%, 0 100%;
-  background-image:
-    linear-gradient(var(--edge), var(--edge)),
-    linear-gradient(90deg, var(--edge) 0 1px, transparent 1px),
-    linear-gradient(var(--edge), var(--edge)),
-    linear-gradient(90deg, var(--edge) 0 1px, transparent 1px);
-}
-
-/* A pista traz duas cópias da lista, então -50% cai exatamente no início da
-   segunda: a emenda não aparece. Só transform é animado. */
 @keyframes obras-desliza {
   from { transform: translate3d(0, 0, 0); }
   to   { transform: translate3d(-50%, 0, 0); }
@@ -907,52 +947,73 @@ a { color: inherit; }
 
 .obras__pista {
   display: flex;
-  /* O vão é margem do item, não gap da pista: com gap, metade da largura
-     cai meio vão antes do início da segunda cópia e o loop salta 12px. */
-  gap: 0;
-  width: max-content;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  /* Largura explicita, nao max-content: com max-content a soma dependeria do
+     conteudo, e e justamente ela que precisa ser constante. */
+  width: calc(2 * var(--obras-n) * (var(--obra-base) + var(--obra-vao)));
   animation: obras-desliza 70s linear infinite;
   will-change: transform;
 }
 
-/* Parar é do trilho, não da pista: assim o ponteiro pausa mesmo quando está
-   sobre o vão entre dois cards. */
-.obras__trilho:hover .obras__pista,
-.obras__trilho:focus-within .obras__pista { animation-play-state: paused; }
-
-.obra {
-  flex: 0 0 auto;
-  width: clamp(240px, 22vw, 320px);
-  margin-inline-end: var(--s5);
-  /* Só opacidade e filtro: mexer na caixa recalcularia a pista inteira a
-     cada quadro e travaria a rolagem. */
-  transition: opacity 420ms var(--ease), filter 420ms var(--ease);
+/* Metade de largura travada: e o que mantem o -50% honesto. */
+.obras__metade {
+  display: flex;
+  flex: 0 0 calc(var(--obras-n) * (var(--obra-base) + var(--obra-vao)));
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-/* Os vizinhos recuam para o card sob o ponteiro ganhar o primeiro plano. */
-.obras__pista:hover .obra:not(:hover) {
+.obra {
+  position: relative;
+  /* Base zero e crescimento 1: a metade se divide em partes iguais, e cada
+     parte da exatamente --obra-base. Nada de width -- e o crescimento que
+     muda de valor, e ele nao altera a soma. */
+  flex: 1 1 0;
+  margin-inline-end: var(--obra-vao);
+  transition:
+    flex-grow 420ms var(--ease),
+    opacity 420ms var(--ease),
+    filter 420ms var(--ease);
+}
+
+/* O card sob o ponteiro toma emprestado o espaco dos vizinhos e devolve
+   sozinho quando o ponteiro sai. Sem clique e sem estado. */
+.obra:hover,
+.obra:focus-within { flex-grow: 2.2; }
+
+/* Os vizinhos recuam para o card aberto ganhar o primeiro plano. */
+.obras__pista:hover .obra:not(:hover):not(:focus-within) {
   opacity: 0.55;
   filter: saturate(0.7);
 }
 
+/* Tracinho vertical no vao, atravessando a base do quadro. Um por card, e o
+   do ultimo cai no vao que da na metade seguinte -- o padrao nao tem emenda. */
+.obra::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--obra-alt) - 3.5px);
+  right: calc(var(--obra-vao) / -2 - 0.5px);
+  width: 1px;
+  height: 7px;
+  background: var(--edge);
+}
+
 .obra__figura { margin: 0; }
 
-/* O recorte mora no quadro, não no <li>: com overflow hidden no item a
+/* O recorte mora no quadro, nao no <li>: com overflow hidden no item a
    legenda seria cortada junto. */
 .obra__quadro {
   display: block;
-  aspect-ratio: 3 / 4;
+  /* Altura travada, e nao aspect-ratio: com proporcao fixa o card cresceria
+     tambem para baixo, e o pedido e crescer so na horizontal. O valor e o
+     4:3 da largura-base, entao em repouso o card e 4:3 exato e a partir dai
+     so alarga. */
+  height: var(--obra-alt);
   border-radius: 4px;
   overflow: hidden;
   background: var(--ground-lift);
-  transform-origin: center;
-  transition: transform 420ms var(--ease);
 }
-.obra:hover .obra__quadro,
-.obra:focus-within .obra__quadro { transform: scale(1.06); }
 
 .obra__quadro img {
   display: block;
@@ -961,23 +1022,24 @@ a { color: inherit; }
   object-fit: cover;
 }
 
-/* Sigla e nome ocupam a mesma célula: a troca é de opacidade, não de caixa. */
+/* Sigla e nome ocupam a mesma celula: a troca e de opacidade, nao de caixa. */
 .obra__rotulo {
   display: grid;
   place-items: center;
-  /* Respiro para o card ampliado não encostar na legenda. */
-  margin-top: var(--s5);
+  margin-top: var(--s4);
   text-align: center;
 }
 .obra__rotulo > span {
   grid-area: 1 / 1;
-  font-size: var(--t-xs);
+  /* Um tamanho so para os dois: dividindo a mesma celula, valores diferentes
+     fariam a caixa saltar na troca. */
+  font-size: var(--t-md);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   transition: opacity 320ms var(--ease), color 320ms var(--ease);
 }
 .obra__sigla { color: var(--ink-3); }
-/* O nome acende: em ink-3 a troca era imperceptível sobre o fundo escuro. */
+/* O nome acende: em ink-3 a troca era imperceptivel sobre o fundo escuro. */
 .obra__nome { color: var(--ink); font-weight: 700; opacity: 0; }
 .obra:hover .obra__sigla,
 .obra:focus-within .obra__sigla { opacity: 0; }
@@ -985,13 +1047,11 @@ a { color: inherit; }
 .obra:focus-within .obra__nome { opacity: 1; }
 
 @media (max-width: 767px) {
-  .obra { width: 62vw; margin-inline-end: var(--s3); }
-  /* Traços mais espaçados: em tela estreita eles viram ruído. */
-  .obras__trilho { background-size: 100% 1px, 104px 7px, 100% 1px, 104px 7px; }
+  .obras { --obra-base: 62vw; --obra-vao: var(--s3); }
 }
 
 /* Movimento reduzido: a pista para de correr e o snap volta a valer, porque
-   sem movimento automático ele é útil de novo. Overflow e todo o resto do
+   sem movimento automatico ele e util de novo. Overflow e todo o resto do
    layout permanecem. */
 @media (prefers-reduced-motion: reduce) {
   .obras__trilho {
@@ -1001,7 +1061,6 @@ a { color: inherit; }
   .obras__pista { animation: none; will-change: auto; }
   .obra { scroll-snap-align: center; }
   .obra,
-  .obra__quadro,
   .obra__rotulo > span { transition: none; }
 }
 
