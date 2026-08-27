@@ -212,3 +212,62 @@ export const slotsProva = [
       'É o que prova a frase principal do site. Sem elas, "fábrica própria" é só uma alegação.',
   },
 ] as const;
+
+/* --- Obras entregues -------------------------------------------------------
+   PLACEHOLDER: fotos genéricas do Unsplash até o cliente enviar as reais.
+   Os nomes são tipos de ambiente, não obras específicas — nenhum cliente,
+   endereço ou condomínio é citado, porque nenhum foi informado. Os dois
+   últimos itens reusam fotos anteriores com recorte diferente: só seis ids
+   do Unsplash foram verificados, e id inventado devolve 404.
+   TODO: substituir img, nome e alt por obras executadas pela LDF. */
+
+export const obras = [
+  {
+    nome: "Cozinha planejada",
+    sigla: "CZ",
+    img: "https://images.unsplash.com/photo-1719368472026-dc26f70a9b76?q=80&w=900&auto=format&fit=crop",
+    alt: "Ambiente residencial com marcenaria planejada e iluminação embutida.",
+  },
+  {
+    nome: "Dormitório",
+    sigla: "DR",
+    img: "https://images.unsplash.com/photo-1649265825072-f7dd6942baed?q=80&w=900&auto=format&fit=crop",
+    alt: "Quarto com cabeceira planejada e luminária de apoio.",
+  },
+  {
+    nome: "Sala e living",
+    sigla: "SL",
+    img: "https://images.unsplash.com/photo-1729086046027-09979ade13fd?q=80&w=900&h=1200&auto=format&fit=crop&crop=right",
+    alt: "Sala de estar com painel e estante planejados.",
+  },
+  {
+    nome: "Home office",
+    sigla: "HO",
+    img: "https://images.unsplash.com/photo-1729086046027-09979ade13fd?q=80&w=900&auto=format&fit=crop",
+    alt: "Bancada de trabalho integrada à marcenaria do ambiente.",
+  },
+  {
+    nome: "Closet",
+    sigla: "CL",
+    img: "https://images.unsplash.com/photo-1601568494843-772eb04aca5d?q=80&w=900&auto=format&fit=crop",
+    alt: "Módulos abertos de closet com prateleiras e gaveteiro.",
+  },
+  {
+    nome: "Área gourmet",
+    sigla: "AG",
+    img: "https://images.unsplash.com/photo-1585687501004-615dfdfde7f1?q=80&w=900&auto=format&fit=crop",
+    alt: "Área gourmet com bancada de apoio e armários inferiores.",
+  },
+  {
+    nome: "Lavanderia",
+    sigla: "LV",
+    img: "https://images.unsplash.com/photo-1719368472026-dc26f70a9b76?q=80&w=900&h=1200&auto=format&fit=crop&crop=top",
+    alt: "Armário alto de lavanderia com portas lisas.",
+  },
+  {
+    nome: "Banheiro",
+    sigla: "BN",
+    img: "https://images.unsplash.com/photo-1649265825072-f7dd6942baed?q=80&w=900&h=1200&auto=format&fit=crop&crop=bottom",
+    alt: "Gabinete de banheiro com espelheira e nicho.",
+  },
+] as const;
