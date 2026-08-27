@@ -906,46 +906,51 @@ a { color: inherit; }
    padding de .wrap. A pista corre sozinha, em loop, e NAO para com o ponteiro
    em cima -- e assim de proposito.
 
-   O loop depende de -50% cair exatamente no inicio da segunda copia, e o card
-   que cresce ameaca isso. Por isso as copias sao dois conteineres flex de
-   largura FIXA: o crescimento redistribui espaco dentro de uma metade, os
-   vizinhos dela encolhem na mesma medida, e a largura da metade nao muda.
-   Com um flex unico, a metade que contivesse o card aberto ficaria ~180px
-   mais larga que a outra e a emenda saltaria a cada volta. */
+   Nenhum card reage ao mouse. Sem expansao, a pista volta a ser simples:
+   largura por max-content, cards de largura fixa, e o -50% dos keyframes cai
+   naturalmente no inicio da segunda copia. Toda a maquinaria de flex-grow com
+   metades de largura travada existia so para sustentar o card que crescia.
+
+   As medidas em pixel cru (291, 600, 537, 36, 32) vieram da referencia. Nao
+   sao tokens porque nao pertencem a escala do sistema: sao a proporcao de um
+   componente. */
 
 .obras {
   background: var(--ground-deep);
-  /* --obras-n vem de Obras.tsx: e obras.length. Todo o resto se calcula a
-     partir daqui, inclusive a posicao dos tracinhos. */
-  --obra-base: clamp(240px, 22vw, 320px);
-  --obra-vao: var(--s5);
-  --obra-alt: calc(var(--obra-base) * 3 / 4);
+  --obra-larg: 291px;
+  --obra-vao: 32px;
 }
 
-/* Mesma tipografia do titulo da Historia: Instrument Serif em 400. Local,
-   nao global -- a .h2 das outras secoes continua em Archivo. O peso 400 e o
-   font-variation-settings: normal sao obrigatorios, e nao decoracao: a .h2
-   herda peso 800 e um eixo wdth, e o Instrument Serif nao tem nem um nem
-   outro. O navegador sintetizaria um falso-negrito. */
+/* Mesma tipografia do titulo da Historia. Local, nao global -- a .h2 das
+   outras secoes continua em Archivo. O peso 400 e o font-variation-settings:
+   normal sao obrigatorios, e nao decoracao: a .h2 herda peso 700 e um eixo
+   wdth, e o Instrument Serif nao tem nem um nem outro. O navegador
+   sintetizaria um falso-negrito. */
 .obras .h2 {
   font-family: var(--font-serif);
   font-weight: 400;
   font-variation-settings: normal;
-  letter-spacing: -0.005em;
-  line-height: 1.08;
+  text-transform: uppercase;
+  letter-spacing: normal;
+  line-height: 1.1;
 }
 
 /* A lede desta secao e maior que a das outras. Local, nao global. */
 .obras .lede { font-size: var(--t-lg); max-width: 54ch; }
+
+/* O cabecalho encosta mais nos cards do que o padrao da folha. 13px e nao
+   um token porque o alvo e a distancia final ate a foto (117px), e ela ja
+   carrega a lede e o padding do trilho. Vale com a lede em duas linhas. */
+.obras .section__head { margin-bottom: 13px; }
 
 .obras__trilho {
   position: relative;
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scroll-behavior: smooth;
-  /* Menos folga que antes: o card nao cresce mais na vertical, entao nao ha
-     o que sobrar por cima e por baixo. */
-  padding-block: var(--s7);
+  /* Era --s8 para o card ampliado nao sair cortado, depois --s7. Sem
+     crescimento nenhum, sobra o respiro da faixa e mais nada. */
+  padding-block: var(--s5);
   /* O gutter impede que o primeiro e o ultimo card colem na borda. */
   padding-inline: var(--gutter);
   scrollbar-width: none;
@@ -965,107 +970,99 @@ a { color: inherit; }
 
 .obras__pista {
   display: flex;
-  /* Largura explicita, nao max-content: com max-content a soma dependeria do
-     conteudo, e e justamente ela que precisa ser constante. */
-  width: calc(2 * var(--obras-n) * (var(--obra-base) + var(--obra-vao)));
+  /* Duas copias identicas de largura fixa: metade da pista e exatamente uma
+     copia, e o -50% cai na costura sem calculo nenhum. */
+  width: max-content;
   animation: obras-desliza 70s linear infinite;
   will-change: transform;
 }
 
-/* Metade de largura travada: e o que mantem o -50% honesto. */
 .obras__metade {
   display: flex;
-  flex: 0 0 calc(var(--obras-n) * (var(--obra-base) + var(--obra-vao)));
+  flex: 0 0 auto;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .obra {
+  /* Contem o nome escondido, que e absoluto. */
   position: relative;
-  /* Base zero e crescimento 1: a metade se divide em partes iguais, e cada
-     parte da exatamente --obra-base. Nada de width -- e o crescimento que
-     muda de valor, e ele nao altera a soma. */
-  flex: 1 1 0;
+  flex: 0 0 auto;
+  width: var(--obra-larg);
+  /* O vao e margem do item, nao gap da pista: com gap, metade da largura cai
+     meio vao antes do inicio da segunda copia e o loop salta. */
   margin-inline-end: var(--obra-vao);
-  transition:
-    flex-grow 420ms var(--ease),
-    opacity 420ms var(--ease),
-    filter 420ms var(--ease);
-}
-
-/* O card sob o ponteiro toma emprestado o espaco dos vizinhos e devolve
-   sozinho quando o ponteiro sai. Sem clique e sem estado. */
-.obra:hover,
-.obra:focus-within { flex-grow: 2.2; }
-
-/* Os vizinhos recuam para o card aberto ganhar o primeiro plano. */
-.obras__pista:hover .obra:not(:hover):not(:focus-within) {
-  opacity: 0.55;
-  filter: saturate(0.7);
-}
-
-/* Tracinho vertical no vao, atravessando a base do quadro. Um por card, e o
-   do ultimo cai no vao que da na metade seguinte -- o padrao nao tem emenda. */
-.obra::after {
-  content: "";
-  position: absolute;
-  top: calc(var(--obra-alt) - 3.5px);
-  right: calc(var(--obra-vao) / -2 - 0.5px);
-  width: 1px;
-  height: 7px;
-  background: var(--edge);
 }
 
 .obra__figura { margin: 0; }
 
-/* O recorte mora no quadro, nao no <li>: com overflow hidden no item a
-   legenda seria cortada junto. */
 .obra__quadro {
   display: block;
-  /* Altura travada, e nao aspect-ratio: com proporcao fixa o card cresceria
-     tambem para baixo, e o pedido e crescer so na horizontal. O valor e o
-     4:3 da largura-base, entao em repouso o card e 4:3 exato e a partir dai
-     so alarga. */
-  height: var(--obra-alt);
-  border-radius: 4px;
-  overflow: hidden;
+  position: relative;
+  /* 291 x 537. Com os 36px ate a legenda e a linha de 27px do rotulo, o card
+     fecha em 600px de altura. */
+  aspect-ratio: 291 / 537;
   background: var(--ground-lift);
 }
 
+/* O recorte mora na imagem, e nao no quadro: com overflow hidden no quadro
+   as duas fileiras de tracinhos, que vivem fora da foto, seriam cortadas. */
 .obra__quadro img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 4px;
 }
 
-/* Sigla e nome ocupam a mesma celula: a troca e de opacidade, nao de caixa. */
+/* Duas fileiras de cinco tracinhos, encostadas nas bordas de cima e de baixo
+   da foto. Um gradiente por fileira, nao cinco nos: a referencia usa cinco
+   divs, o que daria dez por card e 160 na pista inteira. O periodo do
+   repeating-linear-gradient e um quinto da largura, com o traco centrado
+   dentro dele -- por isso o /10. */
+.obra__quadro::before,
+.obra__quadro::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-image: repeating-linear-gradient(90deg,
+    transparent 0 calc(var(--obra-larg) / 10 - 0.5px),
+    var(--edge) calc(var(--obra-larg) / 10 - 0.5px) calc(var(--obra-larg) / 10 + 0.5px),
+    transparent calc(var(--obra-larg) / 10 + 0.5px) calc(var(--obra-larg) / 5));
+}
+.obra__quadro::before { bottom: 100%; }
+.obra__quadro::after { top: 100%; }
+
 .obra__rotulo {
-  display: grid;
-  place-items: center;
-  margin-top: var(--s4);
+  margin-top: 36px;
+  /* Linha de 27px: 537 + 36 + 27 fecha os 600px do card. */
+  line-height: 27px;
   text-align: center;
 }
-.obra__rotulo > span {
-  grid-area: 1 / 1;
-  /* Um tamanho so para os dois: dividindo a mesma celula, valores diferentes
-     fariam a caixa saltar na troca. */
-  font-size: var(--t-md);
+.obra__sigla {
+  font-size: 18px;
+  font-weight: 400;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  transition: opacity 320ms var(--ease), color 320ms var(--ease);
+  color: var(--ink-3);
 }
-.obra__sigla { color: var(--ink-3); }
-/* O nome acende: em ink-3 a troca era imperceptivel sobre o fundo escuro. */
-.obra__nome { color: var(--ink); font-weight: 700; opacity: 0; }
-.obra:hover .obra__sigla,
-.obra:focus-within .obra__sigla { opacity: 0; }
-.obra:hover .obra__nome,
-.obra:focus-within .obra__nome { opacity: 1; }
 
-@media (max-width: 767px) {
-  .obras { --obra-base: 62vw; --obra-vao: var(--s3); }
+/* O nome completo sai da tela, nao da arvore de acessibilidade: o leitor
+   anuncia "Cozinha planejada" e nao "CZ". display: none o tiraria do
+   anuncio junto, e ai a sigla aria-hidden deixaria o card sem rotulo. */
+.obra__nome {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* Movimento reduzido: a pista para de correr e o snap volta a valer, porque
@@ -1078,8 +1075,6 @@ a { color: inherit; }
   }
   .obras__pista { animation: none; will-change: auto; }
   .obra { scroll-snap-align: center; }
-  .obra,
-  .obra__rotulo > span { transition: none; }
 }
 
 /* --- 9. Elevação de ambiente (desenho, não fotografia) -------------------- */
