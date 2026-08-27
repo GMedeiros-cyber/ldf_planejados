@@ -1,5 +1,6 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
+import Obras from "@/components/Obras";
 import Ambientes from "@/components/Ambientes";
 import Fabrica from "@/components/Fabrica";
 import Processo from "@/components/Processo";
@@ -26,8 +27,9 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-        <Ambientes />
+        <Obras />
         <Fabrica />
+        <Ambientes />
         <Processo />
         <Ficha />
         <Comercial />
