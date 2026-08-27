@@ -543,7 +543,9 @@ a { color: inherit; }
 
 /* --- 8b. Obras entregues ---------------------------------------------------
    Carrossel horizontal full-bleed: sangra pelas duas bordas ignorando o
-   padding de .wrap. A rolagem é nativa — overflow-x mais scroll-snap. */
+   padding de .wrap. A pista corre sozinha, em loop, e para quando alguém
+   interage. A rolagem manual continua valendo em paralelo — as duas não se
+   sincronizam, e isso é aceito. */
 
 .obras { background: var(--ground-deep); }
 
@@ -551,12 +553,12 @@ a { color: inherit; }
   position: relative;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  padding-block: var(--s7);
+  /* Folga vertical: o card cresce 1.06 no hover e o overflow-x also recorta
+     no eixo Y. Sem esse respiro, o card ampliado sairia cortado. */
+  padding-block: var(--s8);
   /* O gutter impede que o primeiro e o último card colem na borda. */
   padding-inline: var(--gutter);
-  /* Barra de rolagem some: quem conduz é o snap. */
   scrollbar-width: none;
 }
 .obras__trilho::-webkit-scrollbar { display: none; }
@@ -578,19 +580,44 @@ a { color: inherit; }
     linear-gradient(90deg, var(--edge) 0 1px, transparent 1px);
 }
 
+/* A pista traz duas cópias da lista, então -50% cai exatamente no início da
+   segunda: a emenda não aparece. Só transform é animado. */
+@keyframes obras-desliza {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
 .obras__pista {
   display: flex;
-  gap: var(--s5);
+  /* O vão é margem do item, não gap da pista: com gap, metade da largura
+     cai meio vão antes do início da segunda cópia e o loop salta 12px. */
+  gap: 0;
   width: max-content;
   list-style: none;
   margin: 0;
   padding: 0;
+  animation: obras-desliza 70s linear infinite;
+  will-change: transform;
 }
+
+/* Parar é do trilho, não da pista: assim o ponteiro pausa mesmo quando está
+   sobre o vão entre dois cards. */
+.obras__trilho:hover .obras__pista,
+.obras__trilho:focus-within .obras__pista { animation-play-state: paused; }
 
 .obra {
   flex: 0 0 auto;
   width: clamp(240px, 22vw, 320px);
-  scroll-snap-align: center;
+  margin-inline-end: var(--s5);
+  /* Só opacidade e filtro: mexer na caixa recalcularia a pista inteira a
+     cada quadro e travaria a rolagem. */
+  transition: opacity 420ms var(--ease), filter 420ms var(--ease);
+}
+
+/* Os vizinhos recuam para o card sob o ponteiro ganhar o primeiro plano. */
+.obras__pista:hover .obra:not(:hover) {
+  opacity: 0.55;
+  filter: saturate(0.7);
 }
 
 .obra__figura { margin: 0; }
@@ -603,7 +630,12 @@ a { color: inherit; }
   border-radius: 4px;
   overflow: hidden;
   background: var(--ground-lift);
+  transform-origin: center;
+  transition: transform 420ms var(--ease);
 }
+.obra:hover .obra__quadro,
+.obra:focus-within .obra__quadro { transform: scale(1.06); }
+
 .obra__quadro img {
   display: block;
   width: 100%;
@@ -615,7 +647,8 @@ a { color: inherit; }
 .obra__rotulo {
   display: grid;
   place-items: center;
-  margin-top: var(--s4);
+  /* Respiro para o card ampliado não encostar na legenda. */
+  margin-top: var(--s5);
   text-align: center;
 }
 .obra__rotulo > span {
@@ -623,26 +656,34 @@ a { color: inherit; }
   font-size: var(--t-xs);
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ink-3);
-  transition: opacity 320ms var(--ease);
+  transition: opacity 320ms var(--ease), color 320ms var(--ease);
 }
-.obra__nome { opacity: 0; }
+.obra__sigla { color: var(--ink-3); }
+/* O nome acende: em ink-3 a troca era imperceptível sobre o fundo escuro. */
+.obra__nome { color: var(--ink); font-weight: 700; opacity: 0; }
 .obra:hover .obra__sigla,
 .obra:focus-within .obra__sigla { opacity: 0; }
 .obra:hover .obra__nome,
 .obra:focus-within .obra__nome { opacity: 1; }
 
 @media (max-width: 767px) {
-  .obras__pista { gap: var(--s3); }
-  .obra { width: 62vw; }
+  .obra { width: 62vw; margin-inline-end: var(--s3); }
   /* Traços mais espaçados: em tela estreita eles viram ruído. */
   .obras__trilho { background-size: 100% 1px, 104px 7px, 100% 1px, 104px 7px; }
 }
 
-/* Movimento reduzido tira rolagem suave e transição. O overflow, o snap e
-   toda propriedade de layout permanecem. */
+/* Movimento reduzido: a pista para de correr e o snap volta a valer, porque
+   sem movimento automático ele é útil de novo. Overflow e todo o resto do
+   layout permanecem. */
 @media (prefers-reduced-motion: reduce) {
-  .obras__trilho { scroll-behavior: auto; }
+  .obras__trilho {
+    scroll-behavior: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .obras__pista { animation: none; will-change: auto; }
+  .obra { scroll-snap-align: center; }
+  .obra,
+  .obra__quadro,
   .obra__rotulo > span { transition: none; }
 }
 
