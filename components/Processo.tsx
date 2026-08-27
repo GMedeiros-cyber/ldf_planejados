@@ -1,3 +1,4 @@
+import { EtapaGaleria } from "./ui/image-gallery";
 import { etapas } from "@/lib/dados";
 
 export default function Processo() {
@@ -14,17 +15,7 @@ export default function Processo() {
         </p>
       </div>
 
-      <ol className="etapas rise">
-        {etapas.map((e) => (
-          <li key={e.titulo} className={"marco" in e && e.marco ? "etapa etapa--marco" : "etapa"}>
-            <span className="etapa__n" aria-hidden="true" />
-            <div>
-              <span className="etapa__t">{e.titulo}</span>
-              <p className="etapa__d">{e.texto}</p>
-            </div>
-          </li>
-        ))}
-      </ol>
+      <EtapaGaleria itens={etapas} />
     </section>
   );
 }

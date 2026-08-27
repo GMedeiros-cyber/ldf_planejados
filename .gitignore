@@ -22,6 +22,10 @@ DESIGN.md
 .claude/skills/
 .claude/settings.local.json
 
+# Gerados pelo Next 16 a cada dev — regravados sozinhos
+AGENTS.md
+CLAUDE.md
+
 # Sistema
 .DS_Store
 Thumbs.db

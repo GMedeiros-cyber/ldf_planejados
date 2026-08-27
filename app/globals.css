@@ -64,6 +64,9 @@
      ambiente; todo o resto é Archivo. Inter é anti-padrão e não entra. */
   --font-serif: var(--ff-caslon), "Iowan Old Style", Georgia, serif;
 
+  /* A navegação é fixed e mede 81px; o sticky da pilha cola abaixo dela. */
+  --altura-nav: 5.25rem;
+
   --gutter: clamp(1.25rem, 5vw, 5rem);
   --measure: 68ch;
 
@@ -754,6 +757,117 @@ a { color: inherit; }
   color: var(--red-bright);
 }
 .amb:hover .amb__go, .amb:focus-visible .amb__go { opacity: 1; transform: none; }
+
+/* --- 11b. Pilha de ambientes -----------------------------------------------
+   Cards que grudam no topo e são cobertos pelo seguinte. CSS puro: sticky mais
+   a altura de cada item. Nenhum ancestral pode ter overflow — hidden, clip ou
+   auto desligam o sticky em silêncio. */
+
+.pilha {
+  display: block;      /* nunca flex nem grid: quebra o sticky do filho */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pilha__item {
+  position: static;
+  margin-bottom: var(--s5);
+}
+
+.pilha__card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;                 /* no card, não em ancestral do sticky */
+  border-radius: 24px;
+  /* Fundo 100% opaco: com transparência os cards se veriam através uns dos
+     outros e a cobertura deixaria de existir. */
+  background: var(--ground-lift);
+  min-height: clamp(17rem, 62vw, 26rem);
+  display: flex;
+  flex-direction: column;
+  /* No topo de propósito: a base é o primeiro pedaço que o card seguinte
+     cobre, então o nome do ambiente não pode morar lá. */
+  justify-content: flex-start;
+  padding: clamp(var(--s5), 4vw, var(--s8));
+}
+
+/* A placa de material, mesma gramática dos cards de índice. */
+.pilha__plate {
+  position: absolute; inset: 0; z-index: -2;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+  background: var(--ground-deep);
+}
+.pilha__plate::after {
+  content: ""; position: absolute; z-index: 2;
+  left: 14%; right: 14%; top: 56%; height: 3px; border-radius: 2px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--ink) 62%, transparent) 0 50%,
+    rgba(12,10,9,0.55) 50% 100%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.42);
+}
+
+/* Scrim só onde o rótulo vive. */
+.pilha__card::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg,
+    rgba(10,9,8,0.92) 0%, rgba(10,9,8,0.70) 26%, rgba(10,9,8,0) 60%);
+}
+
+.pilha__nome {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 1.2rem + 3vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  color: var(--ink);
+  text-decoration: none;
+}
+/* Link esticado: o nome carrega o nome acessível, o card inteiro clica. */
+.pilha__nome::after { content: ""; position: absolute; inset: 0; z-index: 3; }
+
+.pilha__meta {
+  color: var(--ink-2);
+  font-size: var(--t-md);
+  margin-top: var(--s3);
+  max-width: 44ch;
+}
+
+.pilha__go {
+  position: absolute; bottom: clamp(var(--s5), 4vw, var(--s8)); right: clamp(var(--s5), 4vw, var(--s8));
+  width: 34px; height: 34px; z-index: 4;
+  color: var(--red-bright);
+  opacity: 0; transform: translate(-6px, 6px);
+  transition: opacity 340ms var(--ease), transform 340ms var(--ease);
+}
+.pilha__card:hover .pilha__go,
+.pilha__card:focus-within .pilha__go { opacity: 1; transform: none; }
+
+/* O empilhamento só a partir de 992px. Abaixo disso é lista vertical comum. */
+@media (min-width: 992px) {
+  .pilha__item {
+    position: sticky;
+    top: var(--altura-nav);
+    /* Nunca maior que a viewport, senão o item não chega a grudar. */
+    height: clamp(620px, 82vh, 820px);
+    margin-bottom: 30px;
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+  .pilha__card { height: 100%; min-height: 0; }
+}
+
+/* Sem movimento: lista normal, sem cola. */
+@media (prefers-reduced-motion: reduce) {
+  .pilha__item {
+    position: static;
+    height: auto;
+    will-change: auto;
+    transform: none;
+  }
+  .pilha__card { height: auto; min-height: clamp(17rem, 62vw, 26rem); }
+  .pilha__go { opacity: 1; transform: none; }
+}
 
 /* --- 12. A fábrica -------------------------------------------------------- */
 
