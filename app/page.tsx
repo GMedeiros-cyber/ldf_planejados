@@ -12,13 +12,18 @@ import Footer from "@/components/Footer";
 import Zap from "@/components/Zap";
 
 /*
-THESIS: A amostra de acabamento é o material da página, não um filtro. O visitante
-veste a peça antes de falar com alguém. Recusa o arranjo padrão da categoria —
-foto de luxo, frase fina por cima, botão de orçamento — porque uma revenda monta
-o mesmo.
+THESIS: A home abre por fotografia: uma capa full-bleed com a promessa
+centrada por cima, e logo abaixo a parede de obras entregues. É o arranjo
+padrão da categoria, adotado de propósito — a LDF é desconhecida e precisa
+afirmar antes de explicar.
 
-STORY: Entende que o acabamento é escolha dele, acredita que quem fabrica responde
-pelo que entrega, e pede o projeto 3D no WhatsApp.
+O amostrário e a elevação desenhada continuam sendo a ideia própria do
+sistema, mas saíram da capa: agora vivem na página de ambiente, onde quem
+já está decidindo o acabamento vai encontrá-los. A pilha de ambientes e a
+linha do tempo das onze etapas seguram o meio da página.
+
+STORY: Reconhece o nível do trabalho na capa, entende que quem fabrica
+responde pelo que entrega, e pede o projeto 3D no WhatsApp.
 */
 
 export default function Home() {
