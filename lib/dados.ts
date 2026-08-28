@@ -25,6 +25,13 @@ export const contato = {
 
 export const whatsappUrl = `https://wa.me/${contato.whatsapp}`;
 
+/* Quem assinou o desenho e o código. Fica aqui, e não solto no JSX, pela
+   mesma razão que o resto: um lugar só para editar. */
+export const creditos = {
+  autor: "Tribus Labs",
+  url: "https://tribuslabs.com.br",
+} as const;
+
 /* --- Acabamentos -----------------------------------------------------------
    PROVISÓRIO: são exemplos de referência. A cartela real da LDF entra aqui
    quando o cliente informar as opções e os códigos. */

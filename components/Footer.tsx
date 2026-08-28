@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ambientes, contato, empresa, whatsappUrl } from "@/lib/dados";
+import { ambientes, contato, creditos, empresa, whatsappUrl } from "@/lib/dados";
 
 const institucional = [
   { href: "/#fabrica", texto: "A LDF" },
@@ -75,10 +75,30 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* Ornamento, não conteúdo: o nome da empresa está na barra legal logo
+          abaixo. Fica fora da árvore de acessibilidade e fora do ponteiro. */}
+      <img
+        className="footer__assinatura"
+        src="/assinatura-ldf.png"
+        width={2630}
+        height={607}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+      />
+
       <div className="wrap footer__legal">
-        <span>{empresa.razaoSocial}</span>
-        <span className="num">CNPJ {empresa.cnpj}</span>
-        <span className="footer__legal-fim">Política de privacidade</span>
+        <div className="footer__legal-grupo">
+          <span>{empresa.razaoSocial}</span>
+          <span className="num">CNPJ {empresa.cnpj}</span>
+        </div>
+        <div className="footer__legal-grupo">
+          <span>Política de privacidade</span>
+          <a href={creditos.url} target="_blank" rel="noopener">
+            Design e site por {creditos.autor}
+          </a>
+        </div>
       </div>
     </footer>
   );
