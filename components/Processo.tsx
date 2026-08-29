@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { CSSProperties, Ref } from "react";
+import type { Ref } from "react";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { estagios } from "@/lib/dados";
 
-/* Quatro estágios em escadinha, ligados por linhas em L.
+/* Quatro estágios lado a lado, em quatro colunas iguais.
 
    A seção rola normalmente: nada de sticky nem de prender a página por 300vh.
    A única coisa que o scroll move é a altura da linha de progresso de cada
@@ -16,23 +16,11 @@ type Estagio = (typeof estagios)[number];
 
 /* Só a linha e o número mudam entre a versão parada e a animada; o bloco em
    si é o mesmo markup nos dois casos. */
-function Bloco({
-  estagio,
-  indice,
-  ref,
-}: {
-  estagio: Estagio;
-  indice: number;
-  ref?: Ref<HTMLLIElement>;
-}) {
+function Bloco({ estagio, ref }: { estagio: Estagio; ref?: Ref<HTMLLIElement> }) {
   const marco = "marco" in estagio && estagio.marco;
 
   return (
-    <li
-      ref={ref}
-      className={marco ? "estagio estagio--marco" : "estagio"}
-      style={{ "--i": indice } as CSSProperties}
-    >
+    <li ref={ref} className={marco ? "estagio estagio--marco" : "estagio"}>
       <div className="estagio__cabeca">
         {/* A ordem já vem do <ol>; o numeral é reforço visual. */}
         <span className="estagio__n" aria-hidden="true">
@@ -56,7 +44,7 @@ function Bloco({
   );
 }
 
-function BlocoAnimado({ estagio, indice }: { estagio: Estagio; indice: number }) {
+function BlocoAnimado({ estagio }: { estagio: Estagio }) {
   const bloco = useRef<HTMLLIElement>(null);
 
   /* "center center": a linha completa quando o bloco chega ao meio da tela,
@@ -79,7 +67,7 @@ function BlocoAnimado({ estagio, indice }: { estagio: Estagio; indice: number })
 
   useMotionValueEvent(scrollYProgress, "change", escrever);
 
-  return <Bloco estagio={estagio} indice={indice} ref={bloco} />;
+  return <Bloco estagio={estagio} ref={bloco} />;
 }
 
 export default function Processo() {
@@ -106,12 +94,8 @@ export default function Processo() {
       </div>
 
       <ol className="estagios">
-        {estagios.map((e, i) =>
-          animar ? (
-            <BlocoAnimado estagio={e} indice={i} key={e.n} />
-          ) : (
-            <Bloco estagio={e} indice={i} key={e.n} />
-          ),
+        {estagios.map((e) =>
+          animar ? <BlocoAnimado estagio={e} key={e.n} /> : <Bloco estagio={e} key={e.n} />,
         )}
       </ol>
     </section>
