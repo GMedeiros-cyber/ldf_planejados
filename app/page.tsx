@@ -5,7 +5,6 @@ import Historia from "@/components/Historia";
 import Obras from "@/components/Obras";
 import Fabrica from "@/components/Fabrica";
 import Processo from "@/components/Processo";
-import Comercial from "@/components/Comercial";
 import Fechamento from "@/components/Fechamento";
 import Footer from "@/components/Footer";
 
@@ -20,8 +19,8 @@ sistema, mas não moram na capa: vivem na página de ambiente, onde quem já
 está decidindo o acabamento vai encontrá-los. A parede de obras e a escadinha
 dos quatro estágios seguram o meio da página.
 
-A pilha de ambientes saiu daqui para /ambientes, que agora é a rota-mãe dos
-oito. A prova social saiu do ar até haver foto de obra e depoimento assinado.
+A pilha de ambientes e o bloco comercial saíram daqui para /ambientes, que
+agora é a rota-mãe dos oito ambientes e do público comercial. A prova social saiu do ar até haver foto de obra e depoimento assinado.
 
 As fotos da capa são MOCKUP de terceiros, marcadas em lib/dados.ts. Não vão
 ao ar: entram as da LDF antes do deploy.
@@ -41,7 +40,6 @@ export default function Home() {
         <Obras />
         <Fabrica />
         <Processo />
-        <Comercial />
         <Fechamento />
       </main>
       <Footer />

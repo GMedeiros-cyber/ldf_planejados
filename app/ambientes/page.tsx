@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Ambientes from "@/components/Ambientes";
+import Comercial from "@/components/Comercial";
 
 export const metadata: Metadata = {
   title: "Ambientes planejados — LDF Planejados",
@@ -14,6 +15,10 @@ export const metadata: Metadata = {
    <html> → <body> → <main> → .section.wrap → .pilha, e nenhum deles declara
    overflow (o único overflow do bloco é o .pilha__card, que é descendente do
    sticky, não ancestral). Não envolva isto em wrapper novo sem conferir.
+
+   O <Comercial /> entra como IRMÃO dessa section, não dentro dela: assim ele
+   não chega a ser ancestral da pilha, e a questão do overflow nem se coloca.
+   O id="comercial" dele passa a ser âncora desta rota.
 
    O texto do cabeçalho é o que vivia em Ambientes.tsx, com o h2 promovido a
    h1: agora é o título da página, não de uma seção da home. */
@@ -37,6 +42,8 @@ export default function PaginaAmbientes() {
 
           <Ambientes />
         </section>
+
+        <Comercial />
       </main>
       <Footer />
     </>

@@ -10,7 +10,7 @@ import Logo from "./Logo";
 
 const links = [
   { href: "/ambientes", texto: "Ambientes" },
-  { href: "/#comercial", texto: "Espaços comerciais" },
+  { href: "/ambientes#comercial", texto: "Espaços comerciais" },
   { href: "/#processo", texto: "Como funciona" },
   { href: "/#fabrica", texto: "A LDF" },
   { href: "/#contato", texto: "Contato" },
