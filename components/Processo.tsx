@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Ref } from "react";
 import { useMotionValueEvent, useScroll } from "motion/react";
+import FundoShader from "./FundoShader";
 import { estagios } from "@/lib/dados";
 
 /* Quatro estágios lado a lado, em quatro colunas iguais.
@@ -81,23 +82,32 @@ export default function Processo() {
   }, []);
 
   return (
-    <section className="section wrap processo" id="processo" aria-labelledby="t-proc">
-      <div className="section__head rise">
-        <h2 className="h2" id="t-proc">
-          O orçamento é o terceiro estágio, não o primeiro.
-        </h2>
-        <p className="lede">
-          Ninguém consegue precificar um móvel que ainda não foi desenhado. Por isso a medição e o
-          projeto vêm antes de qualquer número: você aprova o desenho no seu ambiente e só então vê
-          o valor.
-        </p>
+    <section className="section processo" id="processo" aria-labelledby="t-proc">
+      {/* O .wrap saiu da section e foi para o conteúdo: o fundo precisa
+          atravessar o gutter, o texto não. */}
+      <div className="processo__fundo">
+        <FundoShader />
+        <div className="processo__veu" />
       </div>
 
-      <ol className="estagios">
-        {estagios.map((e) =>
-          animar ? <BlocoAnimado estagio={e} key={e.n} /> : <Bloco estagio={e} key={e.n} />,
-        )}
-      </ol>
+      <div className="wrap processo__conteudo">
+        <div className="section__head rise">
+          <h2 className="h2" id="t-proc">
+            O orçamento é o terceiro estágio, não o primeiro.
+          </h2>
+          <p className="lede">
+            Ninguém consegue precificar um móvel que ainda não foi desenhado. Por isso a medição e
+            o projeto vêm antes de qualquer número: você aprova o desenho no seu ambiente e só
+            então vê o valor.
+          </p>
+        </div>
+
+        <ol className="estagios">
+          {estagios.map((e) =>
+            animar ? <BlocoAnimado estagio={e} key={e.n} /> : <Bloco estagio={e} key={e.n} />,
+          )}
+        </ol>
+      </div>
     </section>
   );
 }
