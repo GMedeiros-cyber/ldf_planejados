@@ -9,7 +9,7 @@ import Logo from "./Logo";
    que existem em app/page.tsx — conferido, nenhum órfão. */
 
 const links = [
-  { href: "/#ambientes", texto: "Ambientes" },
+  { href: "/ambientes", texto: "Ambientes" },
   { href: "/#comercial", texto: "Espaços comerciais" },
   { href: "/#processo", texto: "Como funciona" },
   { href: "/#fabrica", texto: "A LDF" },

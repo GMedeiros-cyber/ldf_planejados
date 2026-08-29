@@ -105,7 +105,7 @@ export default function Cozinha() {
               <p className="migalha">
                 <Link href="/">LDF</Link>
                 <Chevron />
-                <Link href="/#ambientes">Ambientes</Link>
+                <Link href="/ambientes">Ambientes</Link>
                 <Chevron />
                 <span>Cozinha</span>
               </p>
@@ -207,7 +207,7 @@ export default function Cozinha() {
               Falar no WhatsApp
               <Seta />
             </a>
-            <Link className="btn btn--ghost" href="/#ambientes">
+            <Link className="btn btn--ghost" href="/ambientes">
               Ver outros ambientes
             </Link>
           </div>

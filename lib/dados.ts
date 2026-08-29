@@ -66,6 +66,11 @@ export const acabamentoInicial: ChaveAcabamento = "nogueira";
 
 /* --- Ambientes ------------------------------------------------------------ */
 
+/* href null = ainda não existe página própria. O card não vira link e o
+   rodapé manda para a listagem, em vez de prometer navegação que não existe.
+   TODO: criar as páginas dos outros sete ambientes conforme o cliente enviar
+   fotos e conteúdo. */
+
 export const ambientes = [
   {
     nome: "Cozinha",
@@ -76,43 +81,43 @@ export const ambientes = [
   {
     nome: "Dormitório",
     meta: "Guarda-roupa, cabeceira e criado suspenso",
-    href: "#contato",
+    href: null,
     fin: "carvalho",
   },
   {
     nome: "Closet",
     meta: "Módulos abertos, gaveteiro e sapateira",
-    href: "#contato",
+    href: null,
     fin: "laca-branca",
   },
   {
     nome: "Home office",
     meta: "Bancada, painel e passagem de cabos",
-    href: "#contato",
+    href: null,
     fin: "freijo",
   },
   {
     nome: "Área gourmet",
     meta: "Churrasqueira, adega e bancada de apoio",
-    href: "#contato",
+    href: null,
     fin: "laca-grafite",
   },
   {
     nome: "Banheiro",
     meta: "Gabinete, espelheira e nicho",
-    href: "#contato",
+    href: null,
     fin: "cinza",
   },
   {
     nome: "Sala e living",
     meta: "Painel de TV, rack e estante",
-    href: "#contato",
+    href: null,
     fin: "carvalho",
   },
   {
     nome: "Lavanderia",
     meta: "Torre de máquinas, tanque e armário alto",
-    href: "#contato",
+    href: null,
     fin: "laca-branca",
   },
 ] as const;
