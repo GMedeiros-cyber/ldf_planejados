@@ -32,6 +32,15 @@ export const creditos = {
   url: "https://tribuslabs.com.br",
 } as const;
 
+/* --- Números da casa -------------------------------------------------------
+   Confirmados pelo cliente. Não são estimativa nem arredondamento nosso. */
+
+export const numeros = [
+  { alvo: 1200, prefixo: "+", sufixo: "", rotulo: "Projetos entregues e montados" },
+  { alvo: 15,   prefixo: "+", sufixo: "", rotulo: "Anos de história" },
+  { alvo: 5,    prefixo: "",  sufixo: "", rotulo: "Anos de garantia" },
+] as const;
+
 /* --- Acabamentos -----------------------------------------------------------
    PROVISÓRIO: são exemplos de referência. A cartela real da LDF entra aqui
    quando o cliente informar as opções e os códigos. */
