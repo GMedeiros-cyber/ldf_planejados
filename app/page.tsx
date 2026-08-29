@@ -6,7 +6,6 @@ import Obras from "@/components/Obras";
 import Ambientes from "@/components/Ambientes";
 import Fabrica from "@/components/Fabrica";
 import Processo from "@/components/Processo";
-import Ficha from "@/components/Ficha";
 import Comercial from "@/components/Comercial";
 import Prova from "@/components/Prova";
 import Fechamento from "@/components/Fechamento";
@@ -21,7 +20,7 @@ de propósito — a LDF é desconhecida e precisa afirmar antes de explicar.
 O amostrário e a elevação desenhada continuam sendo a ideia própria do
 sistema, mas não moram na capa: vivem na página de ambiente, onde quem já
 está decidindo o acabamento vai encontrá-los. A parede de obras, a pilha de
-ambientes e a linha do tempo das onze etapas seguram o meio da página.
+ambientes e a escadinha dos quatro estágios seguram o meio da página.
 
 As fotos da capa são MOCKUP de terceiros, marcadas em lib/dados.ts. Não vão
 ao ar: entram as da LDF antes do deploy.
@@ -42,7 +41,6 @@ export default function Home() {
         <Fabrica />
         <Ambientes />
         <Processo />
-        <Ficha />
         <Comercial />
         <Prova />
         <Fechamento />

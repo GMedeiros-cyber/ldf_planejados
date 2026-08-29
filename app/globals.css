@@ -1504,42 +1504,137 @@ a { color: inherit; }
 .cadeia__what { font-size: var(--t-md); color: var(--ink-2); }
 .cadeia__row--ldf .cadeia__what { color: var(--ink); }
 
-/* --- 13. Processo: as 11 etapas, inteiras -------------------------------- */
+/* --- 13. Processo: quatro estágios em escadinha --------------------------
+   Os blocos descem em diagonal por fluxo normal — cada um recua --degrau a
+   mais que o anterior — e se ligam por uma linha em L feita de borda.
 
-.etapas { display: grid; gap: 0; counter-reset: etapa; }
+   O degrau é fluido de propósito: em 992px (onde a escadinha ainda vale)
+   11vw dá 109px, e 380 + 3×109 = 707px cabe folgado na coluna de conteúdo,
+   que ali mede ~893px. Encolher o degrau é a saída quando aperta; a largura
+   do bloco não se mexe. ------------------------------------------------------ */
 
-.etapa {
-  display: grid;
-  grid-template-columns: 4.5rem 1fr;
-  gap: var(--s5);
-  padding-block: var(--s5);
-  border-top: 1px solid var(--edge);
-  align-items: start;
+.estagios {
+  --largura: 380px;
+  --degrau: clamp(96px, 11vw, 150px);
+  --vao: var(--s7);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
-.etapa:last-child { border-bottom: 1px solid var(--edge); }
 
-.etapa__n {
-  counter-increment: etapa;
+.estagio {
+  --recuo: 2rem;
+  position: relative;
+  width: var(--largura);
+  margin-left: calc(var(--i) * var(--degrau));
+}
+
+.estagio + .estagio { margin-top: var(--vao); }
+
+.estagio__cabeca { display: flex; align-items: baseline; }
+
+.estagio__n {
+  width: var(--recuo);
+  flex: none;
   font-variant-numeric: tabular-nums;
-  font-size: var(--t-numeral); font-weight: 700;
   font-variation-settings: "wdth" 70;
+  font-weight: 700;
+  font-size: var(--t-sm);
   color: var(--ink-3);
-  line-height: 1;
-  padding-top: 0.2rem;
 }
-.etapa__n::before { content: counter(etapa, decimal-leading-zero); }
 
-.etapa--marco { background: var(--ground-lift); padding-inline: var(--s5); }
-/* A sangria só onde o gutter a absorve. */
-@media (min-width: 720px) { .etapa--marco { margin-inline: calc(var(--s5) * -1); } }
-.etapa--marco .etapa__n { color: var(--red-bright); }
-.etapa__t { display: block; font-weight: 700; letter-spacing: -0.015em; }
-.etapa__d {
-  font-family: var(--font-texto); color: var(--ink-2); font-size: var(--t-md); margin-top: var(--s2); max-width: 56ch; }
+.estagio__t {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.45rem, 1.15rem + 1vw, 1.95rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
 
-@media (max-width: 620px) {
-  .etapa { grid-template-columns: 3rem 1fr; gap: var(--s4); }
-  .etapa__n { font-size: var(--t-numeral-sm); }
+/* O corpo é indentado no mesmo recuo do numeral, então o texto alinha com o
+   título e a linha corre pela lateral esquerda, sob o número. */
+.estagio__corpo {
+  --corrida: calc(100% + var(--vao));
+  position: relative;
+  padding-left: var(--recuo);
+  padding-top: var(--s3);
+}
+
+/* O último não vira à direita: não há próximo bloco para encontrar. */
+.estagio:last-child .estagio__corpo { --corrida: 100%; }
+
+/* A base do L: desce pela lateral e vira à direita até o início do próximo
+   bloco, exatamente --degrau adiante e --vao abaixo. */
+.estagio__corpo::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--degrau);
+  height: var(--corrida);
+  border-left: 1px solid var(--edge);
+  border-bottom: 1px solid var(--edge);
+  pointer-events: none;
+}
+.estagio:last-child .estagio__corpo::before { width: 1px; border-bottom: 0; }
+
+/* A linha de progresso, sobreposta ao trecho vertical. O fallback é 1: sem
+   JS, ou em movimento reduzido, a linha já nasce cheia. */
+.estagio__corpo::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: calc(var(--progresso, 1) * var(--corrida));
+  background: var(--ink);
+  pointer-events: none;
+}
+
+.estagio__p {
+  font-family: var(--font-texto);
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.12rem);
+  line-height: 1.5;
+  color: var(--ink-2);
+  margin: 0;
+  max-width: none;
+}
+
+/* As etapas contidas. O · é ornamento e vem de pseudo-elemento, nunca do
+   texto — leitor de tela lê os itens da lista, não a pontuação. */
+.estagio__etapas {
+  list-style: none;
+  margin: var(--s4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-texto);
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.estagio__etapa + .estagio__etapa::before {
+  content: "·";
+  margin-inline: 0.45em;
+  color: var(--edge-3);
+}
+
+/* O marco: onde a assinatura inicia o prazo, e para onde o título da seção
+   aponta. Mesma tinta de acento que a lista de etapas já usava. */
+.estagio--marco .estagio__n { color: var(--red-bright); }
+.estagio--marco .estagio__corpo::before {
+  border-left-color: color-mix(in srgb, var(--red-bright) 45%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--red-bright) 45%, transparent);
+}
+.estagio--marco .estagio__corpo::after { background: var(--red-bright); }
+
+/* Abaixo de 992px a escadinha não cabe: vira coluna única, largura total,
+   com a linha vertical à esquerda e sem a curva do L. */
+@media (max-width: 991px) {
+  .estagio { width: auto; margin-left: 0; }
+  .estagio__corpo::before { width: 1px; border-bottom: 0; }
 }
 
 /* --- 13b. Lista de módulos (páginas de ambiente) ------------------------- */
@@ -1587,7 +1682,6 @@ a { color: inherit; }
   font-variant-numeric: tabular-nums;
 }
 .ficha__v--sm { font-size: var(--t-h3); }
-.ficha__u { display: inline-block; margin-left: 0.15em; font-size: var(--t-md); font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
 .ficha__d {
   font-family: var(--font-texto); display: block; color: var(--ink-2); font-size: var(--t-sm); margin-top: var(--s3); }
 
@@ -1831,5 +1925,3 @@ a { color: inherit; }
 }
 .ficha--nua .ficha__cell { background: var(--ground-lift); }
 
-/* A lista de etapas é ordenada semanticamente; o numeral vem do counter. */
-.etapas { list-style: none; margin: 0; padding: 0; }

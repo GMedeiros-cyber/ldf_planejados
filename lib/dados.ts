@@ -176,7 +176,47 @@ export const etapas = [
   },
 ] as const;
 
-/* --- Ficha técnica -------------------------------------------------------- */
+/* --- Os quatro estágios ----------------------------------------------------
+   Agrupam as onze etapas acima para a home. As frases são condensação dos
+   textos de `etapas` — nenhuma informação nova entra aqui. O array `etapas`
+   continua sendo a fonte completa. */
+
+export const estagios = [
+  {
+    n: "01",
+    titulo: "Entender o ambiente",
+    texto:
+      "A planta que você tiver já começa a conversa, mas é a medição no local — prumo, esquadro, ponto de água e altura de forro — que decide o que é possível de verdade.",
+    etapas: ["Contato inicial", "Planta ou medidas", "Medição no local"],
+  },
+  {
+    n: "02",
+    titulo: "Desenhar",
+    texto:
+      "O móvel desenhado no seu ambiente, não em um genérico: você vê o projeto antes de ver qualquer valor, e ajusta até ficar do jeito que quer.",
+    etapas: ["Projeto 3D", "Apresentação", "Aprovação"],
+  },
+  {
+    n: "03",
+    titulo: "Fechar",
+    texto:
+      "O orçamento sai módulo por módulo, sem valor por metro solto, e a assinatura do projeto executivo é o marco que inicia o prazo.",
+    etapas: ["Orçamento completo", "Assinatura do projeto executivo"],
+    marco: true,
+  },
+  {
+    n: "04",
+    titulo: "Fabricar e montar",
+    texto:
+      "Até 45 dias úteis de produção na nossa fábrica em Guarulhos, entrega em data combinada e montagem começando de 1 a 15 dias úteis depois.",
+    etapas: ["Produção", "Entrega", "Montagem"],
+  },
+] as const;
+
+/* --- Ficha técnica --------------------------------------------------------
+   Mantido fora da home. Os números (garantia de ferragens, prazo de produção,
+   início da montagem) serão reaproveitados na página de contato ou em
+   /ambientes. */
 
 export const ficha = [
   {
