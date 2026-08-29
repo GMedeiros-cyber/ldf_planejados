@@ -3,8 +3,8 @@ import Hero from "@/components/Hero";
 import Numeros from "@/components/Numeros";
 import Historia from "@/components/Historia";
 import Obras from "@/components/Obras";
-import Fabrica from "@/components/Fabrica";
 import Processo from "@/components/Processo";
+import Fabrica from "@/components/Fabrica";
 import Fechamento from "@/components/Fechamento";
 import Footer from "@/components/Footer";
 
@@ -14,19 +14,33 @@ opacidade, cada uma com a sua frase no canto inferior esquerdo, e nada mais:
 sem botão, sem rótulo, sem chamada. É o arranjo padrão da categoria, adotado
 de propósito — a LDF é desconhecida e precisa afirmar antes de explicar.
 
-O amostrário e a elevação desenhada continuam sendo a ideia própria do
-sistema, mas não moram na capa: vivem na página de ambiente, onde quem já
-está decidindo o acabamento vai encontrá-los. A parede de obras e a escadinha
-dos quatro estágios seguram o meio da página.
+Sete blocos, nesta ordem:
 
-A pilha de ambientes e o bloco comercial saíram daqui para /ambientes, que
-agora é a rota-mãe dos oito ambientes e do público comercial. A prova social saiu do ar até haver foto de obra e depoimento assinado.
+1. Hero       As três capas. Só imagem e frase.
+2. Numeros    +1.200 projetos, +15 anos, 5 anos de garantia. Contam quando
+              entram na tela. São os números que o cliente confirmou.
+3. Historia   De Guarulhos, direto da fábrica: entre quem desenha o móvel e
+              quem corta a chapa não existe ninguém.
+4. Obras      A parede de trabalho entregue, em carrossel contínuo.
+5. Processo   Os quatro estágios, com o orçamento no terceiro. Responde
+              "como funciona" antes de "por que em vocês". Fundo em shader.
+6. Fabrica    Não tem revenda no meio: a cadeia da franquia contra a nossa.
+              Vem DEPOIS do processo de propósito — é a razão estrutural de
+              o processo poder ser aquele, e só faz sentido depois de a
+              pessoa ter visto qual é o processo.
+7. Fechamento Faixa de madeira: logo, uma frase e um botão para /contato.
 
-As fotos da capa são MOCKUP de terceiros, marcadas em lib/dados.ts. Não vão
-ao ar: entram as da LDF antes do deploy.
+O amostrário e a elevação desenhada não moram aqui: vivem em /ambientes e na
+página da cozinha, onde quem já está decidindo o acabamento vai encontrá-los.
+A pilha de ambientes e o bloco comercial saíram para /ambientes. A prova
+social saiu do ar até haver foto de obra e depoimento assinado.
 
-STORY: Reconhece o nível do trabalho na capa, entende que quem fabrica
-responde pelo que entrega, e pede o projeto 3D no WhatsApp.
+As fotos da capa e as da parede de obras são MOCKUP de terceiros, marcadas em
+lib/dados.ts. Não vão ao ar: entram as da LDF antes do deploy.
+
+STORY: Reconhece o nível do trabalho na capa, vê três números que a casa
+assume, entende como o projeto anda até virar móvel, descobre por que o prazo
+e a garantia são da própria LDF, e pede o projeto.
 */
 
 export default function Home() {
@@ -38,8 +52,8 @@ export default function Home() {
         <Numeros />
         <Historia />
         <Obras />
-        <Fabrica />
         <Processo />
+        <Fabrica />
         <Fechamento />
       </main>
       <Footer />
