@@ -31,7 +31,9 @@ export default function Comercial() {
           </div>
 
           <div className="hero__actions hero__actions--afastada">
-            <Link className="btn" href="#contato">
+            {/* "/#contato" e nao "#contato": o id vive no Fechamento da home,
+                e esta seção agora é renderizada em /ambientes. */}
+            <Link className="btn" href="/#contato">
               Falar sobre um projeto comercial
               <Seta />
             </Link>
