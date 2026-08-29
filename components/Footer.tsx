@@ -36,7 +36,9 @@ export default function Footer() {
           <ul>
             {ambientes.map((a) => (
               <li key={a.nome}>
-                <Link href={a.href.startsWith("#") ? `/${a.href}` : a.href}>{a.nome}</Link>
+                {/* Sem página própria, o nome leva à listagem — nunca ao
+                    formulário de contato, que era o destino antigo. */}
+                <Link href={a.href ?? "/ambientes"}>{a.nome}</Link>
               </li>
             ))}
           </ul>

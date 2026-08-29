@@ -1455,6 +1455,23 @@ a { color: inherit; }
   max-width: 44ch;
 }
 
+/* Card sem página própria: o nome deixa de ser link, então o link esticado
+   do ::after não pode continuar cobrindo o card — ele roubaria o cursor sem
+   levar a lugar nenhum. */
+.pilha__nome--inerte::after { content: none; }
+
+/* Rótulo no lugar da seta. Discreto de propósito: informa que a página ainda
+   não existe sem competir com o nome do ambiente. */
+.pilha__breve {
+  position: absolute;
+  bottom: clamp(var(--s5), 4vw, var(--s8));
+  right: clamp(var(--s5), 4vw, var(--s8));
+  z-index: 4;
+  font-family: var(--font-texto);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+
 .pilha__go {
   position: absolute; bottom: clamp(var(--s5), 4vw, var(--s8)); right: clamp(var(--s5), 4vw, var(--s8));
   width: 34px; height: 34px; z-index: 4;
@@ -1483,6 +1500,18 @@ a { color: inherit; }
    não animação, e não causa desconforto vestibular. */
 @media (prefers-reduced-motion: reduce) {
   .pilha__go { opacity: 1; transform: none; transition: none; }
+}
+
+/* Primeira seção de /ambientes. A navbar é fixed e mede --altura-nav, e o
+   padding-block padrão da .section (64–128px) não a limpa sozinho: em 1200px
+   os dois empatam e o h1 encosta na barra. Sem régua de topo, porque não há
+   seção anterior de que se separar.
+
+   Nada de overflow aqui: esta é ancestral direta da .pilha, e overflow em
+   ancestral desliga o position: sticky dos cards. */
+.pagina-ambientes {
+  border-top: 0;
+  padding-block-start: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
 }
 
 /* --- 12. A fábrica -------------------------------------------------------- */

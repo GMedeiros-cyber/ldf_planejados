@@ -1,5 +1,8 @@
 import { slotsProva } from "@/lib/dados";
 
+/* Fora do ar até haver obras fotografadas e clientes dispostos a assinar o
+   depoimento. Nada aqui pode ser inventado — ver o comentário original. */
+
 /* Prova social: slots honestos.
    Nada aqui pode ser inventado. Ver PRODUCT.md, Evidence on Hand. */
 

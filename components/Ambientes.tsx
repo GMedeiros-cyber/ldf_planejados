@@ -5,51 +5,46 @@ import { ambientes } from "@/lib/dados";
 
 /* Pilha empilhada: cada card gruda no topo e é coberto pelo seguinte.
    O efeito é CSS puro (position: sticky + altura por item) — ver .pilha em
-   globals.css. A <section> NÃO pode receber overflow-hidden: qualquer
-   ancestral com overflow desliga o sticky sem avisar. */
+   globals.css. NENHUM ancestral pode ter overflow hidden, clip ou auto:
+   qualquer um deles desliga o sticky sem avisar. Hoje a cadeia até o <html>
+   está limpa; quem mexer no layout de /ambientes precisa manter assim.
+
+   O cabeçalho da seção não mora aqui — vive em app/ambientes/page.tsx, que é
+   quem dá o <h1> ao qual esta lista se refere.
+
+   Só a Cozinha tem página. Os outros sete não viram link: sem <a>, sem a
+   seta diagonal, e com um rótulo dizendo que a página ainda não existe. É
+   preferível a mandar quem clicou num ambiente para o formulário de contato. */
 
 export default function Ambientes() {
   return (
-    <section className="section wrap" id="ambientes" aria-labelledby="t-amb">
-      <div className="section__head rise">
-        <h2 className="h2" id="t-amb">
-          Cada ambiente tem a sua régua.
-        </h2>
-        <p className="lede">
-          Uma cozinha se resolve por circulação e altura de bancada. Um closet, por volumetria e
-          iluminação interna. São projetos diferentes, e o site trata cada um no seu próprio
-          capítulo.
-        </p>
-      </div>
+    <ul className="pilha">
+      {ambientes.map((amb) => (
+        <li key={amb.nome} className="pilha__item">
+          <article className="pilha__card" data-fin={amb.fin}>
+            <span className="pilha__plate" aria-hidden="true">
+              <span className="mat" />
+              <span className="mat" />
+              <span className="mat" />
+            </span>
 
-      <ul className="pilha">
-        {ambientes.map((amb) => (
-          <li key={amb.nome} className="pilha__item">
-            <article className="pilha__card" data-fin={amb.fin}>
-              <span className="pilha__plate" aria-hidden="true">
-                <span className="mat" />
-                <span className="mat" />
-                <span className="mat" />
-              </span>
+            {amb.href ? <SetaDiagonal className="pilha__go" /> : null}
 
-              <SetaDiagonal className="pilha__go" />
+            <h3>
+              {amb.href ? (
+                <Link className="pilha__nome" href={amb.href}>
+                  {amb.nome}
+                </Link>
+              ) : (
+                <span className="pilha__nome pilha__nome--inerte">{amb.nome}</span>
+              )}
+            </h3>
+            <p className="pilha__meta">{amb.meta}</p>
 
-              <h3>
-                {amb.href.startsWith("/") ? (
-                  <Link className="pilha__nome" href={amb.href}>
-                    {amb.nome}
-                  </Link>
-                ) : (
-                  <a className="pilha__nome" href={amb.href}>
-                    {amb.nome}
-                  </a>
-                )}
-              </h3>
-              <p className="pilha__meta">{amb.meta}</p>
-            </article>
-          </li>
-        ))}
-      </ul>
-    </section>
+            {amb.href ? null : <span className="pilha__breve">Página em breve</span>}
+          </article>
+        </li>
+      ))}
+    </ul>
   );
 }
