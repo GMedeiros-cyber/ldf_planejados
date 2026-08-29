@@ -1550,6 +1550,22 @@ a { color: inherit; }
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  /* Sem régua de topo: o shader é material próprio e já separa sozinho, do
+     mesmo jeito que a madeira do .fechamento. A régua ali em cima ficaria
+     como uma linha solta sobre o bloco. */
+  border-top: 0;
+}
+
+/* E quem vier logo depois também não leva régua. A --edge tem L* 16.4 contra
+   5.5 do fundo da página e 2.3 do pé do shader: encostada na base do bloco
+   escuro ela vira um fio claro no ponto mais escuro da home. A troca de
+   material já é a divisão; o que falta ali é respiro, não linha.
+
+   Escrito como irmão adjacente de propósito: vale para qualquer seção que
+   venha depois do Processo, e sobrevive à próxima reordenação. */
+.processo + .section {
+  border-top: 0;
+  padding-block-start: clamp(var(--s9), 10vw, var(--s11));
 }
 
 /* Sem isto o h2 comecaria na borda do gutter e a grade, recuada: em 1920px
