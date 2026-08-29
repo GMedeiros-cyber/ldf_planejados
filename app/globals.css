@@ -1508,14 +1508,34 @@ a { color: inherit; }
    Os blocos descem em diagonal por fluxo normal — cada um recua --degrau a
    mais que o anterior — e se ligam por uma linha em L feita de borda.
 
-   O degrau é fluido de propósito: em 992px (onde a escadinha ainda vale)
-   11vw dá 109px, e 380 + 3×109 = 707px cabe folgado na coluna de conteúdo,
-   que ali mede ~893px. Encolher o degrau é a saída quando aperta; a largura
-   do bloco não se mexe. ------------------------------------------------------ */
+   O degrau é uma reta fluida, não um vw puro: para chegar a 300px em tela
+   larga E caber em 992px, a função precisa de intercepto. 25.5vw − 108px
+   passa por 145px em 992px e satura em 300px a partir de 1600px.
+
+   O teto não pode subir mais. A coluna de conteúdo é a viewport menos dois
+   gutters de 5vw (teto 5rem), então a 1440px ela mede 1296px — não 1344px —
+   e 380 + 3×300 = 1280px deixaria só 16px de margem. Saturar em 1600px em
+   vez de 1440px mantém a folga entre 78px e 480px em toda a faixa. Quando
+   apertar, o degrau encolhe; a largura do bloco não se mexe. --------------- */
+
+/* A manchete da seção é serifada em caixa alta, como em .obras: a serifada
+   marca a SEÇÃO e a sem-serifa marca os estágios dentro dela. Instrument
+   Serif tem um peso só e nenhum eixo variável — pedir 700 ou "wdth" faria o
+   navegador sintetizar um falso-negrito. Local, não global: a .h2 da folha
+   continua Archivo. */
+.processo .h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: normal;
+  text-transform: uppercase;
+  letter-spacing: normal;
+  line-height: 1.1;
+}
 
 .estagios {
   --largura: 380px;
-  --degrau: clamp(96px, 11vw, 150px);
+  --degrau: clamp(145px, calc(25.5vw - 108px), 300px);
+  --raio-l: 10px;
   --vao: var(--s7);
   list-style: none;
   margin: 0;
@@ -1564,32 +1584,44 @@ a { color: inherit; }
 /* O último não vira à direita: não há próximo bloco para encontrar. */
 .estagio:last-child .estagio__corpo { --corrida: 100%; }
 
-/* A base do L: desce pela lateral e vira à direita até o início do próximo
-   bloco, exatamente --degrau adiante e --vao abaixo. */
-.estagio__corpo::before {
+/* O L: desce pela lateral e vira à direita até o início do próximo bloco,
+   exatamente --degrau adiante e --vao abaixo, com raio na curva.
+
+   Base e progresso desenham a MESMA figura, na mesma posição. É isso que faz
+   a curva do progresso fechar exatamente sobre a curva da base. */
+.estagio__corpo::before,
+.estagio__corpo::after {
   content: "";
   position: absolute;
   left: 0;
   top: 0;
   width: var(--degrau);
   height: var(--corrida);
-  border-left: 1px solid var(--edge);
-  border-bottom: 1px solid var(--edge);
+  border-left: 1px solid;
+  border-bottom: 1px solid;
+  border-bottom-left-radius: var(--raio-l);
   pointer-events: none;
 }
-.estagio:last-child .estagio__corpo::before { width: 1px; border-bottom: 0; }
 
-/* A linha de progresso, sobreposta ao trecho vertical. O fallback é 1: sem
-   JS, ou em movimento reduzido, a linha já nasce cheia. */
+.estagio__corpo::before { border-color: var(--edge); }
+
+/* O progresso é a figura inteira RECORTADA de cima para baixo, não uma caixa
+   que cresce. Encolher a altura levaria o canto arredondado junto, e a curva
+   deslizaria pela vertical em vez de ficar no pé do L.
+   O fallback 1 zera o recorte: sem JS, ou em movimento reduzido, o L já
+   nasce cheio. */
 .estagio__corpo::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
+  border-color: var(--ink);
+  clip-path: inset(0 0 calc((1 - var(--progresso, 1)) * 100%) 0);
+}
+
+/* Sem próximo bloco não há virada — e sem virada o raio não pode sobrar
+   curvando a ponta da vertical. */
+.estagio:last-child .estagio__corpo::before,
+.estagio:last-child .estagio__corpo::after {
   width: 1px;
-  height: calc(var(--progresso, 1) * var(--corrida));
-  background: var(--ink);
-  pointer-events: none;
+  border-bottom: 0;
+  border-bottom-left-radius: 0;
 }
 
 .estagio__p {
@@ -1625,16 +1657,22 @@ a { color: inherit; }
    aponta. Mesma tinta de acento que a lista de etapas já usava. */
 .estagio--marco .estagio__n { color: var(--red-bright); }
 .estagio--marco .estagio__corpo::before {
-  border-left-color: color-mix(in srgb, var(--red-bright) 45%, transparent);
-  border-bottom-color: color-mix(in srgb, var(--red-bright) 45%, transparent);
+  border-color: color-mix(in srgb, var(--red-bright) 45%, transparent);
 }
-.estagio--marco .estagio__corpo::after { background: var(--red-bright); }
+.estagio--marco .estagio__corpo::after { border-color: var(--red-bright); }
 
 /* Abaixo de 992px a escadinha não cabe: vira coluna única, largura total,
    com a linha vertical à esquerda e sem a curva do L. */
 @media (max-width: 991px) {
   .estagio { width: auto; margin-left: 0; }
-  .estagio__corpo::before { width: 1px; border-bottom: 0; }
+  /* Sem escadinha não há virada, e sem virada o raio tem de sair dos DOIS
+     pseudos: um raio sobre borda-esquerda solitária afina a ponta da linha. */
+  .estagio__corpo::before,
+  .estagio__corpo::after {
+    width: 1px;
+    border-bottom: 0;
+    border-bottom-left-radius: 0;
+  }
 }
 
 /* --- 13b. Lista de módulos (páginas de ambiente) ------------------------- */

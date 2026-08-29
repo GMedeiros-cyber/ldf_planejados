@@ -93,7 +93,7 @@ export default function Processo() {
   }, []);
 
   return (
-    <section className="section wrap" id="processo" aria-labelledby="t-proc">
+    <section className="section wrap processo" id="processo" aria-labelledby="t-proc">
       <div className="section__head rise">
         <h2 className="h2" id="t-proc">
           O orçamento é o terceiro estágio, não o primeiro.
