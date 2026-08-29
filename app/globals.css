@@ -1513,7 +1513,19 @@ a { color: inherit; }
 
 /* Fundo em shader, atrás do conteúdo. A seção isola o empilhamento para o
    z-index do véu não escapar para o resto da página. */
-.processo { position: relative; isolation: isolate; overflow: hidden; }
+/* A .wrap so tem padding-inline, sem max-width — de proposito, porque e
+   global. A coluna maxima desta secao mora aqui e e lida pelo cabecalho E
+   pela grade, para os dois nascerem no mesmo x. */
+.processo {
+  --coluna: 1280px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Sem isto o h2 comecaria na borda do gutter e a grade, recuada: em 1920px
+   sao 240px de desalinhamento. */
+.processo .section__head { max-width: var(--coluna); margin-inline: auto; }
 
 .processo__fundo {
   position: absolute;
@@ -1582,8 +1594,9 @@ a { color: inherit; }
   grid-template-columns: repeat(4, 1fr);
   gap: var(--s6);
   align-items: start;
+  max-width: var(--coluna);
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
 }
 
@@ -1600,7 +1613,7 @@ a { color: inherit; }
   font-variant-numeric: tabular-nums;
   font-variation-settings: "wdth" 70;
   font-weight: 700;
-  font-size: var(--t-sm);
+  font-size: var(--t-md);
   color: var(--ink-3);
 }
 
@@ -1608,13 +1621,15 @@ a { color: inherit; }
    de 380px para ~167px no pior caso, a 992px. Neste tamanho nenhum dos quatro
    passa de duas linhas, e nenhuma palavra estoura a caixa.
 
-   O min-height reserva as duas linhas SEMPRE. Sem ele o alinhamento quebra
-   sozinho ao mudar de viewport: a 1280px os quatro cabem em uma linha, a
-   992px dois deles vão para duas, e as frases abaixo desencontrariam. */
+   O min-height reserva as duas linhas SEMPRE, e continua necessario com a
+   escala maior: a 992px "Entender o ambiente" e "Fabricar e montar" quebram
+   em duas linhas enquanto "Desenhar" e "Fechar" ficam em uma. Para caberem
+   em uma so, a largura media por caractere teria de ser 0.356em — nenhuma
+   serifada de texto chega perto. Sem a reserva, as frases desencontrariam. */
 .estagio__t {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(1.15rem, 0.95rem + 0.7vw, 1.5rem);
+  font-size: clamp(1.3rem, 1.05rem + 0.8vw, 1.75rem);
   line-height: 1.12;
   min-height: 2.24em; /* 2 × line-height */
   letter-spacing: -0.01em;
@@ -1652,7 +1667,7 @@ a { color: inherit; }
 
 .estagio__p {
   font-family: var(--font-texto);
-  font-size: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  font-size: clamp(1.02rem, 0.95rem + 0.3vw, 1.15rem);
   line-height: 1.5;
   color: var(--ink-2);
   margin: 0;
@@ -1668,7 +1683,7 @@ a { color: inherit; }
   display: grid;
   gap: var(--s1);
   font-family: var(--font-texto);
-  font-size: var(--t-sm);
+  font-size: var(--t-md);
   line-height: 1.45;
   color: var(--ink-3);
 }
