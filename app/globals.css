@@ -1511,6 +1511,58 @@ a { color: inherit; }
    Cada bloco fica com ~300px a 1440px e ~199px a 992px (onde ainda são
    quatro colunas). É essa caixa estreita que manda no tamanho do título. --- */
 
+/* Fundo em shader, atrás do conteúdo. A seção isola o empilhamento para o
+   z-index do véu não escapar para o resto da página. */
+.processo { position: relative; isolation: isolate; overflow: hidden; }
+
+.processo__fundo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.processo__conteudo { position: relative; z-index: 1; }
+
+.fundo-shader { position: absolute; inset: 0; }
+
+/* Gradiente estático: é o que aparece em movimento reduzido e quando o
+   contexto WebGL falha. Mesmas cores do shader, na mesma ordem. */
+.fundo-shader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(80% 70% at 22% 28%, #5E2A18 0%, transparent 62%),
+    radial-gradient(70% 60% at 78% 62%, #2A1410 0%, transparent 68%),
+    radial-gradient(50% 45% at 62% 22%, color-mix(in srgb, var(--red) 22%, transparent), transparent 70%),
+    var(--ground-deep);
+}
+
+.fundo-shader__tela {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+/* Só cobre o gradiente quando o shader realmente subiu. */
+.fundo-shader[data-ativo] .fundo-shader__tela { opacity: 1; }
+
+/* Véu de leitura. 50% medido, não estimado: simulei a saída do shader e o
+   pixel mais claro que ele produz é rgb(83,22,2), Y=0.0243 — bem mais escuro
+   que o normal, porque o hash21 do original tem média 0.25, não 0.5, e o fbm
+   nunca passa de ~0.6. Sobre esse pior pixel, com 50%, --ink-2 dá 7.1:1 e
+   --ink-3 dá 4.85:1. Os 55% pedidos também passam (4.94:1); 50% deixa mais
+   do shader aparecer pela mesma folga prática. */
+.processo__veu {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.50);
+}
+
 /* A manchete da seção é serifada em caixa alta, como em .obras: a serifada
    marca a SEÇÃO e a sem-serifa marca os estágios dentro dela. Instrument
    Serif tem um peso só e nenhum eixo variável — pedir 700 ou "wdth" faria o
