@@ -818,6 +818,69 @@ a { color: inherit; }
   .hero--capa .hero__seta { animation: none; }
 }
 
+/* --- 8e. Faixa de números --------------------------------------------------
+   Passagem entre a capa e a história, não uma seção nova: sem régua de topo,
+   altura contida, e um tom entre os dois vizinhos (--ground-deep #0A0909 dos
+   dois lados, --ground #131211 do corpo). Contraste do rótulo em --ink-3
+   sobre este fundo: 5,0:1, passa em AA. -------------------------------------- */
+
+.numeros {
+  background: #0E0D0C;
+  padding-block: clamp(var(--s6), 4vw, var(--s8));
+}
+
+.numeros__grade {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: start;
+}
+
+.numeros__item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--s3);
+  padding-inline: var(--s4);
+  text-align: center;
+}
+
+/* Separador só ENTRE as colunas — nunca nas pontas da faixa. */
+.numeros__item + .numeros__item { border-left: 1px solid var(--edge); }
+
+/* A largura é reservada por layout, não por número mágico: as duas células
+   se sobrepõem, a reserva (invisível) carrega o valor final e define a
+   medida, e o valor corrente pinta por cima. A faixa não pula enquanto os
+   dígitos crescem, e a conta não depende da métrica da fonte. */
+.numeros__valor {
+  display: inline-grid;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.numeros__valor > * { grid-area: 1 / 1; }
+.numeros__reserva { visibility: hidden; }
+
+.numeros__rotulo {
+  font-family: var(--font-texto);
+  font-size: var(--t-sm);
+  line-height: 1.4;
+  color: var(--ink-3);
+  max-width: 24ch;
+  text-wrap: pretty;
+}
+
+/* Abaixo de 768px: uma coluna, empilhada, sem separadores. */
+@media (max-width: 767px) {
+  .numeros__grade { grid-template-columns: 1fr; gap: var(--s6); }
+  .numeros__item + .numeros__item { border-left: 0; }
+}
+
 /* --- 8d. História ----------------------------------------------------------
    Duas colunas acima de 992px. O fundo é o shader (quando existir) com um
    véu por cima: o texto precisa continuar legível sobre imagem em movimento. */
@@ -1737,6 +1800,17 @@ a { color: inherit; }
    Utilitários da migração para Next: substituem os style= inline que existiam
    no HTML estático. Mesmos valores, agora nomeados.
    =========================================================================== */
+
+/* Só para leitor de tela: sai da tela sem sair da árvore de acessibilidade. */
+.oculto-visual {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 .hero__note strong { color: var(--ink); }
 
