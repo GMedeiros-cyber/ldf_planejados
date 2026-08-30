@@ -1,8 +1,18 @@
+import PilhaFotos from "./PilhaFotos";
+
+/* Três faixas: texto + diagrama à esquerda, pilha de fotos à direita, e as
+   duas células técnicas atravessando as duas colunas embaixo.
+
+   O diagrama desceu para baixo do texto mas continua sendo o argumento
+   central da seção — é ele que mostra a cadeia, e a pilha ao lado é
+   ornamento. Por isso a pilha é aria-hidden e o diagrama mantém o
+   aria-label. */
+
 export default function Fabrica() {
   return (
     <section className="section wrap" id="fabrica" aria-labelledby="t-fab">
       <div className="fabrica">
-        <div className="rise">
+        <div className="fabrica__texto rise">
           <h2 className="h2" id="t-fab">
             Não tem revenda no meio.
           </h2>
@@ -15,39 +25,43 @@ export default function Fabrica() {
             que atende centenas de lojas. Uma alteração no projeto conversa direto com quem vai
             cortar a chapa. E na assistência técnica não existe para quem apontar o dedo.
           </p>
+
+          <div
+            className="cadeia"
+            aria-label="Comparação entre a cadeia de uma rede de franquia e a da LDF"
+          >
+            <div className="cadeia__row">
+              <span className="cadeia__who">Rede de franquia</span>
+              <span className="cadeia__what">
+                Fábrica → franqueado → projetista da loja → montador terceirizado → você
+              </span>
+            </div>
+            <div className="cadeia__row cadeia__row--ldf">
+              <span className="cadeia__who">LDF</span>
+              <span className="cadeia__what">Fábrica → você</span>
+            </div>
+          </div>
         </div>
 
-        <div
-          className="cadeia rise"
-          aria-label="Comparação entre a cadeia de uma rede de franquia e a da LDF"
-        >
-          <div className="cadeia__row">
-            <span className="cadeia__who">Rede de franquia</span>
-            <span className="cadeia__what">
-              Fábrica → franqueado → projetista da loja → montador terceirizado → você
+        <div className="fabrica__fotos">
+          <PilhaFotos />
+        </div>
+
+        <div className="ficha ficha--nua fabrica__tecnica rise">
+          <div className="ficha__cell">
+            <span className="label ficha__k">Material</span>
+            <span className="ficha__v ficha__v--sm">MDF 100%</span>
+            <span className="ficha__d">
+              Corrediças telescópicas retas ou invisíveis com amortecedor, dobradiças com
+              amortecimento, fundos de 3&nbsp;mm ou 6&nbsp;mm.
             </span>
           </div>
-          <div className="cadeia__row cadeia__row--ldf">
-            <span className="cadeia__who">LDF</span>
-            <span className="cadeia__what">Fábrica → você</span>
-          </div>
-
-          <div className="ficha ficha--nua">
-            <div className="ficha__cell">
-              <span className="label ficha__k">Material</span>
-              <span className="ficha__v ficha__v--sm">MDF 100%</span>
-              <span className="ficha__d">
-                Corrediças telescópicas retas ou invisíveis com amortecedor, dobradiças com
-                amortecimento, fundos de 3&nbsp;mm ou 6&nbsp;mm.
-              </span>
-            </div>
-            <div className="ficha__cell">
-              <span className="label ficha__k">Onde ficamos</span>
-              <span className="ficha__v ficha__v--sm">Guarulhos</span>
-              <span className="ficha__d">
-                Atendemos São Paulo em geral. Enviamos para outros estados sem montagem.
-              </span>
-            </div>
+          <div className="ficha__cell">
+            <span className="label ficha__k">Onde ficamos</span>
+            <span className="ficha__v ficha__v--sm">Guarulhos</span>
+            <span className="ficha__d">
+              Atendemos São Paulo em geral. Enviamos para outros estados sem montagem.
+            </span>
           </div>
         </div>
       </div>

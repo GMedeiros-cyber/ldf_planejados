@@ -1516,22 +1516,133 @@ a { color: inherit; }
 
 /* --- 12. A fábrica -------------------------------------------------------- */
 
-.fabrica { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s8); align-items: start; }
-@media (max-width: 880px) { .fabrica { grid-template-columns: 1fr; gap: var(--s7); } }
+/* Duas colunas em cima — texto+diagrama e pilha de fotos — e as células
+   técnicas atravessando as duas embaixo. */
+.fabrica {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s8);
+  align-items: start;
+}
+.fabrica__tecnica { grid-column: 1 / -1; }
 
-.cadeia { display: grid; gap: 2px; }
+/* Abaixo de 992px vira coluna única e a pilha sobe para cima do texto. */
+@media (max-width: 991px) {
+  .fabrica { grid-template-columns: 1fr; gap: var(--s7); }
+  .fabrica__fotos { order: -1; }
+}
+
+.cadeia { display: grid; gap: 2px; margin-top: var(--s7); }
+
+/* O rótulo passou a ficar ACIMA da cadeia, não ao lado. Na coluna estreita
+   (~616px a 1440px de viewport) sobravam 432px para a linha da franquia, que
+   mede ~495px em --t-sm: quebraria em duas. Empilhando o rótulo, a linha
+   ganha os 584px inteiros e cabe numa só — e uma cadeia partida ao meio
+   contradiz justamente o que o diagrama desenha, que é uma sequência. */
 .cadeia__row {
-  display: grid; grid-template-columns: 8.5rem 1fr;
-  gap: var(--s4);
+  display: grid;
+  gap: var(--s2);
   padding: var(--s4);
   background: var(--ground-lift);
-  align-items: baseline;
 }
 .cadeia__row--ldf { background: var(--ground-red); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 45%, transparent); }
 .cadeia__who { font-variation-settings: "wdth" 70; font-weight: 700; font-size: var(--t-xs); letter-spacing: 0.14em; text-transform: uppercase; }
 .cadeia__row--ldf .cadeia__who { color: var(--red-bright); }
-.cadeia__what { font-size: var(--t-md); color: var(--ink-2); }
+/* Entre 992px e ~1300px a coluna ainda é estreita demais para os 72
+   caracteres da linha da franquia, e ela quebra em duas. O balance reparte as
+   duas metades em vez de deixar uma órfã — a quebra passa a ler como decisão.
+   Acima disso cabe numa linha só. */
+.cadeia__what {
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  line-height: 1.5;
+  text-wrap: balance;
+}
 .cadeia__row--ldf .cadeia__what { color: var(--ink); }
+
+/* --- 12b. Pilha de fotos em perspectiva ------------------------------------
+   Geometria medida, não tentada: projetando os cantos das seis cartas pela
+   cadeia rotateY(-25°)·rotateZ(-120°) mais a divisão de perspectiva, o eixo
+   LOCAL Y do trilho cai a 32° na tela. É por ele que as cartas escalonam.
+
+   passo 150 sobre carta de 267 => ~44% de sobreposição, o leque.
+   curso 220 => o baralho anda ~205px na tela.
+   base -485 centra o percurso no enquadramento.
+   Com esses três, nunca há menos de CINCO cartas com mais de 35% de área
+   dentro do frame, em nenhum ponto da rolagem. ---------------------------- */
+
+.pilha-fotos {
+  /* Sem JS e em movimento reduzido a pilha fica na posição final. */
+  --desliza: 1;
+  --base: -485;
+  --passo: 150;
+  --curso: 220;
+  position: relative;
+  perspective: 1200px;
+  overflow: hidden;
+  height: clamp(380px, 42vw, 560px);
+}
+
+.pilha-fotos__trilho {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform-style: preserve-3d;
+  transform: rotateY(-25deg) rotateZ(-120deg);
+}
+
+/* A carta carrega SÓ o deslocamento do scroll, e sem transição: uma transição
+   aqui somaria 400ms de atraso a cada quadro da rolagem. O hover mora na
+   moldura, uma camada abaixo. */
+.pilha-fotos__carta {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 267px;
+  margin: -133px 0 0 -100px;
+  transform: translateY(
+    calc((var(--base) + var(--i) * var(--passo) + var(--desliza) * var(--curso)) * 1px)
+  );
+}
+
+/* A moldura avança 40px — ~15% da carta — ao longo do MESMO eixo local, por
+   ser filha da carta e herdar o sistema de coordenadas do trilho. */
+.pilha-fotos__moldura {
+  --avanco: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  transform: translateY(calc(var(--avanco) * 1px));
+  transition: transform 400ms var(--ease);
+}
+.pilha-fotos__carta:hover .pilha-fotos__moldura { --avanco: 40; }
+
+.pilha-fotos__moldura img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Movimento reduzido: sem hover e sem transição. O layout fica inteiro — o
+   que sai é o movimento, não a estrutura. */
+@media (prefers-reduced-motion: reduce) {
+  .pilha-fotos__moldura { transition: none; }
+  .pilha-fotos__carta:hover .pilha-fotos__moldura { --avanco: 0; }
+}
+
+/* Em coluna única a pilha fica mais baixa. Abaixo de 640px ela nem chega ao
+   DOM — quem decide é o matchMedia no componente, não o CSS, senão as seis
+   imagens seriam baixadas para não aparecer. */
+@media (max-width: 991px) {
+  .pilha-fotos { height: clamp(320px, 46vw, 420px); }
+}
 
 /* --- 13. Processo: quatro estágios lado a lado ---------------------------
    Quatro colunas iguais. A escadinha em diagonal saiu, e com ela o --degrau,
