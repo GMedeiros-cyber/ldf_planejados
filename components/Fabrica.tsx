@@ -1,12 +1,17 @@
-import PilhaFotos from "./PilhaFotos";
+import VideoFabrica from "./VideoFabrica";
 
-/* Três faixas: texto + diagrama à esquerda, pilha de fotos à direita, e as
-   duas células técnicas atravessando as duas colunas embaixo.
+/* Três faixas: vídeo à esquerda, texto + diagrama à direita, e as duas
+   células técnicas atravessando as duas colunas embaixo.
 
-   O diagrama desceu para baixo do texto mas continua sendo o argumento
-   central da seção — é ele que mostra a cadeia, e a pilha ao lado é
-   ornamento. Por isso a pilha é aria-hidden e o diagrama mantém o
-   aria-label. */
+   As colunas estão INVERTIDAS em relação à ordem do DOM, e de propósito. A
+   História, logo acima, é texto à esquerda com imagem à direita; repetir o
+   arranjo faria as duas lerem como a mesma seção. A troca acontece no CSS
+   por grid-column, e não reordenando o markup, porque a ordem de leitura
+   correta é a que está aqui: o argumento antes da ilustração. É também a
+   ordem que vale em coluna única, abaixo de 992px — sem regra extra.
+
+   O vídeo é ornamento e é aria-hidden; quem carrega o argumento é o diagrama
+   da cadeia, que mantém o aria-label. */
 
 export default function Fabrica() {
   return (
@@ -43,8 +48,8 @@ export default function Fabrica() {
           </div>
         </div>
 
-        <div className="fabrica__fotos">
-          <PilhaFotos />
+        <div className="fabrica__video">
+          <VideoFabrica />
         </div>
 
         <div className="ficha ficha--nua fabrica__tecnica rise">
