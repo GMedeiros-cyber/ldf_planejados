@@ -1516,6 +1516,19 @@ a { color: inherit; }
 
 /* --- 12. A fábrica -------------------------------------------------------- */
 
+/* A manchete desta seção estava em Archivo bold, herdada da .h2 global,
+   enquanto História, Obras e Processo já tinham virado serifada. Mesmo molde
+   local delas: Instrument Serif tem um peso só e nenhum eixo variável, então
+   pedir 700 ou "wdth" faz o navegador sintetizar um falso-negrito. */
+.fabrica .h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: normal;
+  text-transform: uppercase;
+  letter-spacing: normal;
+  line-height: 1.1;
+}
+
 /* Duas colunas em cima — texto+diagrama e pilha de fotos — e as células
    técnicas atravessando as duas embaixo. */
 .fabrica {
@@ -1561,24 +1574,37 @@ a { color: inherit; }
 .cadeia__row--ldf .cadeia__what { color: var(--ink); }
 
 /* --- 12b. Pilha de fotos em perspectiva ------------------------------------
-   Geometria medida, não tentada: projetando os cantos das seis cartas pela
-   cadeia rotateY(-25°)·rotateZ(-120°) mais a divisão de perspectiva, o eixo
-   LOCAL Y do trilho cai a 32° na tela. É por ele que as cartas escalonam.
+   Cartas DE PÉ, paralelas entre si, alinhadas na horizontal, recuando para o
+   fundo à direita. Sem rotateZ.
 
-   passo 150 sobre carta de 267 => ~44% de sobreposição, o leque.
-   curso 220 => o baralho anda ~205px na tela.
-   base -485 centra o percurso no enquadramento.
-   Com esses três, nunca há menos de CINCO cartas com mais de 35% de área
-   dentro do frame, em nenhum ponto da rolagem. ---------------------------- */
+   O rotateY mora em CADA CARTA, não no trilho, e isso não é detalhe. Com o
+   rotateY no trilho o eixo +X inclina em direção à câmera e CANCELA o
+   translateZ: a condição para a pilha recuar de verdade vira rz/rx >
+   tan(|ry|), e na faixa -18°..-25° o que sobra de profundidade é ~4% de
+   diferença de tamanho entre a primeira carta e a última — invisível. Medido.
+   Com o ângulo na carta, o observador vê o mesmo ângulo, as cartas continuam
+   paralelas, e o eixo X fica puro: toda a profundidade vem do translateZ.
+
+   Geometria medida projetando os quatro cantos das seis cartas pela cadeia e
+   pela divisão de perspectiva, em 1280/1440/1920 x cinco pontos de rolagem:
+     as SEIS cabem no enquadramento em todos os casos;
+     a escala cai monotonicamente de 1.18 a 0.85 (28% da frente ao fundo);
+     a menos visível ainda mostra 46% da própria área — nenhuma some;
+     sobreposição entre 31% e 54%.
+
+   Tudo escala junto com a viewport: os passos são razão fixa da largura da
+   carta, então as proporções do arranjo valem em qualquer largura. --------- */
 
 .pilha-fotos {
   /* Sem JS e em movimento reduzido a pilha fica na posição final. */
   --desliza: 1;
-  --base: -485;
-  --passo: 150;
-  --curso: 220;
+  --larg: clamp(125px, 10.5vw, 215px);
+  --passo-x: calc(var(--larg) * 0.54);
+  --passo-z: calc(var(--larg) * 0.34);
+  --curso: 0.25;
+  --ang: -18deg;
   position: relative;
-  perspective: 1200px;
+  perspective: 1100px;
   overflow: hidden;
   height: clamp(380px, 42vw, 560px);
 }
@@ -1589,27 +1615,34 @@ a { color: inherit; }
   margin: 0;
   padding: 0;
   list-style: none;
+  /* Sem transform próprio: só estabelece o contexto 3D para as cartas. */
   transform-style: preserve-3d;
-  transform: rotateY(-25deg) rotateZ(-120deg);
 }
 
-/* A carta carrega SÓ o deslocamento do scroll, e sem transição: uma transição
-   aqui somaria 400ms de atraso a cada quadro da rolagem. O hover mora na
-   moldura, uma camada abaixo. */
+/* A carta carrega o passo E o deslocamento do scroll, no MESMO eixo X/Z, e
+   sem transição: uma transição aqui somaria 400ms de atraso a cada quadro da
+   rolagem. O hover mora na moldura, uma camada abaixo. */
 .pilha-fotos__carta {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 200px;
-  height: 267px;
-  margin: -133px 0 0 -100px;
-  transform: translateY(
-    calc((var(--base) + var(--i) * var(--passo) + var(--desliza) * var(--curso)) * 1px)
-  );
+  width: var(--larg);
+  height: calc(var(--larg) * 1.3333);
+  margin-top: calc(var(--larg) * -0.66667);
+  margin-left: calc(var(--larg) * -0.5);
+  transform-style: preserve-3d;
+  transform:
+    translate3d(
+      calc((var(--i) - 2.5 + var(--desliza) * var(--curso)) * var(--passo-x)),
+      0,
+      calc((var(--i) - 2.5 + var(--desliza) * var(--curso)) * var(--passo-z) * -1)
+    )
+    rotateY(var(--ang));
 }
 
-/* A moldura avança 40px — ~15% da carta — ao longo do MESMO eixo local, por
-   ser filha da carta e herdar o sistema de coordenadas do trilho. */
+/* O hover traz a carta em direção ao observador. Com preserve-3d na carta, o
+   navegador reordena pela profundidade sozinho: a que avança passa a ser
+   desenhada na frente das vizinhas, sem z-index. */
 .pilha-fotos__moldura {
   --avanco: 0;
   display: block;
@@ -1618,10 +1651,10 @@ a { color: inherit; }
   overflow: hidden;
   border-radius: 14px;
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-  transform: translateY(calc(var(--avanco) * 1px));
+  transform: translateZ(calc(var(--avanco) * 1px));
   transition: transform 400ms var(--ease);
 }
-.pilha-fotos__carta:hover .pilha-fotos__moldura { --avanco: 40; }
+.pilha-fotos__carta:hover .pilha-fotos__moldura { --avanco: 50; }
 
 .pilha-fotos__moldura img {
   display: block;

@@ -8,12 +8,14 @@ import { useEffect, useRef, useState } from "react";
    importa um index.css que não existe aqui, e é justamente lá que mora todo o
    efeito — o que sobra dele é um map de imagens.
 
-   A GEOMETRIA foi escolhida por medição, não por tentativa. Projetando os
-   quatro cantos das seis cartas pela cadeia rotateY(-25°)·rotateZ(-120°) mais
-   a divisão de perspectiva, o eixo LOCAL Y do trilho cai a 32° na tela (para
-   cima e à direita) — é ele que carrega o escalonamento. Com passo 150 e
-   curso 220 nunca há menos de cinco cartas com mais de 35% de área dentro do
-   enquadramento, em nenhum ponto da rolagem, e o baralho anda ~205px.
+   A GEOMETRIA vive no CSS (seção 12b) e foi escolhida por medição: cartas de
+   pé, paralelas, recuando para o fundo à direita por translate3d em X e Z,
+   com o rotateY em cada carta — no trilho ele cancelaria o recuo. As seis
+   cabem no enquadramento em 1280/1440/1920, a escala cai de 1.18 a 0.85 da
+   frente ao fundo, e nenhuma some atrás de outra.
+
+   Aqui o scroll só escreve --desliza; é o CSS que empurra as cartas ao longo
+   do mesmo eixo X/Z.
 
    O DESLOCAMENTO vem da posição DA SEÇÃO, nunca de window.scrollY: a Fábrica
    fica lá pelos 4000px de rolagem, e scrollY direto jogaria as cartas para
