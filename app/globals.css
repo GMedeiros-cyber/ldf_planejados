@@ -77,7 +77,8 @@
      Serif) nem corpo longo (Archivo). */
   --font-texto: var(--ff-tinos), "Times New Roman", Times, serif;
 
-  /* A navegação é fixed e mede 81px; o sticky da pilha cola abaixo dela. */
+  /* A navegação é fixed e mede 81px. Serve de folga de topo para a primeira
+     seção de uma rota interna, que não tem seção anterior de que se separar. */
   --altura-nav: 5.25rem;
 
   --gutter: clamp(1.25rem, 5vw, 5rem);
@@ -1407,138 +1408,184 @@ a { color: inherit; }
 }
 .amb:hover .amb__go, .amb:focus-visible .amb__go { opacity: 1; transform: none; }
 
-/* --- 11b. Pilha de ambientes -----------------------------------------------
-   Cards que grudam no topo e são cobertos pelo seguinte. CSS puro: sticky mais
-   a altura de cada item. Nenhum ancestral pode ter overflow — hidden, clip ou
-   auto desligam o sticky em silêncio. */
-
-.pilha {
-  display: block;      /* nunca flex nem grid: quebra o sticky do filho */
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.pilha__item {
-  position: static;
-  margin-bottom: var(--s5);
-}
-
-.pilha__card {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;                 /* no card, não em ancestral do sticky */
-  border-radius: 24px;
-  /* Fundo 100% opaco: com transparência os cards se veriam através uns dos
-     outros e a cobertura deixaria de existir. */
-  background: var(--ground-lift);
-  min-height: clamp(17rem, 62vw, 26rem);
-  display: flex;
-  flex-direction: column;
-  /* No topo de propósito: a base é o primeiro pedaço que o card seguinte
-     cobre, então o nome do ambiente não pode morar lá. */
-  justify-content: flex-start;
-  padding: clamp(var(--s5), 4vw, var(--s8));
-}
-
-/* A placa de material, mesma gramática dos cards de índice. */
-.pilha__plate {
-  position: absolute; inset: 0; z-index: -2;
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
-  background: var(--ground-deep);
-}
-.pilha__plate::after {
-  content: ""; position: absolute; z-index: 2;
-  left: 14%; right: 14%; top: 56%; height: 3px; border-radius: 2px;
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--ink) 62%, transparent) 0 50%,
-    rgba(12,10,9,0.55) 50% 100%);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.42);
-}
-
-/* Scrim só onde o rótulo vive. */
-.pilha__card::before {
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(180deg,
-    rgba(10,9,8,0.92) 0%, rgba(10,9,8,0.70) 26%, rgba(10,9,8,0) 60%);
-}
-
-.pilha__nome {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: clamp(2.2rem, 1.2rem + 3.4vw, 4rem);
-  letter-spacing: -0.012em;
-  line-height: 1.08;
-  color: var(--ink);
-  text-decoration: none;
-}
-/* Link esticado: o nome carrega o nome acessível, o card inteiro clica. */
-.pilha__nome::after { content: ""; position: absolute; inset: 0; z-index: 3; }
-
-.pilha__meta { font-family: var(--font-texto);
-  color: var(--ink-2);
-  font-size: var(--t-md);
-  margin-top: var(--s3);
-  max-width: 44ch;
-}
-
-/* Card sem página própria: o nome deixa de ser link, então o link esticado
-   do ::after não pode continuar cobrindo o card — ele roubaria o cursor sem
-   levar a lugar nenhum. */
-.pilha__nome--inerte::after { content: none; }
-
-/* Rótulo no lugar da seta. Discreto de propósito: informa que a página ainda
-   não existe sem competir com o nome do ambiente. */
-.pilha__breve {
-  position: absolute;
-  bottom: clamp(var(--s5), 4vw, var(--s8));
-  right: clamp(var(--s5), 4vw, var(--s8));
-  z-index: 4;
-  font-family: var(--font-texto);
-  font-size: var(--t-sm);
-  color: var(--ink-3);
-}
-
-.pilha__go {
-  position: absolute; bottom: clamp(var(--s5), 4vw, var(--s8)); right: clamp(var(--s5), 4vw, var(--s8));
-  width: 34px; height: 34px; z-index: 4;
-  color: var(--red-bright);
-  opacity: 0; transform: translate(-6px, 6px);
-  transition: opacity 340ms var(--ease), transform 340ms var(--ease);
-}
-.pilha__card:hover .pilha__go,
-.pilha__card:focus-within .pilha__go { opacity: 1; transform: none; }
-
-/* O empilhamento só a partir de 992px. Abaixo disso é lista vertical comum. */
-@media (min-width: 992px) {
-  .pilha__item {
-    position: sticky;
-    top: var(--altura-nav);
-    /* Nunca maior que a viewport, senão o item não chega a grudar. */
-    height: clamp(620px, 82vh, 820px);
-    margin-bottom: 30px;
-    will-change: transform, opacity;
-    transform: translateZ(0);
-  }
-  .pilha__card { height: 100%; min-height: 0; }
-}
-
-/* Movimento reduzido tira transição, não layout: sticky é posicionamento,
-   não animação, e não causa desconforto vestibular. */
-@media (prefers-reduced-motion: reduce) {
-  .pilha__go { opacity: 1; transform: none; transition: none; }
-}
-
 /* Primeira seção de /ambientes. A navbar é fixed e mede --altura-nav, e o
    padding-block padrão da .section (64–128px) não a limpa sozinho: em 1200px
    os dois empatam e o h1 encosta na barra. Sem régua de topo, porque não há
-   seção anterior de que se separar.
-
-   Nada de overflow aqui: esta é ancestral direta da .pilha, e overflow em
-   ancestral desliga o position: sticky dos cards. */
+   seção anterior de que se separar. */
 .pagina-ambientes {
   border-top: 0;
   padding-block-start: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
+}
+
+/* --- 11b. Lista de ambientes ------------------------------------------------
+   Substituiu a pilha de cards em sticky. Oito cards que grudam no topo são
+   sete telas de rolagem presa antes de o visitante chegar ao bloco comercial;
+   uma lista comum rola no ritmo de quem lê, e quem marca a chegada de cada
+   bloco é a máscara da foto.
+
+   `position: relative` porque é o bloco de contenção do traço. `isolation`
+   para o z-index negativo do traço ficar preso aqui em vez de cair atrás do
+   fundo da seção. Nenhum overflow: a regra que a pilha exigia continua
+   valendo como higiene, mesmo sem sticky para quebrar. */
+.lista-ambientes {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: clamp(var(--s8), 9vw, var(--s10));
+}
+
+/* Duas colunas de peso igual: a foto pede área e o texto é curto — nome mais
+   uma linha de composição. Dar 7fr à foto encolheria o texto a uma coluna de
+   duas palavras por linha. */
+.ambiente {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(var(--s6), 5vw, var(--s8));
+  align-items: center;
+}
+
+/* A alternância é o que dá ritmo a oito repetições. Colocação explícita por
+   grid-column, e não `order`: assim a ordem do DOM continua foto → texto em
+   todos, que é a que vale em coluna única, sem regra extra embaixo de 880px. */
+.ambiente--espelho .ambiente__quadro { grid-column: 2; grid-row: 1; }
+.ambiente--espelho .ambiente__texto { grid-column: 1; grid-row: 1; }
+
+/* A caixa da foto reserva a proporção antes de o arquivo chegar; o width e o
+   height do <img> fazem o mesmo trabalho por outro caminho, e os dois juntos
+   cobrem tanto o CSS carregado quanto o não carregado.
+
+   O RECORTE: `circle(var(--raio, 75%))`. O padrão de 75% é o quadro CHEIO —
+   num 4:3 a referência do percentual é 1237px contra 875px de meia-diagonal,
+   então 75% transborda a caixa e nada é cortado. É esse padrão que faz a foto
+   nascer inteira sem JS, com movimento reduzido, e no instante antes de a
+   primeira leitura de rolagem ser escrita. Quem anima escreve --raio para
+   baixo, até 16%.
+
+   Sem overflow e sem border-radius: o clip-path já recorta, e os dois na
+   mesma caixa brigam pelo mesmo canto. */
+.ambiente__quadro {
+  aspect-ratio: 4 / 3;
+  clip-path: circle(var(--raio, 75%) at 50% 50%);
+  opacity: var(--opacidade, 1);
+  background: var(--ground-lift);
+  /* Sem will-change de propósito. Ele promete uma camada por bloco — oito
+     texturas de 1400×1050 residentes na memória do compositor — e o que
+     compraria é nada: medido, a revelação já custa 0s de layout, porque
+     clip-path e opacity não são propriedades de layout. Promessa cara para
+     um problema que não existe. */
+}
+
+.ambiente__foto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ambiente__nome {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 1.2rem + 2.2vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* A seta só existe onde há para onde ir. Hoje é só a Cozinha — um entre oito.
+
+   Ela fica VISÍVEL em repouso, e não só no hover. Na pilha antiga a seta podia
+   aparecer no hover porque o card inteiro era a área clicável e tinha moldura;
+   aqui o nome linkado é tipograficamente idêntico aos sete que não levam a
+   lugar nenhum, e os outros sete ainda ganham o rótulo "página em breve". Sem
+   a seta em repouso, o único item navegável da página seria o único sem marca
+   nenhuma. O hover move a seta; ele não a revela. */
+.ambiente__link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.ambiente__go {
+  width: 26px; height: 26px;
+  flex: none;
+  color: var(--red-bright);
+  transition: transform 340ms var(--ease);
+}
+.ambiente__link:hover .ambiente__go,
+.ambiente__link:focus-visible .ambiente__go { transform: translate(4px, -4px); }
+
+.ambiente__meta {
+  font-family: var(--font-texto);
+  font-size: var(--t-lg);
+  line-height: 1.5;
+  color: var(--ink-2);
+  margin: var(--s4) 0 0;
+  max-width: 34ch;
+}
+
+/* Os sete ambientes sem página própria dizem isso, em vez de virarem link
+   para o formulário de contato. */
+.ambiente__breve {
+  display: inline-block;
+  margin-block-start: var(--s4);
+  font-family: var(--font-texto);
+  font-size: var(--t-xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* Abaixo de 880px vira uma coluna. A alternância perde o sentido — não há dois
+   lados — e o espelho é desligado para todos caírem na mesma ordem. */
+@media (max-width: 879px) {
+  .ambiente { grid-template-columns: 1fr; gap: var(--s5); }
+  .ambiente--espelho .ambiente__quadro,
+  .ambiente--espelho .ambiente__texto { grid-column: auto; grid-row: auto; }
+  .ambiente__meta { max-width: none; }
+}
+
+/* --- 11c. O traço que costura a lista ---------------------------------------
+   Camada absoluta sobre a lista inteira, atrás dos blocos. O SVG é esticado
+   com preserveAspectRatio="none", então acompanha a altura real da seção sem
+   nenhum número em px — ver o comentário de components/TracoAmbientes.tsx.
+
+   z-index negativo dentro do `isolation` da lista: fica atrás das fotos e do
+   texto, e não escapa para trás do fundo da página. */
+.traco__caixa {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.traco { display: block; width: 100%; height: 100%; }
+
+/* `pathLength=1` no path normaliza o comprimento, então dasharray 1 cobre a
+   linha inteira e o offset anda de 1 (nada) a 0 (tudo). O padrão é 0: sem JS,
+   ou com movimento reduzido, o traço aparece completo em vez de sumir.
+
+   non-scaling-stroke está no atributo do path, e é o que impede a espessura
+   de esticar junto com o viewBox. */
+.traco__linha {
+  stroke: var(--edge-2);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: var(--traco, 0);
+}
+
+/* Rede de segurança do movimento reduzido. Os componentes já não criam
+   useScroll nesse caso, mas entre a primeira pintura do servidor e a leitura
+   da media query no cliente existe um quadro; aqui ele também sai. */
+@media (prefers-reduced-motion: reduce) {
+  .ambiente__quadro {
+    clip-path: none;
+    opacity: 1;
+  }
+  .traco__linha { stroke-dashoffset: 0; }
+  .ambiente__go { transform: none; transition: none; }
 }
 
 /* --- 11b. Fundo de madeira do CTA -------------------------------------------
