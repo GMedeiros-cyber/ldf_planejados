@@ -65,6 +65,11 @@
   --t-numeral-sm: 1.15rem;
 
   --r-hairline: 2px;
+  /* O raio de painel. Três consumidores independentes já usavam 10px solto —
+     o painel da navegação, o menu móvel e a figura da História — e três
+     consumidores é um degrau, não uma coincidência. Vira token pelo mesmo
+     motivo que --r-hairline e --r-pill são tokens. */
+  --r-painel: 10px;
   --r-pill: 99px;
 
   /* Par serifada/sans. A serifada só na manchete do herói e nos nomes de
@@ -316,10 +321,20 @@ a { color: inherit; }
 .nav[data-oculta] { transform: translateY(-120%); }
 
 /* -130% porque quem se move agora é o painel: ele precisa vencer a própria
-   altura MAIS o afastamento do topo para sumir de vez. */
+   altura MAIS o afastamento do topo para sumir de vez.
+
+   A entrada usa a propriedade `translate`, e não `transform`. Não é estilo: é
+   o que libera o `transform` do .nav__interno para o aperto ao rolar. Com
+   `animation-fill-mode: both` a animação SEGURA o estado final para sempre, e
+   valor de animação vence declaração normal na cascata — um `transform` do
+   aperto seria sobrescrito por este `transform: none` depois que a entrada
+   terminasse. Como `translate`, `rotate`, `scale` e `transform` são
+   propriedades independentes que se compõem na ordem, as duas convivem sem se
+   ver. O recolhimento ao descer não entra na disputa: aquele transform mora
+   no .nav, que é outro elemento. */
 @keyframes nav-desce {
-  from { transform: translateY(-130%); opacity: 0; }
-  to   { transform: none; opacity: 1; }
+  from { translate: 0 -130%; opacity: 0; }
+  to   { translate: none;    opacity: 1; }
 }
 
 /* O painel: é ele que se vê. */
@@ -336,13 +351,71 @@ a { color: inherit; }
      margin-left: auto empurrando nada. */
   gap: var(--s7);
   margin-inline: auto;
+  /* O padding é FIXO. Antes ele encolhia de --s3 para --s2 ao rolar, e era
+     essa transição que recalculava layout a cada quadro do aperto — a única
+     dívida de performance real da folha. Ver o bloco "O aperto ao rolar"
+     logo abaixo. */
   padding: var(--s3) var(--s5);
-  background: var(--ground-deep);
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
-  transition: padding-block 320ms var(--ease), box-shadow 320ms var(--ease);
-  /* Entrada: desce do topo ao carregar. CSS puro. */
+  isolation: isolate;
+  /* O fundo, o raio e a sombra saíram para duas camadas: só elas mudam de
+     tamanho, e só por transform. */
+  transition: transform 320ms var(--ease);
+  /* Entrada: desce do topo ao carregar. CSS puro, na propriedade `translate`
+     para não ocupar o `transform`. */
   animation: nav-desce 600ms var(--ease) 180ms both;
+}
+
+/* --- O aperto ao rolar -------------------------------------------------------
+   O painel fica 8px mais baixo quando a página desce: o topo fica onde está e
+   a base sobe. Medido no comportamento antigo, é exatamente isto — topo 16px
+   parado, altura 69,33 → 61,33, e o conteúdo subindo 4px por ficar centrado
+   numa caixa mais curta.
+
+   Antes isso saía de `transition: padding-block`. Animar padding é mudar a
+   caixa, e mudar a caixa é refazer o layout a cada quadro: medido, 11 layouts
+   e 39 recálculos de estilo por aperto.
+
+   Agora nada de layout se move. A caixa do .nav__interno é sempre a mesma, e
+   quem encolhe são duas camadas:
+
+   ::before  o painel pintado — fundo e raio. Encolhe por clip-path, que
+             recorta 4px em cima e 4px embaixo. `inset(... round)` preserva o
+             raio EXATO nos dois estados; um scaleY teria achatado o raio de
+             10px para 8,85px e espremido a sombra junto.
+   ::after   só a sombra. Precisa de camada própria porque o clip-path do
+             ::before cortaria a sombra rente ao painel. Ela desce inteira,
+             por translate, até a base coincidir com a base do painel pintado.
+
+   Todos os deslocamentos saem de --aperto, que é a diferença entre os dois
+   paddings de antes. Nenhum número solto: mexer em --s2 ou --s3 continua
+   movendo o efeito junto, como movia quando era padding. */
+.nav__interno {
+  --aperto: calc(var(--s3) - var(--s2));
+}
+
+.nav__interno::before,
+.nav__interno::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-painel);
+  pointer-events: none;
+}
+
+/* O painel. z-index negativo dentro do `isolation` do pai: fica atrás do
+   conteúdo e não escapa para trás da página. */
+.nav__interno::before {
+  z-index: -1;
+  background: var(--ground-deep);
+  clip-path: inset(0 round var(--r-painel));
+  transition: clip-path 320ms var(--ease);
+}
+
+/* A sombra, uma camada abaixo do painel. */
+.nav__interno::after {
+  z-index: -2;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.34);
+  transition: transform 320ms var(--ease), box-shadow 320ms var(--ease);
 }
 
 /* Links e botão viajam juntos. */
@@ -353,9 +426,31 @@ a { color: inherit; }
 }
 
 /* Rolado: o painel se aperta um pouco e a sombra cresce. O fundo não entra
-   em cena porque nunca saiu — já era opaco. */
+   em cena porque nunca saiu — já era opaco.
+
+   O conteúdo sobe --aperto porque é o que fazia quando o padding encolhia:
+   centrado numa caixa 8px mais curta, ele subia 4px. Este transform é do
+   .nav__interno, o mesmo elemento que já era bloco de contenção do menu
+   móvel — mover qualquer filho no lugar dele tornaria o filho o bloco de
+   contenção do .nav__links absoluto, e o menu deixaria de ocupar a largura
+   do painel. */
 .nav[data-rolado] .nav__interno {
-  padding-block: var(--s2);
+  transform: translateY(calc(-1 * var(--aperto)));
+}
+
+/* O painel recorta --aperto em cima e embaixo. Com o pai já 4px acima, o
+   recorte de cima devolve o topo ao lugar e o de baixo tira os 8px de altura:
+   topo parado, base 8px mais alta. */
+.nav[data-rolado] .nav__interno::before {
+  clip-path: inset(var(--aperto) 0 round var(--r-painel));
+}
+
+/* A sombra sobe mais --aperto, para a base dela cair exatamente na base do
+   painel recortado: o pai já subiu 4px e ela sobe outros 4px, chegando aos
+   8px de diferença de altura. O topo dela fica atrás do painel opaco, onde
+   não se vê. */
+.nav[data-rolado] .nav__interno::after {
+  transform: translateY(calc(-1 * var(--aperto)));
   box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
 }
 
@@ -495,7 +590,7 @@ a { color: inherit; }
     z-index: 5;
     padding: var(--s2) var(--s5) var(--s4);
     background: var(--ground-deep);
-    border-radius: 10px;
+    border-radius: var(--r-painel);
     box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
     clip-path: inset(0 0 100% 0 round 10px);
     pointer-events: none;
@@ -521,6 +616,8 @@ a { color: inherit; }
   .nav { transition: none; }
   .nav[data-oculta] { transform: none; }
   .nav__interno { animation: none; transition: none; }
+  .nav__interno::before,
+  .nav__interno::after { transition: none; }
   .nav__burger-rotulo > span { transition: none; }
   .nav__links { transition: none; }
 }
@@ -998,7 +1095,7 @@ a { color: inherit; }
 
 .historia__figura {
   aspect-ratio: 1 / 1;
-  border-radius: 10px;
+  border-radius: var(--r-painel);
   overflow: hidden;
   background: var(--ground-lift);
 }
@@ -2006,6 +2103,16 @@ a { color: inherit; }
   height: auto;
   aspect-ratio: 3 / 4;
   object-fit: cover;
+  /* EXCEÇÃO ao sistema, e deliberada. O DESIGN.md documenta rounded como
+     none/hairline/pill, e todo componente listado lá é `rounded.none`: a folha
+     é de cantos retos. Este é o único raio de mídia dela, dimensionado para um
+     quadro 3:4 de ~500×676px, onde 16px lê como canto suave sem virar "card".
+     Fica como exceção em vez de virar degrau porque não há segundo consumidor
+     — as fotos de /ambientes, a outra mídia grande da folha, não levam raio
+     nenhum de propósito (quem as recorta é o clip-path da revelação).
+     Promover isto anunciaria um "raio de mídia" que o sistema não tem e que
+     convidaria componentes retos a se arredondarem. */
+  /* impeccable-disable-next-line design-system-radius -- único raio de mídia da folha; sistema é de cantos retos, sem segundo consumidor */
   border-radius: 16px;
   /* Preenchimento enquanto o vídeo não pintou o primeiro quadro: é a única
      pista de que ali vai haver imagem. Volta a --ground-lift junto com o
@@ -2149,6 +2256,15 @@ a { color: inherit; }
 .estagio__t {
   font-family: var(--font-serif);
   font-weight: 400;
+  /* EXCEÇÃO ao sistema, e deliberada. Este teto não é um degrau de tipo: é uma
+     medida da GRADE. Ele foi reduzido da escala anterior (1.45–1.95rem) quando
+     a caixa do título caiu de 380px para ~167px no pior caso, a 992px, e o 2.1
+     é o maior valor em que nenhum dos quatro títulos passa de duas linhas nem
+     estoura a caixa. Trocar de quatro colunas para três moveria este número.
+     Não vira degrau porque um degrau é escolhido pelo papel do texto, e este
+     foi escolhido pela largura da coluna que o contém — um consumidor só, e
+     amarrado a uma geometria. */
+  /* impeccable-disable-next-line design-system-font-size -- teto amarrado à largura da coluna de estágio, não degrau de tipo */
   font-size: clamp(1.3rem, 1.05rem + 0.8vw, 2.1rem);
   line-height: 1.12;
 
