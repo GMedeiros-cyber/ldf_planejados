@@ -7,11 +7,8 @@ import { useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "
    exclusiva do bloco de CTA; agora atravessa as duas seções, e o Fechamento
    perdeu a madeira própria para não empilhar madeira sobre madeira.
 
-   A ÚNICA emenda da página NÃO mora aqui dentro: ela marca a fronteira entre
-   o campo dourado das Marcas e esta madeira, e por isso fica FORA, logo acima
-   do container. Este componente não sabe da existência dela e não lhe passa
-   nada — a placa é estática de propósito, porque marca o limite entre dois
-   materiais e não pode deslizar em relação a nenhum dos dois.
+   A fronteira com a seção de cima não leva marca nenhuma: a troca de
+   superfície — campo dourado para madeira — já é a divisão.
 
    A camada de fundo é MAIS ALTA que o container (130%) e nasce centrada
    (top: -15%), então sobra 15% da altura acima e abaixo. É essa sobra que o
@@ -66,8 +63,8 @@ export default function FaixaMadeira({ children }: { children: ReactNode }) {
     escrever(deslocamento.get());
   }, [semMovimento, deslocamento]);
 
-  /* Movimento reduzido: o fundo e a placa ficam, o movimento sai. Sem as
-     variáveis, o CSS cai nos fallbacks — 0% e 0px, as posições de repouso. */
+  /* Movimento reduzido: o fundo fica, o movimento sai. Sem a variável, o CSS
+     cai no fallback 0%, que é a posição central. */
   useMotionValueEvent(deslocamento, "change", (v) => {
     if (semMovimento) return;
     escrever(v);

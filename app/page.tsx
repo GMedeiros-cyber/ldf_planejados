@@ -7,7 +7,6 @@ import Processo from "@/components/Processo";
 import Marcas from "@/components/Marcas";
 import Fabrica from "@/components/Fabrica";
 import FaixaMadeira from "@/components/FaixaMadeira";
-import Emenda from "@/components/Emenda";
 import Fechamento from "@/components/Fechamento";
 import Footer from "@/components/Footer";
 
@@ -65,12 +64,6 @@ export default function Home() {
             faixa de madeira: com fundo dourado, estar dentro dela não fazia
             sentido — tapava a textura em vez de assentar sobre ela. */}
         <Marcas />
-
-        {/* A ÚNICA emenda da página, na junta entre duas superfícies de
-            verdade: o dourado acaba, a madeira começa. Acompanhou o dourado
-            quando ele mudou do Processo para as Marcas — é a fronteira de
-            material que ela marca, não uma seção específica. */}
-        <Emenda x="26%" xMovel="20%" />
 
         <FaixaMadeira>
           <Fabrica />

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Ref } from "react";
 import { useMotionValueEvent, useScroll } from "motion/react";
+import FundoAuralis from "./FundoAuralis";
 import { estagios } from "@/lib/dados";
 
 /* Quatro estágios lado a lado, em quatro colunas iguais.
@@ -82,9 +83,11 @@ export default function Processo() {
 
   return (
     <section className="section processo" id="processo" aria-labelledby="t-proc">
-      {/* O .wrap saiu da section e foi para o conteúdo: o texto tem gutter, o
-          fundo não — e o fundo agora é a madeira do .faixa-madeira, que
-          atravessa esta seção junto com as três seguintes. */}
+      {/* Mesmo fundo da História: o shader do FundoAuralis, com o véu dele
+          garantindo o contraste. O .wrap saiu da section e foi para o
+          conteúdo — o texto tem gutter, o fundo não. */}
+      <FundoAuralis />
+
       <div className="wrap processo__conteudo">
         <div className="section__head rise">
           <h2 className="h2" id="t-proc">
