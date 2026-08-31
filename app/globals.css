@@ -1529,60 +1529,170 @@ a { color: inherit; }
   line-height: 1.1;
 }
 
-/* Duas colunas em cima — vídeo e texto+diagrama — e as células técnicas
-   atravessando as duas embaixo.
+/* Duas colunas: vídeo e argumento. NÃO são meio a meio.
+
+   O vídeo é 3:4 retrato, então a largura da coluna multiplica por 1,33 na
+   altura: em 1fr 1fr ele passava dos 820px a 1440px enquanto o texto ao lado
+   media 555px, e a seção lia como uma coluna sobrando ao lado de um pôster.
+   Em 5fr 7fr o vídeo cai para uma altura que o texto alcança, e a coluna de
+   leitura fica com a largura maior — que é onde ela deve estar.
 
    A ordem VISUAL inverte a do DOM: o vídeo está em segundo lugar no markup e
    aparece à esquerda. É colocação explícita por grid-column, e não `order`,
-   porque `order` teria de reposicionar também a faixa técnica para não
-   embaralhar a coluna única. Assim a ordem de leitura continua sendo
-   argumento → ilustração, que é a certa para leitor de tela e a mesma que
-   vale no telefone. */
+   para não depender da ordem visual em coluna única. Assim a ordem de leitura
+   continua sendo argumento → ilustração, que é a certa para leitor de tela e
+   a mesma que vale no telefone. */
 .fabrica {
+  /* Mesma coluna de leitura do Processo, que vem logo acima — as duas seções
+     nascem no mesmo x e leem como um par.
+
+     Aqui o teto não é só ritmo, é geometria: a altura do vídeo é a largura da
+     coluna vezes 1,33, então sem teto ela cresce sem parar junto da viewport
+     (942px a 1920px), enquanto o texto ao lado ENCOLHE ao ganhar largura. Os
+     dois se afastam, e o space-between vira cratera de 140px entre parágrafo
+     e parágrafo. Travando a grade, a altura do vídeo estabiliza em ~676px de
+     1408px para cima. O teto é da COLUNA, não do vídeo: o quadro 3:4 continua
+     inteiro, nada é cortado. */
+  --coluna: 1280px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 5fr 7fr;
   gap: var(--s8);
-  align-items: start;
+  max-width: var(--coluna);
+  margin-inline: auto;
+  /* stretch, não start: é o que dá à coluna de texto a altura do vídeo para
+     distribuir dentro. Com `start` ela mediria só o próprio conteúdo e o
+     space-between não teria vão nenhum. */
+  align-items: stretch;
 }
 .fabrica__texto { grid-column: 2; grid-row: 1; }
 .fabrica__video { grid-column: 1; grid-row: 1; }
-.fabrica__tecnica { grid-column: 1 / -1; }
+
+/* A primeira linha do texto encosta na borda de cima do vídeo, a nota técnica
+   na de baixo, e o miolo reparte o vão. O `gap` é PISO, não espaçamento: o
+   space-between soma o resto por cima dele, e quando não há resto (coluna
+   única, ou texto mais alto que o vídeo) é ele que segura o ritmo sozinho.
+
+   Por isso as margens dos filhos zeram logo abaixo: .lede--espacada,
+   .paragrafo-secundario e o margin-bottom global do <p> são espaçamento fixo,
+   e espaçamento fixo aqui vira sobra que o space-between não controla. */
+.fabrica__texto {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--s5);
+}
+.fabrica .fabrica__texto :is(.h2, p, .cadeia) { margin-block: 0; }
+
+/* A caixa da linha começa acima da tinta: metade da entrelinha, mais o vão
+   entre o topo do ascendente da fonte e o topo da maiúscula. Em Instrument
+   Serif com line-height 1.1 isso mede 0,173em — proporcional ao corpo, então
+   a compensação é em em e vale em todos os tamanhos do clamp. Sem ela a
+   manchete nasce ~10px abaixo da borda do vídeo. */
+.fabrica .fabrica__texto .h2 { margin-block-start: -0.173em; }
+
+/* Entre 992px e 1280px o problema se inverte: ali a grade é estreita, o vídeo
+   nunca foi o alto — o TEXTO é. Encolher a coluna dele para 5fr só o deixaria
+   pequeno (357px de largura a 1024px, contra 428px em meio a meio) sem
+   aproximar as duas bases, porque estreitar o texto o faz crescer junto. Meio
+   a meio é o que devolve presença ao vídeo nesta faixa.
+
+   As duas bases não se encontram aqui, e não há proporção de coluna que as
+   faça encontrar: um quadro 3:4 nesta largura não tem altura para o texto que
+   a seção carrega. O piso do gap segura o ritmo e o topo continua alinhado —
+   é o mesmo comportamento que a seção já tinha antes, e a promessa de base
+   valendo de 1280px para cima. */
+@media (max-width: 1279px) {
+  .fabrica { grid-template-columns: 1fr 1fr; }
+}
 
 /* Abaixo de 992px vira coluna única e a colocação explícita sai do caminho:
-   sem ela, a ordem do DOM já é texto → vídeo → faixa técnica. */
+   sem ela, a ordem do DOM já é texto → vídeo. O space-between também sai —
+   sem vídeo ao lado não há altura de referência para repartir, e ele só
+   esticaria os buracos até o fim do conteúdo. Sobra o piso do gap. */
 @media (max-width: 991px) {
   .fabrica { grid-template-columns: 1fr; gap: var(--s7); }
   .fabrica__texto,
   .fabrica__video { grid-column: auto; grid-row: auto; }
+  .fabrica__texto { justify-content: flex-start; }
+  .fabrica .fabrica__texto > .cadeia { margin-block-start: var(--s3); }
 }
 
-.cadeia { display: grid; gap: 2px; margin-top: var(--s7); }
+/* Diagrama sem molduras. As duas linhas moravam em caixas com fundo, e a da
+   LDF ainda tinha borda vermelha: lia como um par de cards de dashboard, não
+   como uma peça de texto. Fundo, borda, raio e padding saíram inteiros.
 
-/* O rótulo passou a ficar ACIMA da cadeia, não ao lado. Na coluna estreita
-   (~616px a 1440px de viewport) sobravam 432px para a linha da franquia, que
-   mede ~495px em --t-sm: quebraria em duas. Empilhando o rótulo, a linha
-   ganha os 584px inteiros e cabe numa só — e uma cadeia partida ao meio
-   contradiz justamente o que o diagrama desenha, que é uma sequência. */
-.cadeia__row {
-  display: grid;
-  gap: var(--s2);
-  padding: var(--s4);
-  background: var(--ground-lift);
+   O contraste entre as duas cadeias é TIPOGRÁFICO e nada mais. A da rede de
+   franquia fica em --ink-3 e a da LDF em --ink: a mais curta é também a mais
+   presente, e é essa diferença de peso na página que faz o argumento — uma
+   moldura só repetiria em desenho o que o texto já diz. O vermelho da marca
+   aparece uma vez, no rótulo LDF, e em nenhum outro lugar.
+
+   As duas se separam por espaço, não por régua: com fundo nenhum, uma linha
+   divisória voltaria a desenhar a caixa que acabou de sair. Sem margin-top
+   também: o que separa a cadeia dos blocos vizinhos é o space-between. */
+.cadeia { display: grid; gap: var(--s6); }
+
+/* O rótulo fica ACIMA da cadeia, não ao lado, para a linha da franquia ficar
+   com a largura inteira da coluna. No corpo maior ela ainda quebra em duas de
+   1440px para baixo — a quebra é aceitável, cair no meio de um elo não é, e
+   por isso os nomes de dois vocábulos vão com espaço rígido no TSX: só as
+   setas quebram, e a linha continua lendo como sequência. */
+/* Fluxo normal, não grid. O SplitText clona o elemento de origem uma vez por
+   linha: com a linha da franquia quebrando em duas, .cadeia__what virava DOIS
+   itens de grade e o gap de --s2 entrava entre as duas metades de uma frase
+   só, afastando-as como se fossem parágrafos. Em bloco elas se empilham pela
+   entrelinha, que é o que uma frase quebrada pede. O afastamento do rótulo
+   passa a ser margem dele, e o desenho fica igual ao que era. */
+.cadeia__row { display: block; }
+.cadeia__who { display: block; margin-block-end: var(--s2); }
+.cadeia__what { display: block; }
+.cadeia__who {
+  font-family: var(--font-texto);
+  font-size: var(--t-xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: var(--ink-3);
 }
-.cadeia__row--ldf { background: var(--ground-red); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 45%, transparent); }
-.cadeia__who { font-variation-settings: "wdth" 70; font-weight: 700; font-size: var(--t-xs); letter-spacing: 0.14em; text-transform: uppercase; }
 .cadeia__row--ldf .cadeia__who { color: var(--red-bright); }
-/* Entre 992px e ~1300px a coluna ainda é estreita demais para os 72
-   caracteres da linha da franquia, e ela quebra em duas. O balance reparte as
-   duas metades em vez de deixar uma órfã — a quebra passa a ler como decisão.
-   Acima disso cabe numa linha só. */
+/* A cadeia subiu de --t-sm para --t-lg: sem caixa em volta, é o corpo do tipo
+   que a distingue do parágrafo acima. O balance reparte as duas metades da
+   linha da franquia quando ela quebra, em vez de deixar uma órfã — a quebra
+   passa a ler como decisão. */
 .cadeia__what {
-  font-size: var(--t-sm);
-  color: var(--ink-2);
-  line-height: 1.5;
+  font-size: var(--t-lg);
+  color: var(--ink-3);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 .cadeia__row--ldf .cadeia__what { color: var(--ink); }
+
+/* Rodapé do argumento: o que antes eram duas células de ficha técnica
+   atravessando as colunas. Vira uma linha corrida, no tipo de texto e no tom
+   mais baixo da escala — é o último elemento da coluna, e é ele que encosta
+   na borda de baixo do vídeo. Sem o teto de 68ch do <p> global, que numa
+   fonte deste corpo daria uma caixa estreita demais e a quebraria em três. */
+.fabrica__nota {
+  font-family: var(--font-texto);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  color: var(--ink-3);
+  max-width: none;
+}
+
+/* --- 12c. Revelação por bloco ---------------------------------------------
+   A varredura mora em components/ui/text-block-animation.tsx: o SplitText
+   parte o texto em linhas e injeta, por linha, um wrapper com overflow
+   hidden e um retângulo que passa por cima. Tudo o que ele cria é inline e
+   descartado no revert — aqui não há regra para isso, de propósito, senão o
+   CSS e o JS ficariam donos do mesmo elemento.
+
+   O que precisa morar aqui é só a conta que o wrapper injetado NÃO pode
+   fazer sozinho: as regras de margem da coluna, logo acima, alcançam .h2 e
+   <p> por descendência (`:is(.h2, p, .cadeia)`) justamente porque agora há
+   uma div do componente entre eles e .fabrica__texto. Se aquele seletor
+   voltar a ser filho direto, a compensação da manchete some. */
 
 /* --- 12b. Vídeo da Fábrica -------------------------------------------------
    O <video> e o <img> de pôster dividem a mesma classe: qual dos dois é
@@ -2090,12 +2200,4 @@ a { color: inherit; }
 
 .elev--comercial { min-height: 340px; }
 
-/* Ficha sem moldura: usada dentro da cadeia, onde a caixa externa já existe. */
-.ficha--nua {
-  margin-top: var(--s5);
-  border: 0;
-  background: transparent;
-  gap: 2px;
-}
-.ficha--nua .ficha__cell { background: var(--ground-lift); }
 

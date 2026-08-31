@@ -1,7 +1,10 @@
 import VideoFabrica from "./VideoFabrica";
+import TextBlockAnimation from "./ui/text-block-animation";
 
-/* Três faixas: vídeo à esquerda, texto + diagrama à direita, e as duas
-   células técnicas atravessando as duas colunas embaixo.
+/* Duas colunas: vídeo à esquerda, argumento à direita. A faixa técnica que
+   atravessava as duas embaixo saiu — as duas células viraram a última linha
+   da coluna de texto, e é ela que encosta na base do vídeo. O que era ficha
+   virou nota corrida porque não é dado de consulta: é o rodapé do argumento.
 
    As colunas estão INVERTIDAS em relação à ordem do DOM, e de propósito. A
    História, logo acima, é texto à esquerda com imagem à direita; repetir o
@@ -11,63 +14,86 @@ import VideoFabrica from "./VideoFabrica";
    ordem que vale em coluna única, abaixo de 992px — sem regra extra.
 
    O vídeo é ornamento e é aria-hidden; quem carrega o argumento é o diagrama
-   da cadeia, que mantém o aria-label. */
+   da cadeia, que mantém o aria-label. Ele também não participa da revelação:
+   a varredura é do texto, e um retângulo passando por cima do vídeo seria
+   ornamento sobre ornamento.
+
+   Esta seção continua SERVER COMPONENT. O TextBlockAnimation é que é
+   "use client"; o texto vai para ele como children, já renderizado no
+   servidor, e chega ao HTML inteiro mesmo se o JS não carregar.
+
+   A coluna NÃO leva .rise. A revelação por bloco substitui aquele fade do
+   conjunto: os dois juntos fariam a varredura acontecer debaixo de uma
+   opacidade ainda subindo, e o acender do texto viraria fade.
+
+   O atraso em cascata é explícito, um por bloco, na ordem de leitura. Os
+   ScrollTriggers são independentes — cada bloco tem o seu — então o delay é
+   o que garante que a sequência siga o texto e não a posição na tela. */
+
+const COR_BLOCO = "var(--ground-lift)";
 
 export default function Fabrica() {
   return (
     <section className="section wrap" id="fabrica" aria-labelledby="t-fab">
       <div className="fabrica">
-        <div className="fabrica__texto rise">
-          <h2 className="h2" id="t-fab">
-            Não tem revenda no meio.
-          </h2>
-          <p className="lede lede--espacada">
-            As grandes marcas de planejados são redes de franquia: quem projeta e quem vende para
-            você não é quem fabrica. Na LDF é a mesma empresa do desenho à montagem.
-          </p>
-          <p className="paragrafo-secundario">
-            Isso muda três coisas práticas. O prazo é o nosso prazo, não o da fila de uma fábrica
-            que atende centenas de lojas. Uma alteração no projeto conversa direto com quem vai
-            cortar a chapa. E na assistência técnica não existe para quem apontar o dedo.
-          </p>
+        <div className="fabrica__texto">
+          <TextBlockAnimation blockColor={COR_BLOCO} delay={0}>
+            <h2 className="h2" id="t-fab">
+              Não tem revenda no meio.
+            </h2>
+          </TextBlockAnimation>
+
+          <TextBlockAnimation blockColor={COR_BLOCO} delay={0.1}>
+            <p className="lede lede--espacada">
+              As grandes marcas de planejados são redes de franquia: quem projeta e quem vende para
+              você não é quem fabrica. Na LDF é a mesma empresa do desenho à montagem.
+            </p>
+          </TextBlockAnimation>
+
+          <TextBlockAnimation blockColor={COR_BLOCO} delay={0.2}>
+            <p className="paragrafo-secundario">
+              Isso muda três coisas práticas. O prazo é o nosso prazo, não o da fila de uma fábrica
+              que atende centenas de lojas. Uma alteração no projeto conversa direto com quem vai
+              cortar a chapa. E na assistência técnica não existe para quem apontar o dedo.
+            </p>
+          </TextBlockAnimation>
 
           <div
             className="cadeia"
             aria-label="Comparação entre a cadeia de uma rede de franquia e a da LDF"
           >
-            <div className="cadeia__row">
-              <span className="cadeia__who">Rede de franquia</span>
-              <span className="cadeia__what">
-                Fábrica → franqueado → projetista da loja → montador terceirizado → você
-              </span>
-            </div>
-            <div className="cadeia__row cadeia__row--ldf">
-              <span className="cadeia__who">LDF</span>
-              <span className="cadeia__what">Fábrica → você</span>
-            </div>
+            <TextBlockAnimation blockColor={COR_BLOCO} delay={0.3}>
+              <div className="cadeia__row">
+                <span className="cadeia__who">Rede de franquia</span>
+                {/* Os nomes dos elos vão com espaço rígido: no corpo maior a linha
+                    quebra, e sem isso ela partia em "projetista da / loja" — no meio
+                    de um elo, que é justamente o que uma cadeia não pode fazer.
+                    Assim a quebra só cai nas setas, e continua lendo como sequência. */}
+                <span className="cadeia__what">
+                  Fábrica → franqueado → projetista&nbsp;da&nbsp;loja → montador&nbsp;terceirizado
+                  → você
+                </span>
+              </div>
+            </TextBlockAnimation>
+
+            <TextBlockAnimation blockColor={COR_BLOCO} delay={0.4}>
+              <div className="cadeia__row cadeia__row--ldf">
+                <span className="cadeia__who">LDF</span>
+                <span className="cadeia__what">Fábrica → você</span>
+              </div>
+            </TextBlockAnimation>
           </div>
+
+          <TextBlockAnimation blockColor={COR_BLOCO} delay={0.5}>
+            <p className="fabrica__nota">
+              MDF 100%, corrediças telescópicas com amortecedor e fundos de 3 ou 6&nbsp;mm.
+              Fabricado em Guarulhos, entregue em São&nbsp;Paulo.
+            </p>
+          </TextBlockAnimation>
         </div>
 
         <div className="fabrica__video">
           <VideoFabrica />
-        </div>
-
-        <div className="ficha ficha--nua fabrica__tecnica rise">
-          <div className="ficha__cell">
-            <span className="label ficha__k">Material</span>
-            <span className="ficha__v ficha__v--sm">MDF 100%</span>
-            <span className="ficha__d">
-              Corrediças telescópicas retas ou invisíveis com amortecedor, dobradiças com
-              amortecimento, fundos de 3&nbsp;mm ou 6&nbsp;mm.
-            </span>
-          </div>
-          <div className="ficha__cell">
-            <span className="label ficha__k">Onde ficamos</span>
-            <span className="ficha__v ficha__v--sm">Guarulhos</span>
-            <span className="ficha__d">
-              Atendemos São Paulo em geral. Enviamos para outros estados sem montagem.
-            </span>
-          </div>
         </div>
       </div>
     </section>
