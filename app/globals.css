@@ -1676,19 +1676,43 @@ a { color: inherit; }
    escuro. E o padding assimétrico (10vw em cima contra 6vw embaixo) deixaria
    a faixa torta. Como aquela regra mora depois desta no arquivo, empatar em
    especificidade não bastaria; daí as três classes, que o elemento já tem. */
+/* CAMPO DOURADO — a única seção clara da metade de baixo, e a cor vem do
+   cartão de visita. Três camadas, nenhuma com assunto: numa faixa cujo
+   trabalho é destacar logos, qualquer imagem de fundo ou some (e não valeu)
+   ou aparece (e disputa com eles).
+
+   1. Degradê diagonal de --ouro para --ouro-velho, com o lado escuro na borda
+      de BAIXO: dá movimento de luz e entrega a seção mais escura justamente
+      onde a madeira começa, suavizando a passagem.
+   2. Grão fino em multiply, para a superfície ficar fosca — tinta ou papel,
+      não plástico.
+   3. O conteúdo, e nada mais atrás.
+
+   O grão é feTurbulence num data-URI, e não o PNG de 128px: ruído não
+   comprime, e 17 KB é caro demais para um acabamento. `stitchTiles` costura
+   as bordas do ladrilho, senão a repetição desenha uma grade. */
 .wrap.section.marcas {
-  --regua: color-mix(in srgb, var(--ouro-velho) 22%, transparent);
-  /* Transparente: a madeira atravessa. O campo escuro próprio existia quando
-     a faixa vinha depois do shader e precisava se destacar do fundo da
-     página; agora ela é a PRIMEIRA seção do trecho de madeira, e um painel
-     opaco aqui faria a junta do dourado encostar num terceiro material em
-     vez de na madeira. */
-  background: transparent;
+  --regua: color-mix(in srgb, #1C1A18 20%, transparent);
+  /* Três degraus de tinta escura, todos medidos no ponto MAIS ESCURO do
+     degradê (#B2A485), que é onde o texto sofre — não na média. O piso para
+     4,5:1 ali é 0,80: a 0,75 cai para 4,39:1 e reprova. */
+  --tinta-rotulo: color-mix(in srgb, #1C1A18 80%, transparent);
+  --tinta-logo: color-mix(in srgb, #1C1A18 88%, transparent);
+  --tinta-logo-forte: #1C1A18;
+
+  background-color: var(--ouro);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch' seed='11'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E"),
+    linear-gradient(165deg, var(--ouro) 0%, var(--ouro-velho) 100%);
+  background-size: 128px 128px, auto;
+  background-repeat: repeat, no-repeat;
+  background-blend-mode: multiply, normal;
+
   padding-block: clamp(3rem, 6vw, 7rem);
-  /* Sem régua em cima: quem marca essa fronteira agora é a emenda, logo
-     acima. Duas linhas ali seriam a mesma divisão dita duas vezes. */
+  /* Sem régua em cima nem embaixo: a troca de campo já divide, e embaixo quem
+     marca a junta com a madeira é a emenda. */
   border-top: 0;
-  border-bottom: 1px solid var(--regua);
+  border-bottom: 0;
 }
 
 .marcas__rotulo {
@@ -1698,7 +1722,7 @@ a { color: inherit; }
   letter-spacing: 0.22em;
   text-transform: uppercase;
   line-height: 1.2;
-  color: var(--ink-3);
+  color: var(--tinta-rotulo);
   text-align: center;
   margin: 0 0 var(--s7);
 }
@@ -1721,7 +1745,7 @@ a { color: inherit; }
   margin: 0 auto;
   list-style: none;
   padding: 0;
-  color: var(--ouro-velho);
+  color: var(--tinta-logo);
 }
 
 .marcas__item {
@@ -1729,7 +1753,7 @@ a { color: inherit; }
   align-items: center;
   transition: color 250ms var(--ease);
 }
-.marcas__item:hover { color: var(--ouro); }
+.marcas__item:hover { color: var(--tinta-logo-forte); }
 
 .marcas__item svg {
   display: block;
@@ -1968,64 +1992,24 @@ a { color: inherit; }
    Cada bloco fica com ~300px a 1440px e ~199px a 992px (onde ainda são
    quatro colunas). É essa caixa estreita que manda no tamanho do título. --- */
 
-/* Campo DOURADO: a única seção clara da metade de baixo, e a cor vem do
-   cartão de visita. O shader abstrato saiu antes; a madeira saiu agora. Com o
-   fundo claro, toda a tipografia da seção inverte — não é trocar uma
-   variável, é uma escala de tintas escuras própria, medida contra o ouro.
-
-   As três tintas abaixo são o equivalente de --ink, --ink-2 e --ink-3 sobre
-   este fundo. As duas apagadas são o MESMO preto com opacidade, e não cinzas
-   inventados: sobre um campo quente, cinza neutro esverdeia. Razões medidas
-   contra #DFBF98 — 9,95:1 / 6,62:1 / 5,10:1 — todas acima de 4,5:1.
+/* Fundo escuro padrão, o mesmo da Fábrica: a seção voltou ao claro-sobre-
+   escuro do resto da página. O campo dourado passou para a faixa de marcas,
+   que é a única seção clara da metade de baixo.
 
    A .wrap so tem padding-inline, sem max-width — de proposito, porque e
    global. A coluna maxima desta secao mora aqui e e lida pelo cabecalho E
    pela grade, para os dois nascerem no mesmo x. */
 .processo {
   --coluna: 1280px;
-  --tinta:   #1C1A18;
-  --tinta-2: color-mix(in srgb, #1C1A18 82%, transparent);
-  --tinta-3: color-mix(in srgb, #1C1A18 72%, transparent);
-  /* Marco: o vermelho da marca escurecido, não um vermelho novo. O
-     --red-bright original dá 1,96:1 sobre o ouro e o --red-hot dá 3,40:1 —
-     os dois reprovam. A 70% sobre preto chega a 4,98:1. */
-  --marco: color-mix(in srgb, var(--red) 70%, #000);
-
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  color: var(--tinta);
-
-  /* Campo chapado fica plástico. A variação é dupla e de baixíssima
-     amplitude: uma diagonal larga que puxa os cantos para o --ouro-velho, e
-     um grão fino em multiply. Nenhuma das duas deve ler como textura — só
-     tirar a superfície do plano perfeito. */
-  background-color: var(--ouro);
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.14'/%3E%3C/svg%3E"),
-    linear-gradient(
-      163deg,
-      color-mix(in srgb, var(--ouro-velho) 34%, var(--ouro)) 0%,
-      var(--ouro) 44%,
-      color-mix(in srgb, var(--ouro-velho) 24%, var(--ouro)) 100%
-    );
-  background-size: 300px 300px, auto;
-  background-blend-mode: multiply, normal;
-
-  /* Sem régua em cima nem embaixo: com a troca de fundo, um fio de 1px vira
-     linha solta na fronteira. Quem divide é a própria mudança de campo — e,
-     embaixo, a emenda. */
+  /* Sem régua em cima nem embaixo: a seção acima já é escura e o que vem
+     depois é o campo dourado, cuja troca de superfície é a própria divisão. */
   border-top: 0;
   border-bottom: 0;
 }
 
-/* E quem vier logo depois também não leva régua. A --edge tem L* 16.4 contra
-   5.5 do fundo da página e 2.3 do pé do shader: encostada na base do bloco
-   escuro ela vira um fio claro no ponto mais escuro da home. A troca de
-   material já é a divisão; o que falta ali é respiro, não linha.
-
-   Escrito como irmão adjacente de propósito: vale para qualquer seção que
-   venha depois do Processo, e sobrevive à próxima reordenação. */
 .processo + .section {
   border-top: 0;
   padding-block-start: clamp(var(--s9), 10vw, var(--s11));
@@ -2042,9 +2026,6 @@ a { color: inherit; }
    Serif tem um peso só e nenhum eixo variável — pedir 700 ou "wdth" faria o
    navegador sintetizar um falso-negrito. Local, não global: a .h2 da folha
    continua Archivo. */
-.processo .h2 { color: var(--tinta); }
-.processo .lede { color: var(--tinta-2); }
-
 .processo .h2 {
   font-family: var(--font-serif);
   font-weight: 400;
@@ -2079,7 +2060,7 @@ a { color: inherit; }
   font-variation-settings: "wdth" 70;
   font-weight: 700;
   font-size: var(--t-md);
-  color: var(--tinta-3);
+  color: var(--ink-3);
 }
 
 /* Reduzido da escala anterior (1.45–1.95rem) porque a caixa do título caiu
@@ -2098,7 +2079,7 @@ a { color: inherit; }
   line-height: 1.12;
   min-height: 2.24em; /* 2 × line-height */
   letter-spacing: -0.01em;
-  color: var(--tinta);
+  color: var(--ink);
 }
 
 /* O corpo é indentado no mesmo recuo do numeral, então o texto alinha com o
@@ -2123,23 +2104,18 @@ a { color: inherit; }
   pointer-events: none;
 }
 
-/* A base era --edge sobre escuro; sobre o ouro vira o mesmo preto bem
-   translúcido, senão o fio some ou vira risco duro. */
-.estagio__corpo::before {
-  height: 100%;
-  background: color-mix(in srgb, #1C1A18 24%, transparent);
-}
+.estagio__corpo::before { height: 100%; background: var(--edge); }
 
 .estagio__corpo::after {
   height: calc(var(--progresso, 1) * 100%);
-  background: var(--tinta);
+  background: var(--ink);
 }
 
 .estagio__p {
   font-family: var(--font-texto);
   font-size: clamp(1.02rem, 0.95rem + 0.3vw, 1.15rem);
   line-height: 1.5;
-  color: var(--tinta-2);
+  color: var(--ink-2);
   margin: 0;
   max-width: none;
 }
@@ -2155,16 +2131,16 @@ a { color: inherit; }
   font-family: var(--font-texto);
   font-size: var(--t-md);
   line-height: 1.45;
-  color: var(--tinta-3);
+  color: var(--ink-3);
 }
 
 /* O marco: onde a assinatura inicia o prazo, e para onde o título da seção
    aponta. Mesma tinta de acento que a lista de etapas já usava. */
-.estagio--marco .estagio__n { color: var(--marco); }
+.estagio--marco .estagio__n { color: var(--red-bright); }
 .estagio--marco .estagio__corpo::before {
-  background: color-mix(in srgb, var(--marco) 45%, transparent);
+  background: color-mix(in srgb, var(--red-bright) 45%, transparent);
 }
-.estagio--marco .estagio__corpo::after { background: var(--marco); }
+.estagio--marco .estagio__corpo::after { background: var(--red-bright); }
 
 @media (max-width: 991px) { .estagios { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 639px) { .estagios { grid-template-columns: 1fr; } }
