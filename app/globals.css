@@ -1482,10 +1482,16 @@ a { color: inherit; }
   object-fit: cover;
 }
 
+/* Degrau de "título de seção" do DESIGN.md, o mesmo do .h2 — cada ambiente é
+   um capítulo, e o nome dele é o título desse capítulo. O que muda em relação
+   ao .h2 global é só o tratamento serifado, como já fazem .obras, .processo e
+   .fabrica: Instrument Serif tem um peso só e nenhum eixo variável, então
+   pedir 700 ou "wdth" faria o navegador sintetizar um falso-negrito. */
 .ambiente__nome {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(1.8rem, 1.2rem + 2.2vw, 3.2rem);
+  font-size: clamp(1.9rem, 1.1rem + 3.2vw, 3.4rem);
+  font-variation-settings: normal;
   line-height: 1.05;
   letter-spacing: -0.01em;
   color: var(--ink);
