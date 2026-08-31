@@ -17,8 +17,8 @@ opacidade, cada uma com a sua frase no canto inferior esquerdo, e nada mais:
 sem botão, sem rótulo, sem chamada. É o arranjo padrão da categoria, adotado
 de propósito — a LDF é desconhecida e precisa afirmar antes de explicar.
 
-Oito blocos, nesta ordem. O Processo é campo dourado; a madeira cobre
-os três últimos:
+Oito blocos, nesta ordem. As Marcas são campo dourado; a madeira cobre
+os dois últimos:
 
 1. Hero       As três capas. Só imagem e frase.
 2. Numeros    +1.200 projetos, +15 anos, 5 anos de garantia. Contam quando
@@ -27,10 +27,10 @@ os três últimos:
               quem corta a chapa não existe ninguém.
 4. Obras      A parede de trabalho entregue, em carrossel contínuo.
 5. Processo   Os quatro estágios, com o orçamento no terceiro. Responde
-              "como funciona" antes de "por que em vocês". Campo dourado,
-              tipografia invertida: é a única seção clara da metade de baixo.
-6. Marcas     Faixa de logos. PLACEHOLDER: as cinco marcas são fictícias e
-              a seção não vai ao ar como está — ver lib/dados.ts.
+              "como funciona" antes de "por que em vocês".
+6. Marcas     Faixa de logos em campo dourado, a única seção clara da metade
+              de baixo. PLACEHOLDER: as cinco marcas são fictícias e a seção
+              não vai ao ar como está — ver lib/dados.ts.
 7. Fabrica    Não tem revenda no meio: a cadeia da franquia contra a nossa.
               Vem DEPOIS do processo de propósito — é a razão estrutural de
               o processo poder ser aquele, e só faz sentido depois de a
@@ -61,16 +61,18 @@ export default function Home() {
         <Obras />
         <Processo />
 
-        {/* A ÚNICA emenda da página, e agora com função: é a junta entre duas
-            superfícies de verdade — o dourado do Processo acaba, a madeira
-            começa. As duas anteriores marcavam divisões que não existiam
-            (madeira contra madeira) e por isso liam como ornamento repetido. */}
+        {/* Campo próprio, e a única seção clara da metade de baixo. Saiu da
+            faixa de madeira: com fundo dourado, estar dentro dela não fazia
+            sentido — tapava a textura em vez de assentar sobre ela. */}
+        <Marcas />
+
+        {/* A ÚNICA emenda da página, na junta entre duas superfícies de
+            verdade: o dourado acaba, a madeira começa. Acompanhou o dourado
+            quando ele mudou do Processo para as Marcas — é a fronteira de
+            material que ela marca, não uma seção específica. */}
         <Emenda x="26%" xMovel="20%" />
 
-        {/* A madeira corre por baixo do resto, com parallax. O Processo saiu
-            daqui quando ganhou campo dourado próprio. */}
         <FaixaMadeira>
-          <Marcas />
           <Fabrica />
           <Fechamento />
         </FaixaMadeira>
