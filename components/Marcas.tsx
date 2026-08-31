@@ -2,9 +2,9 @@ import { marcas } from "@/lib/dados";
 import CarrosselMarcas from "./CarrosselMarcas";
 
 /* Faixa de logos entre o Processo e a Fábrica. Fundo chapado, em
-   --ground-deep: é o ponto mais escuro da metade de baixo, entre o shader do
-   Processo e o campo quente da Fábrica. A faixa AFUNDA entre os dois blocos
-   de argumento, e é esse afundamento que a separa — não um fundo próprio.
+   --ground-deep, entre duas seções que usam o shader do FundoAuralis. É o liso
+   entre as duas texturas que separa a faixa dos blocos de argumento — não um
+   fundo próprio dela.
 
    ══════════════════════════════════════════════════════════════════════════
    ⚠  ESTA SEÇÃO INTEIRA É PLACEHOLDER E NÃO PODE SER PUBLICADA.
