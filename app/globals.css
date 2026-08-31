@@ -25,6 +25,11 @@
   --red:           #DF0100;
   --red-bright:    #FF4436;
 
+  /* Dourados amostrados do cartão de visita da empresa. Entram como tinta de
+     marca — hoje só na faixa de marcas — e não como campo de fundo. */
+  --ouro:          #DFBF98;
+  --ouro-velho:    #B2A485;
+
   /* Arestas */
   --edge:          #2C2825;
   --edge-2:        #443D37;
@@ -1514,6 +1519,252 @@ a { color: inherit; }
   padding-block-start: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
 }
 
+/* --- 11b. Faixa de madeira contínua -----------------------------------------
+   Envolve a Fábrica e o Fechamento. A textura era só do CTA; agora corre por
+   baixo das duas, e o Fechamento ficou transparente.
+
+   O empilhamento segue o mesmo idioma do resto do arquivo (.historia,
+   .processo): isolation isola o contexto e as camadas de fundo vão para
+   z-index negativo, então as seções sobem sem precisar de z-index próprio. */
+.faixa-madeira {
+  position: relative;
+  isolation: isolate;
+  /* Recorta a sobra da camada de fundo. Sem isto ela vaza os 15% de altura
+     para fora nas duas pontas: por cima cobria a faixa de marcas — os logos
+     sumiam atrás da madeira — e por baixo entrava no rodapé. `clip` e não
+     `hidden` porque não precisa virar contêiner de rolagem. */
+  overflow: hidden;
+  overflow: clip;
+}
+
+/* 130% de altura, nascendo 15% acima: sobra 15% da altura do container em
+   cada ponta. É a margem que o parallax consome — o deslocamento é de 6% da
+   altura do container, bem dentro dos 15%, então nunca aparece borda vazia.
+
+   repeat-y porque o trecho é bem mais alto que a imagem, e background-size
+   100% auto (não `cover`): cover escalaria para cobrir TAMBÉM a altura, o que
+   num bloco desta altura ampliaria a madeira até virar borrão. Assim a imagem
+   cobre a largura, mantém a proporção e se repete para baixo. */
+.faixa-madeira__fundo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -15%;
+  height: 130%;
+  z-index: -2;
+  background-image: image-set(
+    url("/madeira-cta-1600.webp") 1x,
+    url("/madeira-cta-2400.webp") 2x
+  );
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+  background-position: center top;
+  /* A variável vem do FaixaMadeira. Sem ela — no servidor, sem JS, ou em
+     movimento reduzido — o fallback 0% deixa a camada na posição central. */
+  transform: translate3d(0, var(--deslocamento, 0%), 0);
+}
+
+/* 55% de preto, cinco pontos acima dos 50% que o CTA usava sozinho. O véu
+   agora cobre também a Fábrica, que tem texto corrido, --ink-2 e --ink-3 —
+   tons mais baixos que os do CTA, que só tem --ink. */
+.faixa-madeira__veu {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* Com fundo contínuo, a régua de topo da .section vira um risco atravessando
+   a madeira. A primeira seção da faixa perde a régua; a fronteira entre as
+   duas já é dada pelo ritmo do padding. */
+.faixa-madeira > .section { border-top: 0; }
+
+/* --- 11b-2. Emenda: a junta entre o dourado e a madeira ----------------------
+   Uma só na página, e exatamente onde há troca de material: o campo dourado
+   do Processo acaba, a madeira começa. As duas anteriores ficavam dentro do
+   trecho de madeira e marcavam divisões que não existiam — madeira contra
+   madeira — e por isso liam como ornamento repetido.
+
+   ALTURA ZERO, de propósito. O elemento não ocupa espaço: o dourado encosta
+   na madeira sem intervalo, e a linha de emenda cai exatamente na fronteira.
+   A placa é absoluta e centrada nessa linha, então fica metade sobre cada
+   superfície — que é como ferragem de junta se comporta.
+
+   z-index 2 porque o .faixa-madeira, logo abaixo, é posicionado e recorta o
+   próprio conteúdo: sem um índice explícito a metade de baixo da placa
+   passaria por trás da madeira. */
+
+.emenda {
+  --placa: 200px;
+  position: relative;
+  z-index: 2;
+  height: 0;
+  /* O escuro do site, e não o --ouro-velho. A placa fica metade sobre cada
+     superfície, então nenhuma cor serve às duas: o escuro dá 9,95:1 contra o
+     ouro e some na madeira; o ouro-velho dá 6,73:1 contra a madeira e some no
+     ouro. O escuro lê melhor porque o lado dourado é campo liso, onde um
+     contorno se resolve, e a madeira é grão — ali o contorno claro se perde
+     na textura mesmo com número melhor. */
+  color: #1C1A18;
+  pointer-events: none;
+}
+
+/* Duas linhas de 1px: a de cima na fronteira, a de baixo 2px abaixo e mais
+   apagada. É o par que lê como rebaixo entre chapas — uma linha sozinha fica
+   chapada, igual a régua de seção. */
+.emenda::before,
+.emenda::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: currentColor;
+}
+.emenda::before { top: 0; opacity: 0.28; }
+.emenda::after { top: 2px; opacity: 0.12; }
+
+/* Fora do eixo, sempre: ferragem centrada lê como ornamento aplicado; fora do
+   centro lê como construção — a peça está onde a estrutura pediu.
+
+   O deslocamento diferencial vem de --deslocamento-placa, que o FaixaMadeira
+   escreve. Esta emenda vive FORA da faixa, então não herda a variável e cai
+   no fallback 0px: a placa fica parada na junta, que é o certo — ela marca a
+   fronteira entre dois materiais e não pode deslizar em relação a nenhum. */
+.emenda__placa {
+  position: absolute;
+  top: 0;
+  left: var(--x, 26%);
+  width: var(--placa);
+  transform: translate(-50%, calc(-50% + var(--deslocamento-placa, 0px)));
+}
+
+.emenda__placa svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 767px) {
+  .emenda { --placa: 140px; }
+  .emenda__placa { left: var(--x-movel, var(--x, 20%)); }
+}
+
+/* --- 11c. Faixa de marcas ----------------------------------------------------
+   PLACEHOLDER: as cinco marcas são fictícias (lib/dados.ts).
+
+   A escala é toda em vw com piso e teto. Os valores fixos anteriores foram
+   desenhados em 1440px e sumiam num monitor de 27": em 2560px os logos ficavam
+   com os mesmos 34px de uma tela com 40% da largura.
+
+   O campo escuro é uma ELEVAÇÃO do fundo da página, não um bloco dourado. O
+   #DFBF98 do cartão é claro demais para virar campo: um retângulo bege entre o
+   shader do Processo e a madeira da Fábrica puxaria o olho para a faixa de
+   logos — que é informação secundária — e roubaria a entrada da Fábrica, que
+   é o argumento central da página. O dourado entra como TINTA, nos próprios
+   logos, e como régua fina. --------------------------------------------- */
+
+/* Três classes de propósito, e não por descuido: mais abaixo existe
+   `.processo + .section`, que zera a régua de topo e engorda o padding
+   superior de QUALQUER seção que venha depois do Processo. Aquela regra foi
+   escrita quando quem vinha depois era a Fábrica, e o argumento dela é que
+   uma linha em --edge, encostada no pé do shader, vira fio claro no ponto
+   mais escuro da home.
+
+   Aqui o argumento não vale: a régua é ouro a 22%, quente e de contraste
+   baixo, sobre um campo que já é uma elevação do fundo — não é fio claro no
+   escuro. E o padding assimétrico (10vw em cima contra 6vw embaixo) deixaria
+   a faixa torta. Como aquela regra mora depois desta no arquivo, empatar em
+   especificidade não bastaria; daí as três classes, que o elemento já tem. */
+.wrap.section.marcas {
+  --regua: color-mix(in srgb, var(--ouro-velho) 22%, transparent);
+  /* Transparente: a madeira atravessa. O campo escuro próprio existia quando
+     a faixa vinha depois do shader e precisava se destacar do fundo da
+     página; agora ela é a PRIMEIRA seção do trecho de madeira, e um painel
+     opaco aqui faria a junta do dourado encostar num terceiro material em
+     vez de na madeira. */
+  background: transparent;
+  padding-block: clamp(3rem, 6vw, 7rem);
+  /* Sem régua em cima: quem marca essa fronteira agora é a emenda, logo
+     acima. Duas linhas ali seriam a mesma divisão dita duas vezes. */
+  border-top: 0;
+  border-bottom: 1px solid var(--regua);
+}
+
+.marcas__rotulo {
+  font-family: var(--font-texto);
+  font-size: clamp(0.75rem, 0.9vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  color: var(--ink-3);
+  text-align: center;
+  margin: 0 0 var(--s7);
+}
+
+/* Os SVG pintam com currentColor: a cor mora aqui e no hover do item, e é só
+   isso que a transição anima.
+
+   O teto de 1600px é da FILA, não da seção: sem ele os cinco logos se
+   espalham pelos 2400px úteis de uma tela de 2560px e deixam de ler como um
+   conjunto. 1600px mantém a fila coesa e ainda maior que a coluna de 1280px
+   do Processo e da Fábrica, para a faixa não parecer um recuo. */
+.marcas__faixa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2rem, 4vw, 5.5rem);
+  max-width: 1600px;
+  /* margin-block 0 explícito: o <ul> traz 1em de margem do navegador. */
+  margin: 0 auto;
+  list-style: none;
+  padding: 0;
+  color: var(--ouro-velho);
+}
+
+.marcas__item {
+  display: flex;
+  align-items: center;
+  transition: color 250ms var(--ease);
+}
+.marcas__item:hover { color: var(--ouro); }
+
+.marcas__item svg {
+  display: block;
+  height: clamp(28px, 2.2vw, 52px);
+  width: auto;
+}
+
+/* O nome é desenhado dentro do SVG, então é tipo de verdade e não texto de
+   página: tamanho e tracking vêm do viewBox e escalam junto com a altura. */
+.marcas__nome {
+  font-family: var(--font-texto);
+  font-size: 17px;
+  letter-spacing: 1.1px;
+  fill: currentColor;
+}
+
+/* Abaixo de 768px vira duas colunas. O quinto logo é ímpar e último: ocupa a
+   linha inteira em vez de ficar encostado à esquerda. Aqui a altura sai do
+   clamp e passa a ser fixa: o piso de 28px do clamp não cabe em duas colunas
+   numa tela estreita, e abaixo de 24px o nome desenhado deixa de ser legível. */
+@media (max-width: 767px) {
+  .marcas__faixa {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s6) var(--s5);
+    justify-items: center;
+  }
+  .marcas__item:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .marcas__item svg { height: 26px; }
+}
+
+@media (max-width: 400px) {
+  .marcas__item svg { height: 24px; }
+}
+
 /* --- 12. A fábrica -------------------------------------------------------- */
 
 /* A manchete desta seção estava em Archivo bold, herdada da .h2 global,
@@ -1717,20 +1968,55 @@ a { color: inherit; }
    Cada bloco fica com ~300px a 1440px e ~199px a 992px (onde ainda são
    quatro colunas). É essa caixa estreita que manda no tamanho do título. --- */
 
-/* Fundo em shader, atrás do conteúdo. A seção isola o empilhamento para o
-   z-index do véu não escapar para o resto da página. */
-/* A .wrap so tem padding-inline, sem max-width — de proposito, porque e
+/* Campo DOURADO: a única seção clara da metade de baixo, e a cor vem do
+   cartão de visita. O shader abstrato saiu antes; a madeira saiu agora. Com o
+   fundo claro, toda a tipografia da seção inverte — não é trocar uma
+   variável, é uma escala de tintas escuras própria, medida contra o ouro.
+
+   As três tintas abaixo são o equivalente de --ink, --ink-2 e --ink-3 sobre
+   este fundo. As duas apagadas são o MESMO preto com opacidade, e não cinzas
+   inventados: sobre um campo quente, cinza neutro esverdeia. Razões medidas
+   contra #DFBF98 — 9,95:1 / 6,62:1 / 5,10:1 — todas acima de 4,5:1.
+
+   A .wrap so tem padding-inline, sem max-width — de proposito, porque e
    global. A coluna maxima desta secao mora aqui e e lida pelo cabecalho E
    pela grade, para os dois nascerem no mesmo x. */
 .processo {
   --coluna: 1280px;
+  --tinta:   #1C1A18;
+  --tinta-2: color-mix(in srgb, #1C1A18 82%, transparent);
+  --tinta-3: color-mix(in srgb, #1C1A18 72%, transparent);
+  /* Marco: o vermelho da marca escurecido, não um vermelho novo. O
+     --red-bright original dá 1,96:1 sobre o ouro e o --red-hot dá 3,40:1 —
+     os dois reprovam. A 70% sobre preto chega a 4,98:1. */
+  --marco: color-mix(in srgb, var(--red) 70%, #000);
+
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  /* Sem régua de topo: o shader é material próprio e já separa sozinho, do
-     mesmo jeito que a madeira do .fechamento. A régua ali em cima ficaria
-     como uma linha solta sobre o bloco. */
+  color: var(--tinta);
+
+  /* Campo chapado fica plástico. A variação é dupla e de baixíssima
+     amplitude: uma diagonal larga que puxa os cantos para o --ouro-velho, e
+     um grão fino em multiply. Nenhuma das duas deve ler como textura — só
+     tirar a superfície do plano perfeito. */
+  background-color: var(--ouro);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.14'/%3E%3C/svg%3E"),
+    linear-gradient(
+      163deg,
+      color-mix(in srgb, var(--ouro-velho) 34%, var(--ouro)) 0%,
+      var(--ouro) 44%,
+      color-mix(in srgb, var(--ouro-velho) 24%, var(--ouro)) 100%
+    );
+  background-size: 300px 300px, auto;
+  background-blend-mode: multiply, normal;
+
+  /* Sem régua em cima nem embaixo: com a troca de fundo, um fio de 1px vira
+     linha solta na fronteira. Quem divide é a própria mudança de campo — e,
+     embaixo, a emenda. */
   border-top: 0;
+  border-bottom: 0;
 }
 
 /* E quem vier logo depois também não leva régua. A --edge tem L* 16.4 contra
@@ -1749,59 +2035,16 @@ a { color: inherit; }
    sao 240px de desalinhamento. */
 .processo .section__head { max-width: var(--coluna); margin-inline: auto; }
 
-.processo__fundo {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
 .processo__conteudo { position: relative; z-index: 1; }
-
-.fundo-shader { position: absolute; inset: 0; }
-
-/* Gradiente estático: é o que aparece em movimento reduzido e quando o
-   contexto WebGL falha. Mesmas cores do shader, na mesma ordem. */
-.fundo-shader::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(80% 70% at 22% 28%, #5E2A18 0%, transparent 62%),
-    radial-gradient(70% 60% at 78% 62%, #2A1410 0%, transparent 68%),
-    radial-gradient(50% 45% at 62% 22%, color-mix(in srgb, var(--red) 22%, transparent), transparent 70%),
-    var(--ground-deep);
-}
-
-.fundo-shader__tela {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  pointer-events: none;
-}
-/* Só cobre o gradiente quando o shader realmente subiu. */
-.fundo-shader[data-ativo] .fundo-shader__tela { opacity: 1; }
-
-/* Véu de leitura. 50% medido, não estimado: simulei a saída do shader e o
-   pixel mais claro que ele produz é rgb(83,22,2), Y=0.0243 — bem mais escuro
-   que o normal, porque o hash21 do original tem média 0.25, não 0.5, e o fbm
-   nunca passa de ~0.6. Sobre esse pior pixel, com 50%, --ink-2 dá 7.1:1 e
-   --ink-3 dá 4.85:1. Os 55% pedidos também passam (4.94:1); 50% deixa mais
-   do shader aparecer pela mesma folga prática. */
-.processo__veu {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.50);
-}
 
 /* A manchete da seção é serifada em caixa alta, como em .obras: a serifada
    marca a SEÇÃO e a sem-serifa marca os estágios dentro dela. Instrument
    Serif tem um peso só e nenhum eixo variável — pedir 700 ou "wdth" faria o
    navegador sintetizar um falso-negrito. Local, não global: a .h2 da folha
    continua Archivo. */
+.processo .h2 { color: var(--tinta); }
+.processo .lede { color: var(--tinta-2); }
+
 .processo .h2 {
   font-family: var(--font-serif);
   font-weight: 400;
@@ -1836,7 +2079,7 @@ a { color: inherit; }
   font-variation-settings: "wdth" 70;
   font-weight: 700;
   font-size: var(--t-md);
-  color: var(--ink-3);
+  color: var(--tinta-3);
 }
 
 /* Reduzido da escala anterior (1.45–1.95rem) porque a caixa do título caiu
@@ -1855,7 +2098,7 @@ a { color: inherit; }
   line-height: 1.12;
   min-height: 2.24em; /* 2 × line-height */
   letter-spacing: -0.01em;
-  color: var(--ink);
+  color: var(--tinta);
 }
 
 /* O corpo é indentado no mesmo recuo do numeral, então o texto alinha com o
@@ -1880,18 +2123,23 @@ a { color: inherit; }
   pointer-events: none;
 }
 
-.estagio__corpo::before { height: 100%; background: var(--edge); }
+/* A base era --edge sobre escuro; sobre o ouro vira o mesmo preto bem
+   translúcido, senão o fio some ou vira risco duro. */
+.estagio__corpo::before {
+  height: 100%;
+  background: color-mix(in srgb, #1C1A18 24%, transparent);
+}
 
 .estagio__corpo::after {
   height: calc(var(--progresso, 1) * 100%);
-  background: var(--ink);
+  background: var(--tinta);
 }
 
 .estagio__p {
   font-family: var(--font-texto);
   font-size: clamp(1.02rem, 0.95rem + 0.3vw, 1.15rem);
   line-height: 1.5;
-  color: var(--ink-2);
+  color: var(--tinta-2);
   margin: 0;
   max-width: none;
 }
@@ -1907,16 +2155,16 @@ a { color: inherit; }
   font-family: var(--font-texto);
   font-size: var(--t-md);
   line-height: 1.45;
-  color: var(--ink-3);
+  color: var(--tinta-3);
 }
 
 /* O marco: onde a assinatura inicia o prazo, e para onde o título da seção
    aponta. Mesma tinta de acento que a lista de etapas já usava. */
-.estagio--marco .estagio__n { color: var(--red-bright); }
+.estagio--marco .estagio__n { color: var(--marco); }
 .estagio--marco .estagio__corpo::before {
-  background: color-mix(in srgb, var(--red-bright) 45%, transparent);
+  background: color-mix(in srgb, var(--marco) 45%, transparent);
 }
-.estagio--marco .estagio__corpo::after { background: var(--red-bright); }
+.estagio--marco .estagio__corpo::after { background: var(--marco); }
 
 @media (max-width: 991px) { .estagios { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 639px) { .estagios { grid-template-columns: 1fr; } }
@@ -2021,33 +2269,14 @@ a { color: inherit; }
 /* A faixa de madeira. Não usa .section: não leva régua de topo nem o
    padding-block da escala — o próprio material já separa, e a altura é
    fixa por desenho. */
+/* Transparente: a madeira e o véu vêm do .faixa-madeira, que envolve esta
+   seção e a Fábrica. Sem isolation e sem overflow — não há mais nada próprio
+   para recortar, e isolar aqui cortaria o fundo da faixa. */
 .fechamento {
-  position: relative;
-  isolation: isolate;
   display: grid;
   align-content: center;
   min-height: 420px;
   padding-block: var(--s8);
-  overflow: hidden;
-}
-
-.fechamento__madeira {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* 50% de preto. Valor medido sobre a textura real: no pixel mais claro da
-   madeira o texto em --ink dá 6.7:1, e 14.8:1 na mediana. Mexer neste
-   número exige refazer a conta. */
-.fechamento__veu {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: rgba(0, 0, 0, 0.50);
 }
 
 .fechamento__conteudo {

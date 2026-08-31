@@ -379,3 +379,14 @@ export const historia = {
   img: "/historia/fabrica.webp",
   alt: "Marcenaria em produção, com chapas e bancada de trabalho.",
 } as const;
+
+/* PLACEHOLDER — marcas fictícias. Nenhuma dessas empresas existe.
+   TODO: substituir pelos clientes comerciais reais quando o cliente enviar
+   os nomes e autorizar o uso das marcas. */
+export const marcas = [
+  { nome: "Clínica Vértice", arquivo: "/marcas/vertice.svg" },
+  { nome: "Colégio Aurora", arquivo: "/marcas/aurora.svg" },
+  { nome: "Studio Lume", arquivo: "/marcas/lume.svg" },
+  { nome: "Grupo Pilar", arquivo: "/marcas/pilar.svg" },
+  { nome: "Traço Escritórios", arquivo: "/marcas/traco.svg" },
+] as const;

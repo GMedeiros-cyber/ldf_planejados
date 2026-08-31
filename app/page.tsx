@@ -4,7 +4,10 @@ import Numeros from "@/components/Numeros";
 import Historia from "@/components/Historia";
 import Obras from "@/components/Obras";
 import Processo from "@/components/Processo";
+import Marcas from "@/components/Marcas";
 import Fabrica from "@/components/Fabrica";
+import FaixaMadeira from "@/components/FaixaMadeira";
+import Emenda from "@/components/Emenda";
 import Fechamento from "@/components/Fechamento";
 import Footer from "@/components/Footer";
 
@@ -14,7 +17,8 @@ opacidade, cada uma com a sua frase no canto inferior esquerdo, e nada mais:
 sem botão, sem rótulo, sem chamada. É o arranjo padrão da categoria, adotado
 de propósito — a LDF é desconhecida e precisa afirmar antes de explicar.
 
-Sete blocos, nesta ordem:
+Oito blocos, nesta ordem. O Processo é campo dourado; a madeira cobre
+os três últimos:
 
 1. Hero       As três capas. Só imagem e frase.
 2. Numeros    +1.200 projetos, +15 anos, 5 anos de garantia. Contam quando
@@ -23,12 +27,15 @@ Sete blocos, nesta ordem:
               quem corta a chapa não existe ninguém.
 4. Obras      A parede de trabalho entregue, em carrossel contínuo.
 5. Processo   Os quatro estágios, com o orçamento no terceiro. Responde
-              "como funciona" antes de "por que em vocês". Fundo em shader.
-6. Fabrica    Não tem revenda no meio: a cadeia da franquia contra a nossa.
+              "como funciona" antes de "por que em vocês". Campo dourado,
+              tipografia invertida: é a única seção clara da metade de baixo.
+6. Marcas     Faixa de logos. PLACEHOLDER: as cinco marcas são fictícias e
+              a seção não vai ao ar como está — ver lib/dados.ts.
+7. Fabrica    Não tem revenda no meio: a cadeia da franquia contra a nossa.
               Vem DEPOIS do processo de propósito — é a razão estrutural de
               o processo poder ser aquele, e só faz sentido depois de a
               pessoa ter visto qual é o processo.
-7. Fechamento Faixa de madeira: logo, uma frase e um botão para /contato.
+8. Fechamento Faixa de madeira: logo, uma frase e um botão para /contato.
 
 O amostrário e a elevação desenhada não moram aqui: vivem em /ambientes e na
 página da cozinha, onde quem já está decidindo o acabamento vai encontrá-los.
@@ -53,8 +60,20 @@ export default function Home() {
         <Historia />
         <Obras />
         <Processo />
-        <Fabrica />
-        <Fechamento />
+
+        {/* A ÚNICA emenda da página, e agora com função: é a junta entre duas
+            superfícies de verdade — o dourado do Processo acaba, a madeira
+            começa. As duas anteriores marcavam divisões que não existiam
+            (madeira contra madeira) e por isso liam como ornamento repetido. */}
+        <Emenda x="26%" xMovel="20%" />
+
+        {/* A madeira corre por baixo do resto, com parallax. O Processo saiu
+            daqui quando ganhou campo dourado próprio. */}
+        <FaixaMadeira>
+          <Marcas />
+          <Fabrica />
+          <Fechamento />
+        </FaixaMadeira>
       </main>
       <Footer />
     </>
