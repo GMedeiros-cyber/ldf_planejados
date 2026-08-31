@@ -1,26 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import Logo from "./Logo";
 
-/* Navegação em painel flutuante. Todos os destinos abaixo apontam para ids
-   que existem em app/page.tsx — conferido, nenhum órfão. */
+/* Navegação em painel flutuante. Três destinos, e não mais cinco.
+
+   O que saiu não sumiu do site: "Espaços comerciais" é âncora dentro de
+   /ambientes (#comercial), e "Como funciona" e "A LDF" são seções da home,
+   alcançáveis rolando. Os três continuam no rodapé, que é onde um mapa
+   exaustivo pertence — a barra do topo carrega decisão, não índice. */
 
 const links = [
+  { href: "/", texto: "Home" },
   { href: "/ambientes", texto: "Ambientes" },
-  { href: "/ambientes#comercial", texto: "Espaços comerciais" },
-  { href: "/#processo", texto: "Como funciona" },
-  { href: "/#fabrica", texto: "A LDF" },
   { href: "/#contato", texto: "Contato" },
 ];
 
 export default function Nav() {
   const [rolado, setRolado] = useState(false);
   const [aberto, setAberto] = useState(false);
-  const [atual, setAtual] = useState("");
   const [oculta, setOculta] = useState(false);
+  const rota = usePathname();
   /* Em ref, não em estado: a posição anterior é insumo do cálculo, não algo
      que a tela precise redesenhar a cada quadro de scroll. */
   const anterior = useRef(0);
@@ -73,28 +76,26 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", aoRolar);
   }, []);
 
-  /* Qual seção está sendo lida. Sem isto o [aria-current] do CSS nunca
-     casaria e o link atual jamais apagaria. A margem negativa de 45% em cima
-     e embaixo reduz a área de observação a uma faixa no meio da tela: só a
-     seção que cruza essa faixa conta como atual, então não há dois links
-     apagados ao mesmo tempo. Em páginas internas nada casa e o efeito
-     simplesmente não acontece. */
-  useEffect(() => {
-    const secoes = links
-      .map((l) => document.getElementById(l.href.slice(2)))
-      .filter((e): e is HTMLElement => e !== null);
-    if (!secoes.length) return;
+  /* Quem manda no link apagado é a ROTA, não a seção visível.
 
-    const obs = new IntersectionObserver(
-      (entradas) => {
-        const dentro = entradas.find((e) => e.isIntersecting);
-        if (dentro) setAtual(dentro.target.id);
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
-    );
-    secoes.forEach((s) => obs.observe(s));
-    return () => obs.disconnect();
-  }, []);
+     Antes um IntersectionObserver vigiava as seções da home e marcava o link
+     da que cruzasse o meio da tela. Aquilo assumia que todo destino era
+     "/#id" — lia o alvo com href.slice(2) — e com "/" e "/ambientes" na lista
+     passaria a procurar por ids chamados "" e "mbientes". Além de quebrar, o
+     observador rodava a cada rolagem para decidir uma coisa que só muda na
+     navegação: saiu inteiro, e com ele um trabalho por quadro.
+
+     Uma âncora nunca marca rota: "/#contato" é um salto dentro da página, e
+     não um destino próprio — em "/" quem apaga é a Home.
+
+     O prefixo com barra é o que separa a subpágina do vizinho de nome
+     parecido: "/ambientes/cozinha" casa, um futuro "/ambientes-comerciais"
+     não. */
+  const ehAtual = (href: string) => {
+    if (href.includes("#")) return false;
+    if (href === "/") return rota === "/";
+    return rota === href || rota.startsWith(href + "/");
+  };
 
   useEffect(() => {
     if (!aberto) return;
@@ -137,9 +138,11 @@ export default function Nav() {
                 key={l.href}
                 className="nav__link"
                 href={l.href}
-                /* "true" e não "location": é o valor com suporte largo em
-                   leitores de tela, e aqui basta dizer "é esta". */
-                aria-current={atual === l.href.slice(2) ? "true" : undefined}
+                /* "page" e não "true": agora o que se marca é a PÁGINA em que
+                   se está, e esse é o valor canônico para isso. Enquanto o
+                   indicador era de seção, "true" era o certo — "page" teria
+                   mentido sobre uma âncora. */
+                aria-current={ehAtual(l.href) ? "page" : undefined}
               >
                 {l.texto}
               </Link>

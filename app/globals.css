@@ -393,6 +393,26 @@ a { color: inherit; }
 .nav__burger[aria-expanded="true"] .nav__burger-close { opacity: 1; transform: none; }
 
 /* Os links são serifados e em caixa mista, apertados uns contra os outros. */
+/* O gap fica em --s4 (16px), e ficou por medição depois de a fila cair de
+   cinco links para três.
+
+   Ele é o degrau de baixo de uma hierarquia de três: 16px entre os links,
+   24px de .nav__direita separando a fila do botão, 48px de .nav__interno
+   separando o logo do conjunto da direita. É essa escada que faz o botão ler
+   como outra coisa, e não como um quarto link.
+
+   Subir os links para --s5 os deixaria à MESMA distância que o botão está da
+   fila: a moldura da cápsula passa a ficar tão perto de "Contato" quanto
+   "Contato" está de "Ambientes", e o agrupamento se desfaz. Em --s6 a escada
+   inverte — o vão dentro da fila fica maior que o vão que a delimita. Medido
+   nas três: a fila mede 172px, 188px e 204px, e o painel 554px, 570px e
+   586px; a diferença de largura é irrelevante, a de leitura não.
+
+   A conta que fecha o argumento: com cinco links a fila media ~430px e os
+   quatro vãos eram 15% dela. Com três, os dois vãos são 19% de 172px. Em
+   proporção os links já ficaram MAIS soltos ao encurtar a fila, não menos —
+   o aperto que se esperaria da redução não existe. Abrir o gap agora seria
+   corrigir um problema que a própria redução resolveu. */
 .nav__links { display: flex; gap: var(--s4); align-items: center; }
 
 .nav__link {
