@@ -128,7 +128,10 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/* scrollbar-gutter reserva o espaço da barra mesmo quando ela não aparece.
+   Sem isso, `margin-inline: auto` centraliza na viewport — que NÃO desconta a
+   barra — e todo conteúdo centrado nasce ~15px à esquerda do centro óptico. */
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scrollbar-gutter: stable; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 body {
@@ -1926,7 +1929,12 @@ a { color: inherit; }
    global. A coluna maxima desta secao mora aqui e e lida pelo cabecalho E
    pela grade, para os dois nascerem no mesmo x. */
 .processo {
-  --coluna: 1280px;
+  /* Fluida, não 1280 fixos. A coluna preenche a largura disponível dentro do
+     gutter até um teto de 1520px: em 1865px sobravam ~290px de cada lado e
+     cada bloco de estágio caía para ~290px, uns 30 caracteres por linha.
+     O gutter continua respeitado sozinho — o bloco de contenção já é o
+     conteúdo com padding, então o max-width só limita, nunca estica. */
+  --coluna: min(1520px, 100%);
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -2005,7 +2013,10 @@ a { color: inherit; }
   font-variant-numeric: tabular-nums;
   font-variation-settings: "wdth" 70;
   font-weight: 700;
-  font-size: var(--t-md);
+  /* O termo fluido foi calibrado para valer exatamente --t-md a 992px: o piso
+     do clamp nunca entra em ação, e a escala pequena fica idêntica à de
+     antes. O teto só age de ~1500px para cima. */
+  font-size: clamp(var(--t-md), 0.68rem + 0.43vw, 1.15rem);
   color: var(--ink-3);
 }
 
@@ -2013,17 +2024,17 @@ a { color: inherit; }
    de 380px para ~167px no pior caso, a 992px. Neste tamanho nenhum dos quatro
    passa de duas linhas, e nenhuma palavra estoura a caixa.
 
-   O min-height reserva as duas linhas SEMPRE, e continua necessario com a
-   escala maior: a 992px "Entender o ambiente" e "Fabricar e montar" quebram
-   em duas linhas enquanto "Desenhar" e "Fechar" ficam em uma. Para caberem
-   em uma so, a largura media por caractere teria de ser 0.356em — nenhuma
-   serifada de texto chega perto. Sem a reserva, as frases desencontrariam. */
+   A reserva de duas linhas deixou de ser permanente. Com a coluna mais larga
+   e o teto do clamp maior, os quatro títulos cabem em UMA linha de 1030px
+   para cima — medido. A reserva fixa passaria a somar ~36px de vazio embaixo
+   de cada título a 1920px. Ela sobrevive só na faixa onde a quebra de fato
+   acontece, logo abaixo. */
 .estagio__t {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(1.3rem, 1.05rem + 0.8vw, 1.75rem);
+  font-size: clamp(1.3rem, 1.05rem + 0.8vw, 2.1rem);
   line-height: 1.12;
-  min-height: 2.24em; /* 2 × line-height */
+
   letter-spacing: -0.01em;
   color: var(--ink);
 }
@@ -2059,7 +2070,7 @@ a { color: inherit; }
 
 .estagio__p {
   font-family: var(--font-texto);
-  font-size: clamp(1.02rem, 0.95rem + 0.3vw, 1.15rem);
+  font-size: clamp(1.02rem, 0.95rem + 0.3vw, 1.3rem);
   line-height: 1.5;
   color: var(--ink-2);
   margin: 0;
@@ -2075,7 +2086,7 @@ a { color: inherit; }
   display: grid;
   gap: var(--s1);
   font-family: var(--font-texto);
-  font-size: var(--t-md);
+  font-size: clamp(var(--t-md), 0.68rem + 0.43vw, 1.15rem);
   line-height: 1.45;
   color: var(--ink-3);
 }
@@ -2087,6 +2098,17 @@ a { color: inherit; }
   background: color-mix(in srgb, var(--red-bright) 45%, transparent);
 }
 .estagio--marco .estagio__corpo::after { background: var(--red-bright); }
+
+/* A reserva de duas linhas vale SÓ na faixa estreita em que a grade já tem
+   quatro colunas e a caixa do título ainda é apertada. Medido: "Entender o
+   ambiente" quebra em duas linhas de 992px a 1029px e os outros três ficam
+   em uma — sem a reserva, as frases desencontrariam. De 1030px para cima os
+   quatro cabem em uma linha; abaixo de 992px a grade cai para duas colunas,
+   os blocos ficam largos e nada quebra. O teto de 1045px é folga para
+   variação de métrica entre a fonte carregada e a de fallback. */
+@media (min-width: 992px) and (max-width: 1045px) {
+  .estagio__t { min-height: 2.24em; } /* 2 × line-height */
+}
 
 @media (max-width: 991px) { .estagios { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 639px) { .estagios { grid-template-columns: 1fr; } }
