@@ -1,9 +1,14 @@
 import Link from "next/link";
 import Logo from "./Logo";
 
-/* Faixa de fechamento: madeira full-bleed, véu preto e três elementos
-   centrados — logo, frase, botão. A lede e os dois botões antigos saíram de
-   propósito: o fim da página faz um pedido só, não três.
+/* Faixa de fechamento: três elementos centrados — logo, frase, botão. A lede
+   e os dois botões antigos saíram de propósito: o fim da página faz um pedido
+   só, não três.
+
+   A madeira e o véu NÃO moram mais aqui. Quem os desenha é o FaixaMadeira, que
+   envolve esta seção e a Fábrica: com o fundo contínuo por baixo, um fundo
+   próprio aqui seria madeira sobre madeira, com emenda visível na fronteira
+   entre as duas seções. Esta seção é transparente e herda o de trás.
 
    O id="contato" continua AQUI. Ele é o alvo de todas as âncoras "#contato"
    do site, e a rota /contato ainda não existe — mover o id agora quebraria a
@@ -11,27 +16,9 @@ import Logo from "./Logo";
    de lib/dados.ts. Quando app/contato/page.tsx nascer, o id sai daqui e
    essas âncoras viram "/contato". */
 
-const larguras = [1000, 1600, 2400] as const;
-
-const srcSet = larguras.map((w) => `/madeira-cta-${w}.webp ${w}w`).join(", ");
-
 export default function Fechamento() {
   return (
     <section className="fechamento" id="contato" aria-labelledby="t-cta">
-      <img
-        className="fechamento__madeira"
-        src="/madeira-cta-1600.webp"
-        srcSet={srcSet}
-        sizes="100vw"
-        width={2400}
-        height={923}
-        alt=""
-        aria-hidden="true"
-        loading="lazy"
-        decoding="async"
-      />
-      <div className="fechamento__veu" />
-
       <div className="fechamento__conteudo wrap">
         <Logo className="fechamento__marca" />
 

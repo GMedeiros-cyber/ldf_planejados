@@ -8,6 +8,12 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 gsap.registerPlugin(SplitText, ScrollTrigger, useGSAP);
 
+/* Curva das duas varreduras. expo.inOut saiu: ele despeja quase todo o
+   percurso no miolo e passa por scaleX 1 num piscar, o que dá margem
+   mínima para qualquer erro de sincronia entre a cobertura e o acender do
+   texto. Uma curva de potência chega ao fim de forma previsível. */
+const VARREDURA = "power2.inOut";
+
 /* Revelação por linha: um retângulo opaco cresce por cima do texto da esquerda
    para a direita, o texto acende debaixo dele, e o retângulo se recolhe também
    para a direita, deixando a linha exposta.
@@ -66,7 +72,7 @@ export default function TextBlockAnimation({
   delay = 0,
   blockColor = "#000",
   stagger = 0.1,
-  duration = 0.6,
+  duration = 0.45,
 }: TextBlockAnimationProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   /* Uma vez revelado, revelado fica: nem o resize nem uma remontagem devolvem
@@ -208,7 +214,7 @@ export default function TextBlockAnimation({
         });
 
         const tl = gsap.timeline({
-          defaults: { ease: "expo.inOut" },
+          defaults: { ease: VARREDURA },
           delay,
           onComplete: () => {
             jaRevelou.current = true;
@@ -222,13 +228,32 @@ export default function TextBlockAnimation({
             : undefined,
         });
 
+        /* As três etapas partilham o MESMO stagger, e as posições são
+           escolhidas para a linha N acender no instante exato em que o
+           retângulo N fecha:
+
+             retângulo N cobre de  N*stagger  ate  N*stagger + duration
+             linha N acende em     duration + N*stagger
+             retângulo N recolhe de  duration + N*stagger
+
+           `<${duration}` põe o .set em (início da expansão + duration), que
+           é onde o PRIMEIRO retângulo fecha; o stagger do próprio .set faz o
+           resto da fila. O terceiro tween entra em `<`, isto é, no mesmo
+           instante em que o .set começa — então cada retângulo só recua
+           depois de ter coberto a sua linha inteira.
+
+           Era aqui o defeito: o .set ficava em duration/2, com o retângulo na
+           metade do caminho, e as palavras do fim da linha apareciam antes de
+           ele passar. E o recolhimento entrava em duration*0.4, antes de a
+           expansão acabar — dois tweens disputando o mesmo scaleX com
+           transformOrigin opostos. */
         tl.to(blocos, {
           scaleX: 1,
           duration,
           stagger,
           transformOrigin: "left center",
         })
-          .set(linhas, { opacity: 1, stagger }, `<${duration / 2}`)
+          .set(linhas, { opacity: 1, stagger }, `<${duration}`)
           .to(
             blocos,
             {
@@ -237,7 +262,7 @@ export default function TextBlockAnimation({
               stagger,
               transformOrigin: "right center",
             },
-            `<${duration * 0.4}`,
+            "<",
           );
 
         return () => {

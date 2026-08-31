@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Ref } from "react";
 import { useMotionValueEvent, useScroll } from "motion/react";
-import FundoShader from "./FundoShader";
 import { estagios } from "@/lib/dados";
 
 /* Quatro estágios lado a lado, em quatro colunas iguais.
@@ -83,13 +82,9 @@ export default function Processo() {
 
   return (
     <section className="section processo" id="processo" aria-labelledby="t-proc">
-      {/* O .wrap saiu da section e foi para o conteúdo: o fundo precisa
-          atravessar o gutter, o texto não. */}
-      <div className="processo__fundo">
-        <FundoShader />
-        <div className="processo__veu" />
-      </div>
-
+      {/* O .wrap saiu da section e foi para o conteúdo: o texto tem gutter, o
+          fundo não — e o fundo agora é a madeira do .faixa-madeira, que
+          atravessa esta seção junto com as três seguintes. */}
       <div className="wrap processo__conteudo">
         <div className="section__head rise">
           <h2 className="h2" id="t-proc">
