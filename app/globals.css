@@ -25,11 +25,6 @@
   --red:           #DF0100;
   --red-bright:    #FF4436;
 
-  /* Dourados amostrados do cartão de visita da empresa. Entram como tinta de
-     marca — hoje só na faixa de marcas — e não como campo de fundo. */
-  --ouro:          #DFBF98;
-  --ouro-velho:    #B2A485;
-
   /* Arestas */
   --edge:          #2C2825;
   --edge-2:        #443D37;
@@ -1581,68 +1576,47 @@ a { color: inherit; }
 }
 
 /* --- 11c. Faixa de marcas ----------------------------------------------------
-   PLACEHOLDER: as cinco marcas são fictícias (lib/dados.ts).
+   PLACEHOLDER: as cinco marcas são fictícias E a headline afirma relação
+   comercial com elas. A seção não vai ao ar — ver o aviso em Marcas.tsx.
 
    A escala é toda em vw com piso e teto. Os valores fixos anteriores foram
-   desenhados em 1440px e sumiam num monitor de 27": em 2560px os logos ficavam
-   com os mesmos 34px de uma tela com 40% da largura.
+   desenhados em 1440px e sumiam num monitor de 27": em 2560px os logos
+   ficavam com os mesmos 34px de uma tela com 40% da largura.
 
-   O campo escuro é uma ELEVAÇÃO do fundo da página, não um bloco dourado. O
-   #DFBF98 do cartão é claro demais para virar campo: um retângulo bege entre o
-   shader do Processo e a madeira da Fábrica puxaria o olho para a faixa de
-   logos — que é informação secundária — e roubaria a entrada da Fábrica, que
-   é o argumento central da página. O dourado entra como TINTA, nos próprios
-   logos, e como régua fina. --------------------------------------------- */
+   O campo dourado saiu. A seção passa a ter o mesmo fundo da História e do
+   Processo — o shader do FundoAuralis, sobre --ground-deep — e com ele a
+   tipografia voltou a claro sobre escuro. */
 
 /* Três classes de propósito, e não por descuido: mais abaixo existe
    `.processo + .section`, que zera a régua de topo e engorda o padding
-   superior de QUALQUER seção que venha depois do Processo. Aquela regra foi
-   escrita quando quem vinha depois era a Fábrica, e o argumento dela é que
-   uma linha em --edge, encostada no pé do shader, vira fio claro no ponto
-   mais escuro da home.
+   superior de QUALQUER seção que venha depois do Processo.
 
-   Aqui o argumento não vale: a régua é ouro a 22%, quente e de contraste
-   baixo, sobre um campo que já é uma elevação do fundo — não é fio claro no
-   escuro. E o padding assimétrico (10vw em cima contra 6vw embaixo) deixaria
-   a faixa torta. Como aquela regra mora depois desta no arquivo, empatar em
-   especificidade não bastaria; daí as três classes, que o elemento já tem. */
-/* CAMPO DOURADO — a única seção clara da metade de baixo, e a cor vem do
-   cartão de visita. Três camadas, nenhuma com assunto: numa faixa cujo
-   trabalho é destacar logos, qualquer imagem de fundo ou some (e não valeu)
-   ou aparece (e disputa com eles).
-
-   1. Degradê diagonal de --ouro para --ouro-velho, com o lado escuro na borda
-      de BAIXO: dá movimento de luz e entrega a seção mais escura justamente
-      onde a madeira começa, suavizando a passagem.
-   2. Grão fino em multiply, para a superfície ficar fosca — tinta ou papel,
-      não plástico.
-   3. O conteúdo, e nada mais atrás.
-
-   O grão é feTurbulence num data-URI, e não o PNG de 128px: ruído não
-   comprime, e 17 KB é caro demais para um acabamento. `stitchTiles` costura
-   as bordas do ladrilho, senão a repetição desenha uma grade. */
+   A régua zerada continua certa e agora por motivo mais forte ainda: as duas
+   seções são shader, e um fio de --edge entre os pés de dois blocos escuros é
+   o "fio claro no ponto mais escuro" que aquela regra descreve. O que NÃO
+   serve aqui é o padding assimétrico — 10vw em cima contra 6vw embaixo
+   deixaria uma faixa curta visivelmente torta. Como aquela regra mora depois
+   desta no arquivo, empatar em especificidade não bastaria; daí as três
+   classes, que o elemento já tem. */
 .wrap.section.marcas {
-  --regua: color-mix(in srgb, #1C1A18 20%, transparent);
-  /* Três degraus de tinta escura, todos medidos no ponto MAIS ESCURO do
-     degradê (#B2A485), que é onde o texto sofre — não na média. O piso para
-     4,5:1 ali é 0,80: a 0,75 cai para 4,39:1 e reprova. */
-  --tinta-rotulo: color-mix(in srgb, #1C1A18 80%, transparent);
-  --tinta-logo: color-mix(in srgb, #1C1A18 88%, transparent);
-  --tinta-logo-forte: #1C1A18;
-
-  background-color: var(--ouro);
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch' seed='11'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E"),
-    linear-gradient(165deg, var(--ouro) 0%, var(--ouro-velho) 100%);
-  background-size: 128px 128px, auto;
-  background-repeat: repeat, no-repeat;
-  background-blend-mode: multiply, normal;
-
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--ground-deep);
   padding-block: clamp(3rem, 6vw, 7rem);
-  /* Sem régua em cima nem embaixo: a troca de campo já divide dos dois lados
-     — escuro acima, madeira abaixo. */
+  /* Sem régua nas duas pontas: acima é o pé do shader do Processo, abaixo a
+     troca para o escuro chapado da Fábrica. */
   border-top: 0;
   border-bottom: 0;
+}
+
+/* O véu do FundoAuralis é um degradê HORIZONTAL — forte à esquerda, fraco à
+   direita — calibrado para a História, onde a ponta fraca cai sobre a foto.
+   Aqui o carrossel atravessa a largura inteira, e o logo do centro, que é o
+   único em opacidade cheia, passa por toda ela. Véu uniforme, como no
+   Processo, pelo mesmo motivo. */
+.marcas .fundo-auralis__veu {
+  background: color-mix(in srgb, var(--ground-deep) 80%, transparent);
 }
 
 .marcas__rotulo {
@@ -1652,7 +1626,7 @@ a { color: inherit; }
   letter-spacing: 0.22em;
   text-transform: uppercase;
   line-height: 1.2;
-  color: var(--tinta-rotulo);
+  color: var(--ink-3);
   text-align: center;
   margin: 0 0 var(--s7);
 }
@@ -1920,8 +1894,8 @@ a { color: inherit; }
    quatro colunas). É essa caixa estreita que manda no tamanho do título. --- */
 
 /* Fundo escuro padrão, o mesmo da Fábrica: a seção voltou ao claro-sobre-
-   escuro do resto da página. O campo dourado passou para a faixa de marcas,
-   que é a única seção clara da metade de baixo.
+   escuro do resto da página. A faixa de marcas, logo abaixo, usa este mesmo
+   shader — as duas leem como um par.
 
    A .wrap so tem padding-inline, sem max-width — de proposito, porque e
    global. A coluna maxima desta secao mora aqui e e lida pelo cabecalho E
@@ -1938,17 +1912,19 @@ a { color: inherit; }
   overflow: hidden;
   /* Mesmo campo da História, sob o mesmo shader. */
   background: var(--ground-deep);
-  /* Sem régua em cima nem embaixo: a seção acima já é escura e o que vem
-     depois é o campo dourado, cuja troca de superfície é a própria divisão. */
+  /* Sem régua em cima nem embaixo: a seção acima já é escura, e embaixo vem a
+     faixa de marcas com o mesmo shader — um fio de --edge entre os pés de dois
+     blocos escuros seria a linha mais clara do trecho. */
   border-top: 0;
   border-bottom: 0;
 }
 
-/* Quem vem depois do campo dourado também não leva régua. A Fábrica tinha a
-   régua suprimida enquanto morava dentro do invólucro de madeira; ao sair,
-   herdaria de volta o fio de --edge da .section — bem na fronteira com o
-   dourado. Mesmo argumento do .processo logo abaixo: onde o material troca, a
-   troca já é a divisão. Irmão adjacente, para sobreviver à reordenação. */
+/* Quem vem depois da faixa de marcas também não leva régua, e agora por
+   medição: --edge tem luminância 0,0219 contra 0,0093 do PICO mais claro do
+   shader naquela seção — 2,3x mais luminoso, 1,21:1 de contraste. Encostado no
+   pé do bloco, o fio vira a coisa mais clara do trecho. É o mesmo argumento do
+   .processo logo abaixo, e vale igual aqui porque a Marcas passou a usar o
+   mesmo shader. Irmão adjacente, para sobreviver à reordenação. */
 .marcas + .section { border-top: 0; }
 
 .processo + .section {
