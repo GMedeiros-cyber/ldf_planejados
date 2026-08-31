@@ -1,9 +1,10 @@
 import { marcas } from "@/lib/dados";
 import CarrosselMarcas from "./CarrosselMarcas";
-import FundoAuralis from "./FundoAuralis";
 
-/* Faixa de logos entre o Processo e a Fábrica. Fundo igual ao da História e
-   ao do Processo: o shader do FundoAuralis.
+/* Faixa de logos entre o Processo e a Fábrica. Fundo chapado, em
+   --ground-deep: é o ponto mais escuro da metade de baixo, entre o shader do
+   Processo e o campo quente da Fábrica. A faixa AFUNDA entre os dois blocos
+   de argumento, e é esse afundamento que a separa — não um fundo próprio.
 
    ══════════════════════════════════════════════════════════════════════════
    ⚠  ESTA SEÇÃO INTEIRA É PLACEHOLDER E NÃO PODE SER PUBLICADA.
@@ -36,8 +37,6 @@ import FundoAuralis from "./FundoAuralis";
 export default function Marcas() {
   return (
     <section className="section wrap marcas" aria-labelledby="t-marcas">
-      <FundoAuralis />
-
       {/* PLACEHOLDER — ver o aviso no topo do arquivo. */}
       <h2 className="marcas__rotulo" id="t-marcas">
         Empresas que já confiaram na gente

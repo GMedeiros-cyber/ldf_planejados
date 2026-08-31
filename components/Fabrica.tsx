@@ -30,11 +30,17 @@ import TextBlockAnimation from "./ui/text-block-animation";
    ScrollTriggers são independentes — cada bloco tem o seu — então o delay é
    o que garante que a sequência siga o texto e não a posição na tela. */
 
-const COR_BLOCO = "var(--ground-lift)";
+/* A cor do retângulo da varredura acompanha o campo da seção. Era
+   --ground-lift, o degrau acima do fundo antigo do body; com a Fábrica em
+   --ground-red aquele cinza mede 1,04:1 contra o campo e a barra some — a
+   revelação degenera num pop de opacidade, sem varredura visível. O
+   --ground-red-lift devolve o mesmo 1,08:1 que a barra tinha, na temperatura
+   do campo novo. */
+const COR_BLOCO = "var(--ground-red-lift)";
 
 export default function Fabrica() {
   return (
-    <section className="section wrap" id="fabrica" aria-labelledby="t-fab">
+    <section className="section wrap fabrica-campo" id="fabrica" aria-labelledby="t-fab">
       <div className="fabrica">
         <div className="fabrica__texto">
           <TextBlockAnimation blockColor={COR_BLOCO} delay={0}>

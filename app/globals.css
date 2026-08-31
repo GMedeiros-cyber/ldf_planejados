@@ -37,7 +37,17 @@
 
   /* Materiais do desenho de elevação */
   --splash:        #4A4844;
+  /* --ground-red nasceu para o desenho de elevação e ficou sem consumidor.
+     Agora é o campo da Fábrica: o degrau quente entre o #0A0909 chapado da
+     faixa de marcas e a madeira do CTA.
+
+     O -lift é o degrau acima dele, e existe por causa da varredura da
+     revelação: sobre --ground o retângulo era --ground-lift, 1,08:1 de
+     contraste. Sobre --ground-red aquele cinza cai para 1,04:1 e ainda troca
+     de temperatura — a barra some, e a revelação vira um pop de opacidade.
+     Este valor devolve o MESMO 1,08:1, na temperatura do campo novo. */
   --ground-red:    #241110;
+  --ground-red-lift: #2B1918;
   --light-warm:    rgba(255,244,228,0.20);
   --edge-paper:    #CFC9BE;
 
@@ -1583,40 +1593,31 @@ a { color: inherit; }
    desenhados em 1440px e sumiam num monitor de 27": em 2560px os logos
    ficavam com os mesmos 34px de uma tela com 40% da largura.
 
-   O campo dourado saiu. A seção passa a ter o mesmo fundo da História e do
-   Processo — o shader do FundoAuralis, sobre --ground-deep — e com ele a
-   tipografia voltou a claro sobre escuro. */
+   O fundo é CHAPADO, em --ground-deep, e é o ponto mais escuro da metade de
+   baixo. Não é ausência de tratamento: a seção fica entre o shader do
+   Processo e o campo quente da Fábrica, e é o afundamento entre os dois que
+   a separa. Um terceiro fundo desenhado aqui faria a faixa competir com os
+   blocos de argumento que ela existe para separar — e faria três seções
+   seguidas com textura em movimento.
+
+   Sem camada absoluta dentro dela, então sem position/isolation/overflow:
+   não há o que conter. O canvas do carrossel transborda 12px para cima e
+   para baixo, e quem dá espaço para isso é o padding da seção. */
 
 /* Três classes de propósito, e não por descuido: mais abaixo existe
    `.processo + .section`, que zera a régua de topo e engorda o padding
    superior de QUALQUER seção que venha depois do Processo.
 
-   A régua zerada continua certa e agora por motivo mais forte ainda: as duas
-   seções são shader, e um fio de --edge entre os pés de dois blocos escuros é
-   o "fio claro no ponto mais escuro" que aquela regra descreve. O que NÃO
-   serve aqui é o padding assimétrico — 10vw em cima contra 6vw embaixo
-   deixaria uma faixa curta visivelmente torta. Como aquela regra mora depois
-   desta no arquivo, empatar em especificidade não bastaria; daí as três
-   classes, que o elemento já tem. */
+   A régua zerada continua certa: o pé do shader do Processo já chega perto de
+   --ground-deep, e um fio de --edge ali seria a linha mais clara do trecho. O
+   que NÃO serve aqui é o padding assimétrico — 10vw em cima contra 6vw
+   embaixo deixaria uma faixa curta visivelmente torta. Como aquela regra mora
+   depois desta no arquivo, empatar em especificidade não bastaria; daí as
+   três classes, que o elemento já tem. */
 .wrap.section.marcas {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
   background: var(--ground-deep);
   padding-block: clamp(3rem, 6vw, 7rem);
-  /* Sem régua nas duas pontas: acima é o pé do shader do Processo, abaixo a
-     troca para o escuro chapado da Fábrica. */
   border-top: 0;
-  border-bottom: 0;
-}
-
-/* O véu do FundoAuralis é um degradê HORIZONTAL — forte à esquerda, fraco à
-   direita — calibrado para a História, onde a ponta fraca cai sobre a foto.
-   Aqui o carrossel atravessa a largura inteira, e o logo do centro, que é o
-   único em opacidade cheia, passa por toda ela. Véu uniforme, como no
-   Processo, pelo mesmo motivo. */
-.marcas .fundo-auralis__veu {
-  background: color-mix(in srgb, var(--ground-deep) 80%, transparent);
 }
 
 .marcas__rotulo {
@@ -1691,6 +1692,17 @@ a { color: inherit; }
 }
 
 /* --- 12. A fábrica -------------------------------------------------------- */
+
+/* O campo é da SEÇÃO, não da grade. `.fabrica` é a div interna, com max-width
+   e margem automática: pintar ali daria um retângulo de 1280px flutuando
+   sobre o fundo do body, e não uma faixa. Daí a classe extra no <section> —
+   a mesma coisa que `.marcas` e `.processo` já fazem, que nasceram com o nome
+   da seção no elemento de fora.
+
+   --ground-red é o degrau quente entre o #0A0909 chapado da faixa de marcas e
+   a madeira do CTA logo abaixo: a página esquenta em três passos até o botão,
+   em vez de pular do preto para a textura de madeira. */
+.fabrica-campo { background: var(--ground-red); }
 
 /* A manchete desta seção estava em Archivo bold, herdada da .h2 global,
    enquanto História, Obras e Processo já tinham virado serifada. Mesmo molde
@@ -1883,7 +1895,12 @@ a { color: inherit; }
   aspect-ratio: 3 / 4;
   object-fit: cover;
   border-radius: 16px;
-  background: var(--ground-lift);
+  /* Preenchimento enquanto o vídeo não pintou o primeiro quadro. Era
+     --ground-lift, um degrau acima do fundo antigo; sobre --ground-red aquele
+     cinza fica 1,04:1 contra o campo e o retângulo desaparece — some a única
+     pista de que ali vai haver imagem. Mesmo degrau de antes, na temperatura
+     do campo novo. */
+  background: var(--ground-red-lift);
 }
 
 /* --- 13. Processo: quatro estágios lado a lado ---------------------------
@@ -1893,9 +1910,10 @@ a { color: inherit; }
    Cada bloco fica com ~300px a 1440px e ~199px a 992px (onde ainda são
    quatro colunas). É essa caixa estreita que manda no tamanho do título. --- */
 
-/* Fundo escuro padrão, o mesmo da Fábrica: a seção voltou ao claro-sobre-
-   escuro do resto da página. A faixa de marcas, logo abaixo, usa este mesmo
-   shader — as duas leem como um par.
+/* Fundo escuro, sob o shader do FundoAuralis: a seção voltou ao claro-sobre-
+   escuro do resto da página. É a ÚNICA das três seções da metade de baixo com
+   textura em movimento — a faixa de marcas abaixo é chapada e a Fábrica é
+   campo quente liso, e é esse decrescendo que separa as três.
 
    A .wrap so tem padding-inline, sem max-width — de proposito, porque e
    global. A coluna maxima desta secao mora aqui e e lida pelo cabecalho E
@@ -1912,19 +1930,26 @@ a { color: inherit; }
   overflow: hidden;
   /* Mesmo campo da História, sob o mesmo shader. */
   background: var(--ground-deep);
-  /* Sem régua em cima nem embaixo: a seção acima já é escura, e embaixo vem a
-     faixa de marcas com o mesmo shader — um fio de --edge entre os pés de dois
-     blocos escuros seria a linha mais clara do trecho. */
+  /* Sem régua em cima: a seção acima já é escura, e um fio de --edge entre os
+     pés de dois blocos escuros seria a linha mais clara do trecho. */
   border-top: 0;
-  border-bottom: 0;
 }
 
-/* Quem vem depois da faixa de marcas também não leva régua, e agora por
-   medição: --edge tem luminância 0,0219 contra 0,0093 do PICO mais claro do
-   shader naquela seção — 2,3x mais luminoso, 1,21:1 de contraste. Encostado no
-   pé do bloco, o fio vira a coisa mais clara do trecho. É o mesmo argumento do
-   .processo logo abaixo, e vale igual aqui porque a Marcas passou a usar o
-   mesmo shader. Irmão adjacente, para sobreviver à reordenação. */
+/* Quem vem depois da faixa de marcas também não leva régua, e a decisão foi
+   REVISTA quando a Fábrica ganhou campo próprio: antes eram dois pretos
+   iguais, agora é #0A0909 contra #241110.
+
+   Medido no que a tela pinta: 0,00280 de luminância contra 0,00813 — o campo
+   da Fábrica é 2,9x mais luminoso que a faixa de marcas, 1,10:1, e a troca é
+   também de TEMPERATURA, de neutro para vermelho. Numa fronteira horizontal
+   entre dois campos chapados dessa largura, esse degrau lê sozinho.
+
+   A régua não volta porque o fio pioraria os dois lados: --edge está em
+   0,0219, 1,36:1 contra a marca e 1,24:1 contra a Fábrica — mais claro que
+   qualquer um dos dois campos que ele separaria, e a coisa mais clara da
+   metade de baixo fora do texto. Trocar um degrau de campo por um fio é
+   trocar mudança de material por costura. Irmão adjacente, para sobreviver à
+   reordenação. */
 .marcas + .section { border-top: 0; }
 
 .processo + .section {
