@@ -1,15 +1,18 @@
 import Link from "next/link";
 import Logo from "./Logo";
+import FundoMadeira from "./FundoMadeira";
 
 /* Faixa de fechamento: três elementos centrados — logo, frase, botão. A lede
    e os dois botões antigos saíram de propósito: o fim da página faz um pedido
    só, não três.
 
-   A madeira e o véu NÃO moram mais aqui. Quem os desenha é o FaixaMadeira,
-   que envolve esta seção e a Fábrica: as duas dividem UMA madeira contínua,
-   sem divisa entre elas. Um fundo próprio aqui seria madeira sobre madeira, e
-   o encontro das duas texturas apareceria como um degrau na altura em que uma
-   seção acaba e a outra começa. Esta seção é transparente e herda o de trás.
+   A madeira é DAQUI, e só daqui. Ela já foi contínua por trás da Fábrica
+   também, e por isso não havia divisa entre as duas seções — dividiam a mesma
+   superfície. Agora a Fábrica é escura como o resto da página e a troca de
+   material faz a divisão sozinha: nenhuma régua, nenhuma linha.
+
+   O desenho do fundo mora no FundoMadeira, uma camada absoluta dentro desta
+   seção — mesmo arranjo do FundoAuralis na História e no Processo.
 
    O id="contato" continua AQUI. Ele é o alvo de todas as âncoras "#contato"
    do site, e a rota /contato ainda não existe — mover o id agora quebraria a
@@ -20,6 +23,8 @@ import Logo from "./Logo";
 export default function Fechamento() {
   return (
     <section className="fechamento" id="contato" aria-labelledby="t-cta">
+      <FundoMadeira />
+
       <div className="fechamento__conteudo wrap">
         <Logo className="fechamento__marca" />
 

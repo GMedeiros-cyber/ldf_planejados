@@ -1522,39 +1522,40 @@ a { color: inherit; }
   padding-block-start: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
 }
 
-/* --- 11b. Faixa de madeira contínua -----------------------------------------
-   Envolve a Fábrica e o Fechamento. A textura era só do CTA; agora corre por
-   baixo das duas, e o Fechamento ficou transparente.
+/* --- 11b. Fundo de madeira do CTA -------------------------------------------
+   A textura existe SÓ no Fechamento. Já correu por trás da Fábrica também, e
+   era por isso que não havia divisa entre as duas: dividiam a mesma
+   superfície. Com a Fábrica de volta ao escuro, a troca de material faz a
+   divisão sozinha — sem régua e sem linha.
 
-   O empilhamento segue o mesmo idioma do resto do arquivo (.historia,
-   .processo): isolation isola o contexto e as camadas de fundo vão para
-   z-index negativo, então as seções sobem sem precisar de z-index próprio. */
-.faixa-madeira {
-  position: relative;
-  isolation: isolate;
-  /* Recorta a sobra da camada de fundo. Sem isto ela vaza os 15% de altura
-     para fora nas duas pontas: por cima cobria a faixa de marcas — os logos
-     sumiam atrás da madeira — e por baixo entrava no rodapé. `clip` e não
-     `hidden` porque não precisa virar contêiner de rolagem. */
+   Camada absoluta dentro da seção, no mesmo idioma do .fundo-auralis. A
+   ordem de pintura resolve o empilhamento: textura, véu, e o conteúdo por
+   cima, que já vem depois no DOM. */
+.fundo-madeira {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* Recorta a sobra da textura. Sem isto ela vaza os 15% de altura para fora
+     nas duas pontas e entra na Fábrica e no rodapé. `clip` e não `hidden`
+     porque não precisa virar contêiner de rolagem. */
   overflow: hidden;
   overflow: clip;
 }
 
-/* 130% de altura, nascendo 15% acima: sobra 15% da altura do container em
-   cada ponta. É a margem que o parallax consome — o deslocamento é de 6% da
-   altura do container, bem dentro dos 15%, então nunca aparece borda vazia.
+/* 130% de altura, nascendo 15% acima: sobra 15% da altura da seção em cada
+   ponta, e é essa margem que o parallax consome.
 
-   repeat-y porque o trecho é bem mais alto que a imagem, e background-size
-   100% auto (não `cover`): cover escalaria para cobrir TAMBÉM a altura, o que
-   num bloco desta altura ampliaria a madeira até virar borrão. Assim a imagem
-   cobre a largura, mantém a proporção e se repete para baixo. */
-.faixa-madeira__fundo {
+   repeat-y porque a seção pode ficar mais alta que a imagem, e
+   background-size 100% auto (não `cover`): cover escalaria para cobrir também
+   a altura, ampliando a madeira até virar borrão. Assim a imagem cobre a
+   largura, mantém a proporção e se repete para baixo. */
+.fundo-madeira__textura {
   position: absolute;
   left: 0;
   right: 0;
   top: -15%;
   height: 130%;
-  z-index: -2;
   background-image: image-set(
     url("/madeira-cta-1600.webp") 1x,
     url("/madeira-cta-2400.webp") 2x
@@ -1562,25 +1563,22 @@ a { color: inherit; }
   background-repeat: repeat-y;
   background-size: 100% auto;
   background-position: center top;
-  /* A variável vem do FaixaMadeira. Sem ela — no servidor, sem JS, ou em
+  /* A variável vem do FundoMadeira. Sem ela — no servidor, sem JS, ou em
      movimento reduzido — o fallback 0% deixa a camada na posição central. */
   transform: translate3d(0, var(--deslocamento, 0%), 0);
 }
 
-/* 55% de preto, cinco pontos acima dos 50% que o CTA usava sozinho. O véu
-   agora cobre também a Fábrica, que tem texto corrido, --ink-2 e --ink-3 —
-   tons mais baixos que os do CTA, que só tem --ink. */
-.faixa-madeira__veu {
+/* 50% de preto, de volta ao valor que o CTA usava quando a madeira era só
+   dele. Foram 55% enquanto o véu cobria também a Fábrica, que tem texto
+   corrido em --ink-2 e --ink-3; aqui só existe --ink. O número é medido, não
+   estimado: no pixel mais claro da textura o texto em --ink dá 6,7:1, e
+   14,8:1 na mediana. Cinco pontos a menos deixam mais madeira aparecer, que é
+   o ponto de a textura existir só aqui. */
+.fundo-madeira__veu {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.50);
 }
-
-/* Com fundo contínuo, a régua de topo da .section vira um risco atravessando
-   a madeira. A primeira seção da faixa perde a régua; a fronteira entre as
-   duas já é dada pelo ritmo do padding. */
-.faixa-madeira > .section { border-top: 0; }
 
 /* --- 11c. Faixa de marcas ----------------------------------------------------
    PLACEHOLDER: as cinco marcas são fictícias (lib/dados.ts).
@@ -1946,6 +1944,13 @@ a { color: inherit; }
   border-bottom: 0;
 }
 
+/* Quem vem depois do campo dourado também não leva régua. A Fábrica tinha a
+   régua suprimida enquanto morava dentro do invólucro de madeira; ao sair,
+   herdaria de volta o fio de --edge da .section — bem na fronteira com o
+   dourado. Mesmo argumento do .processo logo abaixo: onde o material troca, a
+   troca já é a divisão. Irmão adjacente, para sobreviver à reordenação. */
+.marcas + .section { border-top: 0; }
+
 .processo + .section {
   border-top: 0;
   padding-block-start: clamp(var(--s9), 10vw, var(--s11));
@@ -2213,10 +2218,13 @@ a { color: inherit; }
 /* A faixa de madeira. Não usa .section: não leva régua de topo nem o
    padding-block da escala — o próprio material já separa, e a altura é
    fixa por desenho. */
-/* Transparente: a madeira e o véu vêm do .faixa-madeira, que envolve esta
-   seção e a Fábrica. Sem isolation e sem overflow — não há mais nada próprio
-   para recortar, e isolar aqui cortaria o fundo da faixa. */
+/* Volta a hospedar o próprio fundo: position para a camada se posicionar
+   contra, isolation para o z-index negativo dela não escapar para a página, e
+   overflow porque a textura é mais alta que a seção. */
 .fechamento {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   align-content: center;
   min-height: 420px;

@@ -6,7 +6,6 @@ import Obras from "@/components/Obras";
 import Processo from "@/components/Processo";
 import Marcas from "@/components/Marcas";
 import Fabrica from "@/components/Fabrica";
-import FaixaMadeira from "@/components/FaixaMadeira";
 import Fechamento from "@/components/Fechamento";
 import Footer from "@/components/Footer";
 
@@ -16,8 +15,8 @@ opacidade, cada uma com a sua frase no canto inferior esquerdo, e nada mais:
 sem botão, sem rótulo, sem chamada. É o arranjo padrão da categoria, adotado
 de propósito — a LDF é desconhecida e precisa afirmar antes de explicar.
 
-Oito blocos, nesta ordem. As Marcas são campo dourado; a madeira cobre
-os dois últimos:
+Oito blocos, nesta ordem. As Marcas são campo dourado e o Fechamento é
+madeira; o resto é o escuro da página:
 
 1. Hero       As três capas. Só imagem e frase.
 2. Numeros    +1.200 projetos, +15 anos, 5 anos de garantia. Contam quando
@@ -34,7 +33,7 @@ os dois últimos:
               Vem DEPOIS do processo de propósito — é a razão estrutural de
               o processo poder ser aquele, e só faz sentido depois de a
               pessoa ter visto qual é o processo.
-8. Fechamento Faixa de madeira: logo, uma frase e um botão para /contato.
+8. Fechamento Bloco de CTA sobre madeira: logo, uma frase e um botão para /contato.
 
 O amostrário e a elevação desenhada não moram aqui: vivem em /ambientes e na
 página da cozinha, onde quem já está decidindo o acabamento vai encontrá-los.
@@ -65,10 +64,8 @@ export default function Home() {
             sentido — tapava a textura em vez de assentar sobre ela. */}
         <Marcas />
 
-        <FaixaMadeira>
-          <Fabrica />
-          <Fechamento />
-        </FaixaMadeira>
+        <Fabrica />
+        <Fechamento />
       </main>
       <Footer />
     </>
