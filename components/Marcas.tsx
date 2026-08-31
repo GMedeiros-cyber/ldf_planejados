@@ -1,14 +1,29 @@
 import { marcas } from "@/lib/dados";
 import CarrosselMarcas from "./CarrosselMarcas";
+import FundoAuralis from "./FundoAuralis";
 
-/* Faixa de logos entre o Processo e a Fábrica, em campo dourado.
+/* Faixa de logos entre o Processo e a Fábrica. Fundo igual ao da História e
+   ao do Processo: o shader do FundoAuralis.
 
-   ⚠ AS CINCO MARCAS SÃO FICTÍCIAS. Nenhuma dessas empresas existe — ver o
-   PLACEHOLDER em lib/dados.ts. Enquanto for assim, esta seção NÃO vai ao ar.
+   ══════════════════════════════════════════════════════════════════════════
+   ⚠  ESTA SEÇÃO INTEIRA É PLACEHOLDER E NÃO PODE SER PUBLICADA.
+   ══════════════════════════════════════════════════════════════════════════
 
-   O rótulo é "Também fabricamos para" por decisão do cliente. Registro aqui
-   que ele ainda afirma relação comercial com cinco empresas inventadas: a
-   frase precisa sair, ou os nomes precisam ser reais, antes do deploy.
+   Duas coisas, e as DUAS bloqueiam o deploy:
+
+   1. AS CINCO MARCAS SÃO FICTÍCIAS. Clínica Vértice, Colégio Aurora, Studio
+      Lume, Grupo Pilar e Traço Escritórios não existem — ver o PLACEHOLDER em
+      lib/dados.ts.
+
+   2. A HEADLINE AFIRMA RELAÇÃO COMERCIAL. "Empresas que já confiaram na
+      gente" é declaração direta de clientes atendidos, mais forte que o
+      "Também fabricamos para" anterior. Sobre nomes inventados, é afirmação
+      falsa sobre a operação da empresa — não é licença de layout.
+
+   Antes de qualquer publicação: ou entram nomes reais de clientes que
+   autorizaram o uso da marca, ou a seção sai da página. Trocar só a headline
+   não resolve, porque os nomes continuam inventados; trocar só os nomes não
+   resolve, porque a frase precisa corresponder ao que foi autorizado.
 
    ACESSIBILIDADE: o desenho dos logos vive num <canvas>, que leitor de tela
    não lê — e por isso o canvas é aria-hidden. Quem carrega a informação é a
@@ -21,8 +36,11 @@ import CarrosselMarcas from "./CarrosselMarcas";
 export default function Marcas() {
   return (
     <section className="section wrap marcas" aria-labelledby="t-marcas">
+      <FundoAuralis />
+
+      {/* PLACEHOLDER — ver o aviso no topo do arquivo. */}
       <h2 className="marcas__rotulo" id="t-marcas">
-        Também fabricamos para
+        Empresas que já confiaram na gente
       </h2>
 
       <ul className="oculto-visual">

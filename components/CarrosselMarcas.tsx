@@ -16,8 +16,11 @@ import { marcas } from "@/lib/dados";
    fetch e transformado em memória. Três coisas mudam, e cada uma resolve um
    problema concreto:
 
-   1. currentColor vira #1C1A18. Dentro de um <img> o SVG é documento isolado:
-      não existe contexto CSS de onde herdar cor, e currentColor cai no preto.
+   1. currentColor vira a tinta clara do site. Dentro de um <img> o SVG é
+      documento isolado: não existe contexto CSS de onde herdar cor, e
+      currentColor cairia no preto. O valor é literal porque canvas não lê
+      custom property — é o mesmo #EFEBE5 de var(--ink), e as duas pontas (o
+      símbolo do SVG e o nome do fillText) usam a MESMA constante.
 
    2. Entram width e height derivados do viewBox. Os arquivos têm viewBox mas
       nenhuma dimensão intrínseca, e o Firefox se recusa a pintar um SVG sem
@@ -35,6 +38,10 @@ import { marcas } from "@/lib/dados";
 
 /* O símbolo ocupa a faixa esquerda do viewBox original (o texto começava em
    x=58). 48 unidades cobrem o desenho dos cinco com folga. */
+/* var(--ink) em hex: o canvas não resolve custom property. Símbolo e nome
+   partilham esta constante, para não saírem de cor um do outro. */
+const TINTA = "#EFEBE5";
+
 const LARGURA_SIMBOLO = 48;
 const DESFOQUE_MAX = 7;
 const ALFA_MIN = 0.2;
@@ -107,7 +114,7 @@ export default function CarrosselMarcas() {
       p.drawImage(img, 0, (alturaCSS - m.simbolo) / 2, larguraSimbolo, m.simbolo);
 
       p.font = fonteNome;
-      p.fillStyle = "#1C1A18";
+      p.fillStyle = TINTA;
       p.textBaseline = "middle";
       p.fillText(nome, larguraSimbolo + m.vao, alturaCSS / 2 + 1);
 
@@ -200,7 +207,7 @@ export default function CarrosselMarcas() {
 
       const pronto = cru
         .replace(/<text[\s\S]*?<\/text>/g, "")
-        .replace(/currentColor/g, "#1C1A18")
+        .replace(/currentColor/g, TINTA)
         .replace(/viewBox="[^"]+"/, `viewBox="0 0 ${LARGURA_SIMBOLO} ${altura}"`)
         .replace(/<svg /, `<svg width="${LARGURA_SIMBOLO}" height="${altura}" `);
 
