@@ -6,7 +6,10 @@ import { obras } from "@/lib/dados";
 
    A lista é renderizada em DUAS METADES idênticas: com duas cópias de
    largura igual, o -50% dos keyframes cai exatamente no início da segunda e
-   a emenda fica invisível. Nenhum card reage ao mouse.
+   a volta ao começo não aparece. Nenhum card reage ao mouse.
+
+   (Nada a ver com o componente Emenda, que é a placa de ferragem na fronteira
+   entre o dourado das Marcas e a madeira da Fábrica.)
    Ver a seção 8b em globals.css. */
 
 type Obra = (typeof obras)[number];
