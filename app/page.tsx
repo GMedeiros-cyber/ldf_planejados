@@ -15,9 +15,9 @@ opacidade, cada uma com a sua frase no canto inferior esquerdo, e nada mais:
 sem botão, sem rótulo, sem chamada. É o arranjo padrão da categoria, adotado
 de propósito — a LDF é desconhecida e precisa afirmar antes de explicar.
 
-Oito blocos, nesta ordem. O shader do FundoAuralis fica na História e no
-Processo; a metade de baixo desce ao escuro chapado na faixa de marcas, sobe
-ao campo quente na Fábrica e chega à madeira do Fechamento:
+Oito blocos, nesta ordem. O shader do FundoAuralis está em três seções —
+História, Processo e Fábrica — com a faixa de marcas chapada entre as duas
+últimas, e a madeira só no Fechamento:
 
 1. Hero       As três capas. Só imagem e frase.
 2. Numeros    +1.200 projetos, +15 anos, 5 anos de garantia. Contam quando
@@ -27,14 +27,12 @@ ao campo quente na Fábrica e chega à madeira do Fechamento:
 4. Obras      A parede de trabalho entregue, em carrossel contínuo.
 5. Processo   Os quatro estágios, com o orçamento no terceiro. Responde
               "como funciona" antes de "por que em vocês".
-6. Marcas     Faixa de logos em carrossel, sobre o escuro chapado. Afunda
+6. Marcas     Faixa de logos em carrossel, sobre o escuro chapado. É o liso
               entre os dois blocos de argumento que ela separa.
               PLACEHOLDER: as cinco marcas são fictícias E a headline afirma
               relação comercial com elas. A seção NÃO vai ao ar como está —
               ver o aviso em components/Marcas.tsx.
 7. Fabrica    Não tem revenda no meio: a cadeia da franquia contra a nossa.
-              Campo próprio em --ground-red: esquenta e faz a ponte para a
-              madeira do CTA.
               Vem DEPOIS do processo de propósito — é a razão estrutural de
               o processo poder ser aquele, e só faz sentido depois de a
               pessoa ter visto qual é o processo.
