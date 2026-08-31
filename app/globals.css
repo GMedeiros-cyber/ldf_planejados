@@ -1579,77 +1579,6 @@ a { color: inherit; }
    duas já é dada pelo ritmo do padding. */
 .faixa-madeira > .section { border-top: 0; }
 
-/* --- 11b-2. Emenda: a junta entre o dourado e a madeira ----------------------
-   Uma só na página, e exatamente onde há troca de material: o campo dourado
-   do Processo acaba, a madeira começa. As duas anteriores ficavam dentro do
-   trecho de madeira e marcavam divisões que não existiam — madeira contra
-   madeira — e por isso liam como ornamento repetido.
-
-   ALTURA ZERO, de propósito. O elemento não ocupa espaço: o dourado encosta
-   na madeira sem intervalo, e a linha de emenda cai exatamente na fronteira.
-   A placa é absoluta e centrada nessa linha, então fica metade sobre cada
-   superfície — que é como ferragem de junta se comporta.
-
-   z-index 2 porque o .faixa-madeira, logo abaixo, é posicionado e recorta o
-   próprio conteúdo: sem um índice explícito a metade de baixo da placa
-   passaria por trás da madeira. */
-
-.emenda {
-  --placa: 200px;
-  position: relative;
-  z-index: 2;
-  height: 0;
-  /* O escuro do site, e não o --ouro-velho. A placa fica metade sobre cada
-     superfície, então nenhuma cor serve às duas: o escuro dá 9,95:1 contra o
-     ouro e some na madeira; o ouro-velho dá 6,73:1 contra a madeira e some no
-     ouro. O escuro lê melhor porque o lado dourado é campo liso, onde um
-     contorno se resolve, e a madeira é grão — ali o contorno claro se perde
-     na textura mesmo com número melhor. */
-  color: #1C1A18;
-  pointer-events: none;
-}
-
-/* Duas linhas de 1px: a de cima na fronteira, a de baixo 2px abaixo e mais
-   apagada. É o par que lê como rebaixo entre chapas — uma linha sozinha fica
-   chapada, igual a régua de seção. */
-.emenda::before,
-.emenda::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: currentColor;
-}
-.emenda::before { top: 0; opacity: 0.28; }
-.emenda::after { top: 2px; opacity: 0.12; }
-
-/* Fora do eixo, sempre: ferragem centrada lê como ornamento aplicado; fora do
-   centro lê como construção — a peça está onde a estrutura pediu.
-
-   A placa é ESTÁTICA, e é o certo: ela marca a fronteira entre dois materiais
-   e não pode deslizar em relação a nenhum dos dois. Houve uma versão com
-   deslocamento diferencial, herdado do FaixaMadeira, de quando a emenda ficava
-   dentro da faixa; hoje ela vive fora, e essa variável não existe mais. */
-.emenda__placa {
-  position: absolute;
-  top: 0;
-  left: var(--x, 26%);
-  width: var(--placa);
-  transform: translate(-50%, -50%);
-}
-
-.emenda__placa svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-@media (max-width: 767px) {
-  .emenda { --placa: 140px; }
-  .emenda__placa { left: var(--x-movel, var(--x, 20%)); }
-}
-
 /* --- 11c. Faixa de marcas ----------------------------------------------------
    PLACEHOLDER: as cinco marcas são fictícias (lib/dados.ts).
 
@@ -1709,8 +1638,8 @@ a { color: inherit; }
   background-blend-mode: multiply, normal;
 
   padding-block: clamp(3rem, 6vw, 7rem);
-  /* Sem régua em cima nem embaixo: a troca de campo já divide, e embaixo quem
-     marca a junta com a madeira é a emenda. */
+  /* Sem régua em cima nem embaixo: a troca de campo já divide dos dois lados
+     — escuro acima, madeira abaixo. */
   border-top: 0;
   border-bottom: 0;
 }
@@ -1748,8 +1677,8 @@ a { color: inherit; }
 
 /* Transborda 12px para cima e para baixo: o desfoque das pontas é desenhado
    fora da caixa do item e seria cortado rente. A máscara apaga as duas
-   extremidades, então a fila entra e sai sem borda dura — é ela que faz o
-   loop não ter emenda visível. */
+   extremidades, então a fila entra e sai sem borda dura — é ela que esconde
+   a costura do loop. */
 .marcas__carrossel canvas {
   position: absolute;
   top: -12px;
@@ -2001,6 +1930,8 @@ a { color: inherit; }
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  /* Mesmo campo da História, sob o mesmo shader. */
+  background: var(--ground-deep);
   /* Sem régua em cima nem embaixo: a seção acima já é escura e o que vem
      depois é o campo dourado, cuja troca de superfície é a própria divisão. */
   border-top: 0;
@@ -2014,6 +1945,24 @@ a { color: inherit; }
 
 /* Sem isto o h2 comecaria na borda do gutter e a grade, recuada: em 1920px
    sao 240px de desalinhamento. */
+/* O véu do FundoAuralis é um degradê HORIZONTAL — 82% de escuro à esquerda,
+   30% à direita. Foi calibrado para a História, onde o texto ocupa a coluna
+   da esquerda e a foto a da direita: a ponta fraca cai sobre a imagem, onde
+   não há o que ler.
+
+   No Processo o texto atravessa a largura inteira, e sobre aquela ponta fraca
+   os números 01–04 e a lista de etapas em --ink-3 mediram 3,46:1 — reprovam
+   como texto normal.
+
+   Aqui o véu é UNIFORME, em 80%. Não é mais pesado que o da História: é o
+   mesmo peso que ELA usa embaixo do texto (82% na ponta esquerda). A
+   diferença é só que aqui vale para a largura inteira, porque aqui o texto
+   ocupa a largura inteira. O shader continua visível e em movimento, só que
+   mais contido — que é o que uma seção com esta densidade de leitura pede. */
+.processo .fundo-auralis__veu {
+  background: color-mix(in srgb, var(--ground-deep) 80%, transparent);
+}
+
 .processo .section__head { max-width: var(--coluna); margin-inline: auto; }
 
 .processo__conteudo { position: relative; z-index: 1; }
