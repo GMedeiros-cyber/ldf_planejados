@@ -3,10 +3,15 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "motion/react";
 
-/* Fundo de madeira contínuo atrás de um trecho da página — hoje a Fábrica e o
-   Fechamento. A textura era exclusiva do bloco de CTA; agora atravessa as duas
-   seções, e o Fechamento perdeu a madeira própria para não empilhar madeira
-   sobre madeira.
+/* Fundo de madeira contínuo atrás da Fábrica e do Fechamento. A textura era
+   exclusiva do bloco de CTA; agora atravessa as duas seções, e o Fechamento
+   perdeu a madeira própria para não empilhar madeira sobre madeira.
+
+   A ÚNICA emenda da página NÃO mora aqui dentro: ela marca a fronteira entre
+   o campo dourado das Marcas e esta madeira, e por isso fica FORA, logo acima
+   do container. Este componente não sabe da existência dela e não lhe passa
+   nada — a placa é estática de propósito, porque marca o limite entre dois
+   materiais e não pode deslizar em relação a nenhum dos dois.
 
    A camada de fundo é MAIS ALTA que o container (130%) e nasce centrada
    (top: -15%), então sobra 15% da altura acima e abaixo. É essa sobra que o
@@ -33,14 +38,6 @@ import { useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "
 
 const AMPLITUDE = 2.3;
 
-/* Diferença TOTAL, em pixels, entre o percurso da placa de ferragem e o da
-   madeira. Fixa em px (não proporcional à altura) para o efeito não crescer
-   junto com o trecho: a faixa passou a incluir o Processo e ficou bem mais
-   alta, e uma diferença proporcional viraria escorregão visível. Seis pixels
-   ao longo de toda a rolagem é o que faz a placa parecer pregada na chapa em
-   vez de colada na página — ninguém deve notar conscientemente. */
-const DIFERENCA_PLACA = 6;
-
 export default function FaixaMadeira({ children }: { children: ReactNode }) {
   const alvo = useRef<HTMLDivElement>(null);
   const fundo = useRef<HTMLDivElement>(null);
@@ -55,23 +52,8 @@ export default function FaixaMadeira({ children }: { children: ReactNode }) {
      desce, e o deslocamento vai de positivo a negativo — a madeira sobe. */
   const deslocamento = useTransform(scrollYProgress, [0, 1], [AMPLITUDE, -AMPLITUDE]);
 
-  /* MESMO useScroll, segundo useTransform — não há um segundo listener. O
-     valor normalizado (+1 → -1) serve para converter o percurso da madeira,
-     que é percentual, no percurso da placa, que precisa ser em px para a
-     diferença ficar constante. */
-  const normal = useTransform(scrollYProgress, [0, 1], [1, -1]);
-
   const escrever = (v: number) => {
     fundo.current?.style.setProperty("--deslocamento", `${v.toFixed(3)}%`);
-
-    /* A madeira anda AMPLITUDE% da própria altura, que é 1,3x a do container.
-       A placa anda o mesmo, menos metade da diferença em cada extremo. A
-       variável fica no container: as emendas herdam sem saber de nada. */
-    const alto = alvo.current?.offsetHeight ?? 0;
-    const madeiraPx = (v / 100) * 1.3 * alto;
-    const passo = v / AMPLITUDE; // +1 num extremo, -1 no outro
-    const placaPx = madeiraPx - (passo * DIFERENCA_PLACA) / 2;
-    alvo.current?.style.setProperty("--deslocamento-placa", `${placaPx.toFixed(2)}px`);
   };
 
   /* Quem chega com a página já rolada (âncora, recarregar no meio) não recebe
@@ -79,7 +61,6 @@ export default function FaixaMadeira({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (semMovimento) {
       fundo.current?.style.removeProperty("--deslocamento");
-      alvo.current?.style.removeProperty("--deslocamento-placa");
       return;
     }
     escrever(deslocamento.get());

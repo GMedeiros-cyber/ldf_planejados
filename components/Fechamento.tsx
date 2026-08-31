@@ -5,10 +5,11 @@ import Logo from "./Logo";
    e os dois botões antigos saíram de propósito: o fim da página faz um pedido
    só, não três.
 
-   A madeira e o véu NÃO moram mais aqui. Quem os desenha é o FaixaMadeira, que
-   envolve esta seção e a Fábrica: com o fundo contínuo por baixo, um fundo
-   próprio aqui seria madeira sobre madeira, com emenda visível na fronteira
-   entre as duas seções. Esta seção é transparente e herda o de trás.
+   A madeira e o véu NÃO moram mais aqui. Quem os desenha é o FaixaMadeira,
+   que envolve esta seção e a Fábrica: as duas dividem UMA madeira contínua,
+   sem divisa entre elas. Um fundo próprio aqui seria madeira sobre madeira, e
+   o encontro das duas texturas apareceria como um degrau na altura em que uma
+   seção acaba e a outra começa. Esta seção é transparente e herda o de trás.
 
    O id="contato" continua AQUI. Ele é o alvo de todas as âncoras "#contato"
    do site, e a rota /contato ainda não existe — mover o id agora quebraria a

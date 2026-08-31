@@ -11,9 +11,9 @@
    da página usam deslocamentos diferentes (26% e 68%) para não formarem
    coluna quando se rola.
 
-   Componente de servidor: o movimento vem por herança de custom property.
-   O FaixaMadeira escreve --deslocamento-placa no container da faixa e o CSS
-   daqui consome — sem hook, sem listener próprio, sem "use client".
+   Componente de servidor, e sem movimento nenhum: a placa fica parada na
+   junta. Ela marca o limite entre duas superfícies e deslizar em relação a
+   qualquer uma das duas desmentiria o que ela representa.
 
    Decorativa de ponta a ponta: aria-hidden e pointer-events: none. O SVG
    também sai da árvore, apesar do role/aria-label do arquivo original. */

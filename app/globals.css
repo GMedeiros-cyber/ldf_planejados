@@ -1627,16 +1627,16 @@ a { color: inherit; }
 /* Fora do eixo, sempre: ferragem centrada lê como ornamento aplicado; fora do
    centro lê como construção — a peça está onde a estrutura pediu.
 
-   O deslocamento diferencial vem de --deslocamento-placa, que o FaixaMadeira
-   escreve. Esta emenda vive FORA da faixa, então não herda a variável e cai
-   no fallback 0px: a placa fica parada na junta, que é o certo — ela marca a
-   fronteira entre dois materiais e não pode deslizar em relação a nenhum. */
+   A placa é ESTÁTICA, e é o certo: ela marca a fronteira entre dois materiais
+   e não pode deslizar em relação a nenhum dos dois. Houve uma versão com
+   deslocamento diferencial, herdado do FaixaMadeira, de quando a emenda ficava
+   dentro da faixa; hoje ela vive fora, e essa variável não existe mais. */
 .emenda__placa {
   position: absolute;
   top: 0;
   left: var(--x, 26%);
   width: var(--placa);
-  transform: translate(-50%, calc(-50% + var(--deslocamento-placa, 0px)));
+  transform: translate(-50%, -50%);
 }
 
 .emenda__placa svg {
@@ -1727,66 +1727,63 @@ a { color: inherit; }
   margin: 0 0 var(--s7);
 }
 
-/* Os SVG pintam com currentColor: a cor mora aqui e no hover do item, e é só
-   isso que a transição anima.
+/* O carrossel é um <canvas>. As medidas moram aqui, em custom properties, e
+   o componente as lê: a folha continua dona do responsivo, e o JS não repete
+   breakpoint nenhum.
 
-   O teto de 1600px é da FILA, não da seção: sem ele os cinco logos se
-   espalham pelos 2400px úteis de uma tela de 2560px e deixam de ler como um
-   conjunto. 1600px mantém a fila coesa e ainda maior que a coluna de 1280px
-   do Processo e da Fábrica, para a faixa não parecer um recuo. */
-.marcas__faixa {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(2rem, 4vw, 5.5rem);
-  max-width: 1600px;
-  /* margin-block 0 explícito: o <ul> traz 1em de margem do navegador. */
-  margin: 0 auto;
-  list-style: none;
-  padding: 0;
-  color: var(--tinta-logo);
+   --fonte-nome é a pilha que o ctx.font usa no fillText. Precisa ser a fonte
+   da PÁGINA: o nome vinha desenhado dentro do SVG, e um SVG carregado como
+   Image não enxerga as fontes do documento — sairia no fallback Georgia. É a
+   mesma --font-texto que os nomes sempre usaram. */
+.marcas__carrossel {
+  --espaco: 56px;
+  --simbolo: 26px;
+  --nome: 15px;
+  --vao: 14px;
+  --fonte-nome: var(--font-texto);
+
+  position: relative;
+  height: 64px;
 }
 
-.marcas__item {
-  display: flex;
-  align-items: center;
-  transition: color 250ms var(--ease);
+/* Transborda 12px para cima e para baixo: o desfoque das pontas é desenhado
+   fora da caixa do item e seria cortado rente. A máscara apaga as duas
+   extremidades, então a fila entra e sai sem borda dura — é ela que faz o
+   loop não ter emenda visível. */
+.marcas__carrossel canvas {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  width: 100%;
+  height: 88px;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
 }
-.marcas__item:hover { color: var(--tinta-logo-forte); }
 
-.marcas__item svg {
-  display: block;
-  height: clamp(28px, 2.2vw, 52px);
-  width: auto;
-}
-
-/* O nome é desenhado dentro do SVG, então é tipo de verdade e não texto de
-   página: tamanho e tracking vêm do viewBox e escalam junto com a altura. */
-.marcas__nome {
-  font-family: var(--font-texto);
-  font-size: 17px;
-  letter-spacing: 1.1px;
-  fill: currentColor;
-}
-
-/* Abaixo de 768px vira duas colunas. O quinto logo é ímpar e último: ocupa a
-   linha inteira em vez de ficar encostado à esquerda. Aqui a altura sai do
-   clamp e passa a ser fixa: o piso de 28px do clamp não cabe em duas colunas
-   numa tela estreita, e abaixo de 24px o nome desenhado deixa de ser legível. */
+/* Abaixo de 768px a faixa encolhe, mas continua carrossel: numa tela estreita
+   caberiam dois logos parados, e é o movimento que mostra os cinco. */
 @media (max-width: 767px) {
-  .marcas__faixa {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--s6) var(--s5);
-    justify-items: center;
+  .marcas__carrossel {
+    --espaco: 40px;
+    --simbolo: 20px;
+    --nome: 13px;
+    --vao: 10px;
+    height: 48px;
   }
-  .marcas__item:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .marcas__item svg { height: 26px; }
-}
-
-@media (max-width: 400px) {
-  .marcas__item svg { height: 24px; }
+  .marcas__carrossel canvas { height: 72px; }
 }
 
 /* --- 12. A fábrica -------------------------------------------------------- */
