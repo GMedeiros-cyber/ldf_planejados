@@ -40,7 +40,7 @@ História, Processo e Fábrica — com a faixa de marcas chapada entre as duas
 
 O amostrário e a elevação desenhada não moram aqui: vivem em /ambientes e na
 página da cozinha, onde quem já está decidindo o acabamento vai encontrá-los.
-A pilha de ambientes e o bloco comercial saíram para /ambientes. A prova
+A listagem de ambientes e o bloco comercial saíram para /ambientes. A prova
 social saiu do ar até haver foto de obra e depoimento assinado.
 
 As fotos da capa e as da parede de obras são MOCKUP de terceiros, marcadas em

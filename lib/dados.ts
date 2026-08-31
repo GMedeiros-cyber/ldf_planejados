@@ -69,7 +69,19 @@ export const acabamentoInicial: ChaveAcabamento = "nogueira";
 /* href null = ainda não existe página própria. O card não vira link e o
    rodapé manda para a listagem, em vez de prometer navegação que não existe.
    TODO: criar as páginas dos outros sete ambientes conforme o cliente enviar
-   fotos e conteúdo. */
+   fotos e conteúdo.
+
+   ⚠ OS ARQUIVOS DE `img` AINDA NÃO EXISTEM em public/ambientes/. Os caminhos
+   abaixo são o contrato: o nome de cada arquivo é o slug do ambiente, em
+   .jpg, e a proporção esperada é 4:3 (1400×1050), que é a que o
+   .ambiente__quadro reserva. Enquanto os oito não forem colocados lá, a
+   listagem de /ambientes renderiza com imagem quebrada — o layout não salta,
+   porque width e height vão declarados no <img>.
+
+   O `alt` NÃO mora aqui de propósito: é montado no componente a partir de
+   `nome` e `meta`, que já descrevem o que a foto mostra. Duplicar a descrição
+   num terceiro campo é criar duas fontes para o mesmo fato, e a que ninguém
+   olha é a que envelhece. */
 
 export const ambientes = [
   {
@@ -77,50 +89,66 @@ export const ambientes = [
     meta: "Torre quente, gaveteiro, coifa e despensa",
     href: "/ambientes/cozinha",
     fin: "nogueira",
+    img: "/ambientes/cozinha.jpg",
   },
   {
     nome: "Dormitório",
     meta: "Guarda-roupa, cabeceira e criado suspenso",
     href: null,
     fin: "carvalho",
+    img: "/ambientes/dormitorio.jpg",
   },
   {
     nome: "Closet",
     meta: "Módulos abertos, gaveteiro e sapateira",
     href: null,
     fin: "laca-branca",
+    img: "/ambientes/closet.jpg",
   },
   {
     nome: "Home office",
     meta: "Bancada, painel e passagem de cabos",
     href: null,
     fin: "freijo",
+    img: "/ambientes/home-office.jpg",
   },
   {
     nome: "Área gourmet",
     meta: "Churrasqueira, adega e bancada de apoio",
     href: null,
     fin: "laca-grafite",
+    img: "/ambientes/area-gourmet.jpg",
   },
   {
     nome: "Banheiro",
     meta: "Gabinete, espelheira e nicho",
     href: null,
     fin: "cinza",
+    img: "/ambientes/banheiro.jpg",
   },
   {
     nome: "Sala e living",
     meta: "Painel de TV, rack e estante",
     href: null,
     fin: "carvalho",
+    img: "/ambientes/sala-living.jpg",
   },
   {
     nome: "Lavanderia",
     meta: "Torre de máquinas, tanque e armário alto",
     href: null,
     fin: "laca-branca",
+    img: "/ambientes/lavanderia.jpg",
   },
 ] as const;
+
+export type Ambiente = (typeof ambientes)[number];
+
+/* Proporção nativa das fotos de ambiente. Vai nos atributos width e height do
+   <img> para o navegador reservar a caixa antes de baixar o arquivo — sem
+   isso a lista de oito blocos salta a cada foto que chega. */
+export const AMBIENTE_LARGURA = 1400;
+export const AMBIENTE_ALTURA = 1050;
 
 /* --- As onze etapas ------------------------------------------------------- */
 
