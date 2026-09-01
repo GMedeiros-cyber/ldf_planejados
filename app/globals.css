@@ -3129,3 +3129,28 @@ a { color: inherit; }
 .elev--comercial { min-height: 340px; }
 
 
+/* --- 20. Sem JavaScript ----------------------------------------------------
+   A revelação é o Reveal.tsx quem faz: ele acrescenta `in` a cada .rise que
+   entra na viewport. Sem script ele não roda, o `in` nunca chega, e .rise fica
+   no seu estado de partida — opacity 0 — para sempre. Como `rise` está no
+   section__head, no ambiente__quadro e na cortina de /ambientes, o site
+   inteiro abriria em branco: sem cabeçalho, sem foto, sem texto de seção.
+
+   Estas três linhas resolvem a página toda, e resolvem no único lugar que
+   funciona sem JS: a folha de estilo. A animação é enfeite; o conteúdo não
+   pode depender dela para existir.
+
+   Fica no FIM do arquivo de propósito. `.rise { opacity: 0 }` e a regra de
+   movimento reduzido têm a mesma especificidade que esta (0,1,0), então quem
+   decide é a ordem — e a última palavra tem de ser desta. Nada de
+   !important: a cascata já basta.
+
+   ALCANCE: `scripting` é media feature de Media Queries 5, atendida por
+   Chrome 120+, Firefox 113+ e Safari 17+. Em navegador mais antigo com JS
+   desligado a regra é ignorada e o site volta a abrir em branco. O caminho
+   completo seria um <noscript><style> no layout, que vale em qualquer
+   navegador; não entra aqui porque app/layout.tsx está fora do escopo desta
+   correção. */
+@media (scripting: none) {
+  .rise { opacity: 1; transform: none; }
+}
