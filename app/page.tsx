@@ -6,6 +6,7 @@ import Obras from "@/components/Obras";
 import Processo from "@/components/Processo";
 import Marcas from "@/components/Marcas";
 import Fabrica from "@/components/Fabrica";
+import Avaliacoes from "@/components/Avaliacoes";
 import Fechamento from "@/components/Fechamento";
 import Footer from "@/components/Footer";
 
@@ -15,7 +16,7 @@ opacidade, cada uma com a sua frase no canto inferior esquerdo, e nada mais:
 sem botão, sem rótulo, sem chamada. É o arranjo padrão da categoria, adotado
 de propósito — a LDF é desconhecida e precisa afirmar antes de explicar.
 
-Oito blocos, nesta ordem. O shader do FundoAuralis está em três seções —
+Nove blocos, nesta ordem. O shader do FundoAuralis está em três seções —
 História, Processo e Fábrica — com a faixa de marcas chapada entre as duas
 últimas, e a madeira só no Fechamento:
 
@@ -36,19 +37,27 @@ História, Processo e Fábrica — com a faixa de marcas chapada entre as duas
               Vem DEPOIS do processo de propósito — é a razão estrutural de
               o processo poder ser aquele, e só faz sentido depois de a
               pessoa ter visto qual é o processo.
-8. Fechamento Bloco de CTA sobre madeira: logo, uma frase e um botão para /contato.
+8. Avaliacoes As avaliações do Google em faixa contínua. Vem DEPOIS da fábrica
+              e ANTES do CTA de propósito: é o último argumento antes do
+              pedido, e é o único que não somos nós falando. Nota agregada,
+              total e link para o perfil junto dos trechos — sem eles a faixa
+              seria uma seleção nossa de elogios.
+9. Fechamento Bloco de CTA sobre madeira: logo, uma frase e um botão para /contato.
 
 O amostrário e a elevação desenhada não moram aqui: vivem em /ambientes e na
 página da cozinha, onde quem já está decidindo o acabamento vai encontrá-los.
-A listagem de ambientes e o bloco comercial saíram para /ambientes. A prova
-social saiu do ar até haver foto de obra e depoimento assinado.
+A listagem de ambientes e o bloco comercial saíram para /ambientes. A Prova
+continua fora do ar até haver foto de obra e depoimento assinado — o que
+entrou foi a faixa de avaliações do Google, que é o oposto dela: texto que já
+é público e que não passou por nós.
 
 As fotos da capa e as da parede de obras são MOCKUP de terceiros, marcadas em
 lib/dados.ts. Não vão ao ar: entram as da LDF antes do deploy.
 
 STORY: Reconhece o nível do trabalho na capa, vê três números que a casa
 assume, entende como o projeto anda até virar móvel, descobre por que o prazo
-e a garantia são da própria LDF, e pede o projeto.
+e a garantia são da própria LDF, lê o que 130 clientes disseram no Google, e
+pede o projeto.
 */
 
 export default function Home() {
@@ -65,6 +74,7 @@ export default function Home() {
         <Marcas />
 
         <Fabrica />
+        <Avaliacoes />
         <Fechamento />
       </main>
       <Footer />
