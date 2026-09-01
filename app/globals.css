@@ -228,6 +228,65 @@ h1, h2, h3, h4 {
   letter-spacing: -0.032em;
 }
 
+/* --- Manchete em serifada -------------------------------------------------
+   Modificador, não degrau: `.display` e `.h2` continuam mandando no TAMANHO,
+   e esta classe troca a família. Vai junto com um deles, nunca sozinha.
+
+   ══ TRÊS PROPRIEDADES, E NENHUMA É ENFEITE ══
+
+   `font-variation-settings: normal` ZERA O EIXO. `.display` pede "wdth" 92 e
+   `.h2` pede "wdth" 95, e a Instrument Serif NÃO É VARIÁVEL — não tem eixo de
+   largura para atender. O que cada navegador faz com um eixo inexistente é
+   problema dele, e não é a mesma coisa em todos. O precedente é
+   `.ambiente__nome`, que já zera o eixo pelo mesmo motivo, e o
+   `.hero--capa .hero__titulo`, que faz igual desde sempre.
+
+   `font-weight: 400` porque a Instrument Serif tem UM peso só. `.display` pede
+   800 e os h1–h4 pedem 700; herdar qualquer um dos dois faz o navegador
+   sintetizar falso-negrito, que engorda o traço e empasta a serifa justamente
+   no tamanho em que ela é olhada de perto.
+
+   O `letter-spacing` afrouxa. A sans condensada aguenta -0.032em/-0.038em
+   porque as formas são estreitas e retas; a serifada nesse aperto encosta
+   serifa em serifa. -0.015em fica entre os dois valores que a folha já usava
+   em serifada: -0.01em no herói e -0.02em no nome de ambiente.
+
+   A altura de linha sobe de 1.02 para 1.06: a Instrument Serif tem ascendente
+   e descendente longas, e em manchete de duas ou três linhas o 1.02 dos
+   h1–h4 fazia o descendente de uma linha tocar o ascendente da seguinte. */
+.manchete-serifada {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: normal;
+  letter-spacing: -0.015em;
+  line-height: 1.06;
+}
+
+/* A SERIFADA PEDE UM DEGRAU A MAIS. Serifada e sans na mesma medida em px não
+   têm a mesma presença: a Instrument Serif tem altura-x menor e traço mais
+   fino, e no mesmo corpo lê menor do que a Archivo.
+
+   OS DOIS DEGRAUS ABAIXO JÁ EXISTIAM. A primeira versão inventou dois clamps
+   novos, e o detector do projeto reprovou os dois por estarem fora da rampa
+   do DESIGN.md — com razão. A rampa já tem uma família serifada inteira, e os
+   dois papéis aqui cabem nela sem número novo:
+
+     `Serifada · capa`   clamp(2.6rem, 1rem + 6.4vw, 7.5rem)
+                         é o degrau do .hero__titulo, a manchete de abertura
+                         do site. A abertura de uma ROTA usa o mesmo — é o
+                         mesmo papel, num nível abaixo.
+
+     `Serifada · seção`  clamp(2.2rem, 1rem + 3.6vw, 4rem)
+                         é o degrau do .ambiente__nome, o título serifado de
+                         bloco de seção. O h2 das avaliações é exatamente
+                         isso.
+
+   Inventar um terceiro valor teria dado uma rampa com dois degraus a 3,85rem
+   e 4rem, indistinguíveis no olho e distintos no código — que é como uma
+   escala tipográfica morre. */
+.display.manchete-serifada { font-size: clamp(2.6rem, 1rem + 6.4vw, 7.5rem); }
+.h2.manchete-serifada { font-size: clamp(2.2rem, 1rem + 3.6vw, 4rem); }
+
 .h3 {
   font-size: var(--t-h3);
   font-weight: 700;

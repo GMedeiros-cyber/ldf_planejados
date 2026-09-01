@@ -156,7 +156,10 @@ export default function Avaliacoes() {
       <div className="section__head avaliacoes__cabeca rise">
         {/* O número sai do dado, e não da frase: quando o total mudar, a
             manchete e a linha do agregado mudam juntas ou nenhuma muda. */}
-        <h2 className="h2" id="t-avaliacoes">
+        {/* Serifada, como toda manchete do site. .h2 continua dando o
+            tamanho; .manchete-serifada troca a família e zera o eixo "wdth"
+            que a .h2 pede — ver a seção 3 da folha. */}
+        <h2 className="h2 manchete-serifada" id="t-avaliacoes">
           {googleAgregado.total} pessoas já disseram o que acharam.
         </h2>
 
