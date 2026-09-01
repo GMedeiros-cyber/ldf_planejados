@@ -51,7 +51,12 @@ export default function PaginaAmbientes() {
           {/* A cortina cobre só o cabeçalho e sobe quando ele entra na tela.
               O gatilho é o `rise` daqui, que o Reveal do layout já observa —
               nenhum IntersectionObserver novo. O CSS da seção 11a explica por
-              que o `rise` precisa ser neutralizado neste elemento. */}
+              que o `rise` precisa ser neutralizado neste elemento.
+
+              A FAIXA É DE PONTA A PONTA e o TEXTO NÃO. Quem escapa do gutter é
+              só o .cortina; o .cortina__cabeca devolve o gutter ao conteúdo.
+              Manchete correndo até o pixel da borda num monitor largo não se
+              lê — a linha fica longa demais para o olho voltar ao começo. */}
           <div className="cortina rise">
             <div className="cortina__faixas" aria-hidden="true">
               <span className="cortina__faixa" />
@@ -61,16 +66,27 @@ export default function PaginaAmbientes() {
               <span className="cortina__faixa" />
             </div>
 
-            {/* Sem JS o Reveal não roda, o `in` nunca chega e as faixas
-                ficariam cobrindo o cabeçalho para sempre. Aqui elas somem, e
-                o texto — que nunca dependeu delas — continua legível. */}
+            {/* NÃO É REDUNDANTE com o @media (scripting: none) do fim da folha.
+                Aquela regra revela `.rise`; as faixas não são `.rise` — são
+                spans cujo repouso é scaleY(1), e quem as move é `.cortina.in`,
+                que sem JS nunca chega. Sem este <noscript> a abertura da rota
+                seria uma tapadeira vermelha de borda a borda por cima do
+                cabeçalho. Verificado no protocolo, com o script desligado: esta
+                é a ÚNICA regra que casa com .cortina__faixas e a esconde.
+                Também é o caminho que vale em navegador sem suporte a
+                `scripting`, onde a media query nem é lida. */}
             <noscript>
               <style>{".cortina__faixas{display:none}"}</style>
             </noscript>
 
-            <div className="section__head rise">
-              <h1 className="h2" id="t-amb">
-                Cada ambiente tem a sua régua.
+            {/* .display, e não .h2: é o degrau de manchete da folha, e a
+                abertura de uma rota pede o mesmo peso que a abertura do site.
+                A família vem por herança — .display não declara nenhuma, então
+                cai na Archivo do body, que é a variável de que o
+                font-variation-settings "wdth" 92 precisa. */}
+            <div className="section__head cortina__cabeca rise">
+              <h1 className="display" id="t-amb">
+                Cada ambiente tem a sua régua, e é ela que decide o projeto.
               </h1>
               <p className="lede">
                 Uma cozinha se resolve por circulação e altura de bancada. Um closet, por
