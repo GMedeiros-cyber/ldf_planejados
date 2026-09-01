@@ -68,33 +68,30 @@ export const acabamentoInicial: ChaveAcabamento = "nogueira";
 
 /* Quatro ambientes, não oito. Closet, home office, área gourmet e lavanderia
    continuam sendo executados pela LDF — só não têm foto própria à altura, e
-   por isso são citados dentro do ambiente vizinho em vez de ganharem um card
-   com imagem aproximada. Trocar por foto real e promover a slide próprio é o
-   caminho quando o cliente enviar material.
-   TODO: fotos reais de closet, home office, área gourmet e lavanderia.
-   TODO: a foto do banheiro é print de story reenquadrado — substituir. */
+   por isso são citados dentro do ambiente vizinho em vez de ganharem um bloco
+   com imagem aproximada.
 
-/* href null = ainda não existe página própria. A vitrine não renderiza nada
-   no lugar do link: quem está vendo o ambiente não precisa de um rótulo
-   dizendo que a página não existe. O rodapé manda para a listagem.
+   O BANHEIRO ESTÁ AQUI COM `fotos: []` DE PROPÓSITO. A única foto existente é
+   print de story e, reenquadrada em 4:3, vira um close de duas gavetas. A
+   página filtra por fotos.length > 0, então ele não renderiza. Mesmo tratamento
+   que a Prova recebeu: o dado fica, a renderização espera material honesto.
 
-   As quatro fotos vivem em public/ambientes/, em WebP, todas 1200×1600 — o
-   retrato 3:4 que .vitrine__quadro reserva e que AMBIENTE_LARGURA e
-   AMBIENTE_ALTURA declaram no <img>. Conferido arquivo por arquivo.
+   TODO: fotos de banheiro, e mais duas de sala — hoje ela tem uma só.
+   TODO: closet, home office, área gourmet e lavanderia como blocos próprios,
+   se e quando houver foto real de cada um.
 
-   O nome do arquivo é o slug do ambiente, com uma exceção: "Sala e living" é
-   `sala.webp`. Trocar uma foto pede manter 3:4 — se a nova tiver outra
-   proporção, a caixa continua reservando 3:4 e o object-fit: cover corta o
-   excesso, sem salto de layout mas com recorte que ninguém escolheu.
+   `fotos` é uma LISTA, e não um `img`: cada ambiente tem uma pilha de fotos
+   trocadas por botão dentro do próprio bloco. Uma foto só é caso válido — a
+   Sala — e nesse caso o bloco não mostra contador nem setas.
 
    O `alt` NÃO mora aqui de propósito: é montado no componente a partir de
    `nome` e `meta`, que já descrevem o que a foto mostra. Duplicar a descrição
    num terceiro campo é criar duas fontes para o mesmo fato, e a que ninguém
    olha é a que envelhece.
 
-   O campo `fin` saiu. Ele nomeava um acabamento por ambiente e nunca foi lido:
-   o Amostrario trabalha sobre `acabamentos`, e o data-fin do <body> vem de
-   `acabamentoInicial`. Era dado morto se passando por configuração. */
+   href null = ainda não existe página própria. O bloco não renderiza nada no
+   lugar do link: quem está vendo a foto do ambiente não precisa de um rótulo
+   dizendo que a página não existe. O rodapé manda para a listagem. */
 
 export const ambientes = [
   {
@@ -104,7 +101,11 @@ export const ambientes = [
     texto:
       "A cozinha se resolve por circulação e altura de bancada, não por metro linear de armário. Torre quente na altura de tirar a assadeira sem se abaixar, gaveta funda para panela, despensa em coluna quando o espaço permite — e quando não permite, o projeto diz isso em vez de vender o módulo. A lavanderia entra no mesmo desenho: torre de máquinas, tanque e armário alto.",
     href: "/ambientes/cozinha",
-    img: "/ambientes/cozinha.webp",
+    fotos: [
+      "/ambientes/cozinha-01.webp",
+      "/ambientes/cozinha-02.webp",
+      "/ambientes/cozinha-03.webp",
+    ],
   },
   {
     nome: "Dormitório",
@@ -113,7 +114,11 @@ export const ambientes = [
     texto:
       "Guarda-roupa, cabeceira e criado suspenso definem o quarto. O closet é o mesmo projeto sem porta: módulos abertos, gaveteiro e sapateira, com volumetria e iluminação interna resolvidas junto. Quando o quarto também é escritório, a bancada e o painel com passagem de cabos entram no desenho — não como móvel avulso encostado na parede depois.",
     href: null,
-    img: "/ambientes/dormitorio.webp",
+    fotos: [
+      "/ambientes/dormitorio-01.webp",
+      "/ambientes/dormitorio-02.webp",
+      "/ambientes/dormitorio-03.webp",
+    ],
   },
   {
     nome: "Sala e living",
@@ -122,7 +127,7 @@ export const ambientes = [
     texto:
       "Painel, rack e estante são um bloco só, e quem decide o resultado é o que fica escondido: profundidade para o equipamento, ventilação e por onde os cabos passam. A área gourmet segue a mesma lógica na varanda — churrasqueira, adega e bancada de apoio dimensionadas pela circulação e pelo calor, não pelo espaço que sobrou.",
     href: null,
-    img: "/ambientes/sala.webp",
+    fotos: ["/ambientes/sala-01.webp"],
   },
   {
     nome: "Banheiro",
@@ -131,17 +136,20 @@ export const ambientes = [
     texto:
       "Ambiente pequeno em que cada centímetro é disputado com a hidráulica. O gabinete se resolve em torno do sifão, e não o contrário. A espelheira ganha profundidade onde a parede permite. O nicho entra na alvenaria e precisa ser decidido antes do revestimento — depois, vira quebra.",
     href: null,
-    img: "/ambientes/banheiro.webp",
+    fotos: [],
   },
 ] as const;
 
 export type Ambiente = (typeof ambientes)[number];
 
-/* Proporção nativa das fotos de ambiente: retrato 3:4. Vai nos atributos
-   width e height do <img> para o navegador reservar a caixa antes de baixar o
-   arquivo — sem isso a vitrine salta quando a primeira foto chega. */
-export const AMBIENTE_LARGURA = 1200;
-export const AMBIENTE_ALTURA = 1600;
+/* Proporção nativa das fotos de ambiente: deitado 4:3. Vai nos atributos width
+   e height do <img> para o navegador reservar a caixa antes de baixar o
+   arquivo — sem isso a lista salta a cada foto que chega. A caixa também
+   reserva 4:3 por aspect-ratio no CSS; as duas dizem a mesma coisa por
+   caminhos diferentes, e é de propósito: uma vale sem CSS, a outra sem os
+   atributos. */
+export const AMBIENTE_LARGURA = 1600;
+export const AMBIENTE_ALTURA = 1200;
 
 /* --- As onze etapas ------------------------------------------------------- */
 

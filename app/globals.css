@@ -1542,66 +1542,68 @@ a { color: inherit; }
 .pagina-ambientes {
   border-top: 0;
   padding-block-start: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
-  /* Bloco de contenção do traço, que é absoluto e cobre a seção inteira —
-     cabeçalho incluído. O `isolation` prende o z-index negativo dele aqui,
-     em vez de deixá-lo cair atrás do fundo da página. Sem overflow: nada
-     nesta página depende de sticky hoje, mas continua boa higiene. */
+}
+
+/* --- 11b. Lista de ambientes ------------------------------------------------
+   Blocos alternando lado: foto de um, texto do outro, invertendo a cada item.
+   É a alternância que dá ritmo a uma repetição curta.
+
+   A revelação em máscara circular SAIU. Ela abria a foto por clip-path
+   conforme o bloco atravessava a viewport, e medida com fotografia real só
+   chegava ao quadro cheio quando o bloco já saía pelo topo — na posição de
+   leitura a foto era um disco. No lugar, cada bloco ganhou uma PILHA de fotos
+   do mesmo ambiente, trocadas por botão. O bloco não depende mais de rolagem
+   para nada; quem ainda lê a rolagem é só o traço.
+
+   `position: relative` porque é o bloco de contenção do traço. `isolation`
+   para o z-index negativo dele ficar preso aqui em vez de cair atrás do fundo
+   da seção. Nenhum overflow. */
+.lista-ambientes {
   position: relative;
   isolation: isolate;
+  display: grid;
+  gap: clamp(var(--s8), 9vw, var(--s10));
 }
 
-/* --- 11b. Vitrine de ambientes ----------------------------------------------
-   Um painel só, um ambiente por vez, no lugar da lista vertical de oito blocos
-   com revelação em máscara. Texto à esquerda, foto retrato à direita.
-
-   A troca é crossfade entre quatro <img> empilhados na MESMA célula de grade —
-   ver o comentário de components/VitrineAmbientes.tsx. Aqui só moram as duas
-   propriedades que se movem, opacity e transform, e nenhuma delas é de layout:
-   trocar de ambiente não custa reflow.
-
-   A coluna de texto é a primeira do DOM e a primeira na leitura. Em uma coluna
-   ela vai para baixo da foto por grid-row explícito, e não por `order`, para a
-   ordem de leitura não depender da ordem visual. */
-.vitrine {
-  margin-block-start: clamp(var(--s7), 6vw, var(--s9));
-}
-
-.vitrine__grade {
+/* Duas colunas de peso igual: a foto pede área e o texto é uma coluna de
+   leitura, não uma legenda. */
+.ambiente {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(var(--s6), 5vw, var(--s9));
+  gap: clamp(var(--s6), 5vw, var(--s8));
   align-items: center;
 }
 
+/* Colocação explícita por grid-column, e não `order`: assim a ordem do DOM
+   continua foto → texto em todos, que é a que vale em coluna única, sem regra
+   extra embaixo de 900px. */
+.ambiente--espelho .ambiente__quadro { grid-column: 2; grid-row: 1; }
+.ambiente--espelho .ambiente__texto { grid-column: 1; grid-row: 1; }
+
 /* A coluna ESTICA até a altura da linha, que quem governa é a foto, e os
-   botões descem para a base por margem automática. Não é preciosismo de
-   alinhamento: é o que impede a troca de slide de mexer no layout.
+   botões descem para a base por margem automática.
 
-   Medido antes: com a coluna centrada e altura livre, os quatro textos têm
-   alturas diferentes (631, 551, 513, 513px, porque o parágrafo varia e só a
-   Cozinha tem link), e o `align-items: center` da grade recentrava a coluna a
-   cada troca — o topo do texto andava de 134 para 194 e os botões, de 718 para
-   658. Sessenta pixels de deslocamento por clique, com o alvo clicável entre
-   eles. CLS medido de 0,024.
+   Não é preciosismo de alinhamento: é o que impede a troca de foto de mexer no
+   layout. Com a coluna centrada e altura livre, cada ambiente tem uma altura
+   de texto diferente, e o `align-items: center` da grade recentraria a coluna
+   — o alvo clicável andaria embaixo do dedo. Esticando, o topo do texto fica
+   preso ao topo da foto e a base dos botões à base dela; a folga cai no meio,
+   onde não há nada para empurrar.
 
-   Esticando, o topo da coluna fica preso ao topo da foto e a base dos botões,
-   à base dela. O que sobra de folga cai no meio, onde não há nada para
-   empurrar: o parágrafo pode ter o comprimento que tiver.
-
-   Flex, e não grid, por causa do `margin-block-start: auto` dos botões — em
+   Flex, e não grid, por causa do `margin-block-start: auto` dos botões: em
    grid a faixa é dimensionada pelo conteúdo e a margem não teria folga para
-   consumir. `align-items: flex-start` faz o papel do justify-items que estava
-   aqui: link e botões são caixas de conteúdo, não faixas da largura toda. */
-.vitrine__texto {
+   consumir. */
+.ambiente__texto {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   align-self: stretch;
 }
 
-/* O contador: um risco curto e o par 01 / 04. É a única peça da vitrine que
-   diz "há mais coisa aqui" antes de o visitante tocar em qualquer botão. */
-.vitrine__contador {
+/* O contador. Só existe onde há mais de uma foto — a Sala, com uma só, não
+   renderiza nem ele nem os botões, e a coluna não fica anunciando navegação
+   que não há. */
+.ambiente__contador {
   display: flex;
   align-items: center;
   gap: var(--s3);
@@ -1612,7 +1614,7 @@ a { color: inherit; }
   text-transform: uppercase;
   color: var(--ink-3);
 }
-.vitrine__risco {
+.ambiente__risco {
   display: block;
   width: 28px;
   height: 1px;
@@ -1620,9 +1622,9 @@ a { color: inherit; }
   flex: none;
 }
 
-/* Degrau serifado de seção do DESIGN.md — o mesmo do .h2. Cada ambiente é o
-   título do painel, não um item de lista. */
-.vitrine__nome {
+/* Degrau serifado de seção do DESIGN.md — o mesmo do .h2. Cada ambiente é um
+   título, não um item de lista. */
+.ambiente__nome {
   font-family: var(--font-serif);
   font-weight: 400;
   font-variation-settings: normal;
@@ -1633,10 +1635,10 @@ a { color: inherit; }
   margin: 0;
 }
 
-/* Sem font-family: Archivo é a herdada, e é ela que o rótulo pede. Declarar
-   de novo aqui criaria um segundo lugar para trocar a sans do sistema — o
-   .label, que faz o mesmo trabalho, também não declara. */
-.vitrine__subline {
+/* Sem font-family: Archivo é a herdada, e é ela que o rótulo pede. Declarar de
+   novo criaria um segundo lugar para trocar a sans do sistema — o .label, que
+   faz o mesmo trabalho, também não declara. */
+.ambiente__subline {
   font-size: var(--t-xs);
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -1645,7 +1647,7 @@ a { color: inherit; }
   margin: var(--s4) 0 0;
 }
 
-.vitrine__corpo {
+.ambiente__meta {
   font-family: var(--font-texto);
   font-size: var(--t-lg);
   line-height: 1.6;
@@ -1655,10 +1657,10 @@ a { color: inherit; }
 }
 
 /* Só aparece onde há para onde ir — hoje, na Cozinha. A seta fica visível em
-   repouso pelo mesmo motivo de sempre: é a única marca de que aquele nome é
-   navegável, e num painel de quatro em que três não são, esconder a marca no
-   hover é esconder a única diferença. */
-.vitrine__link {
+   repouso: é a única marca de que aquele nome é navegável, e numa lista em que
+   os outros não são, esconder a marca no hover é esconder a única diferença.
+   O hover move a seta; ele não a revela. */
+.ambiente__link {
   display: inline-flex;
   align-items: center;
   gap: var(--s3);
@@ -1671,28 +1673,30 @@ a { color: inherit; }
   padding-block-end: var(--s2);
   transition: border-color 240ms var(--ease), color 240ms var(--ease);
 }
-.vitrine__link:hover { color: var(--ink); border-color: var(--red-bright); }
-.vitrine__link-seta {
+.ambiente__link:hover { border-color: var(--red-bright); }
+.ambiente__go {
   width: 20px;
   height: 20px;
   flex: none;
   color: var(--red-bright);
   transition: transform 340ms var(--ease);
 }
-.vitrine__link:hover .vitrine__link-seta { transform: translate(4px, -4px); }
+.ambiente__link:hover .ambiente__go,
+.ambiente__link:focus-visible .ambiente__go { transform: translate(4px, -4px); }
 
 /* Os dois botões. O de avançar tem contraste maior: num par lado a lado sem
-   rótulo, é o peso que diz qual é o gesto principal. */
-/* `auto` empurra os botões para a base da coluna esticada — é o que os deixa
-   parados entre um slide e outro. O clamp é o PISO: em uma coluna, onde não há
-   folga para o auto consumir, é ele que segura o afastamento do texto. */
-.vitrine__setas {
+   rótulo, é o peso que diz qual é o gesto principal.
+
+   `auto` na margem os empurra para a base da coluna esticada — é o que os
+   deixa parados entre uma foto e outra. O clamp é o PISO: em uma coluna, onde
+   não há folga para o auto consumir, é ele que segura o afastamento. */
+.ambiente__setas {
   display: flex;
   gap: var(--s4);
   margin-block-start: auto;
   padding-block-start: clamp(var(--s7), 5vw, var(--s8));
 }
-.vitrine__seta {
+.ambiente__seta {
   width: 48px;
   height: 48px;
   flex: none;
@@ -1705,81 +1709,92 @@ a { color: inherit; }
   cursor: pointer;
   transition: color 240ms var(--ease), box-shadow 240ms var(--ease);
 }
-.vitrine__seta--ativa {
+.ambiente__seta--ativa {
   color: var(--ink);
   box-shadow: inset 0 0 0 1px var(--edge-3);
 }
-.vitrine__seta:hover {
+.ambiente__seta:hover {
   color: var(--ink);
   box-shadow: inset 0 0 0 1px var(--ink-3);
 }
 /* A seta do ícone aponta para a direita; a de voltar é a mesma, espelhada. */
-.vitrine__seta:first-child .btn__arrow { transform: scaleX(-1); }
-.vitrine__seta .btn__arrow { width: 16px; height: 16px; }
+.ambiente__seta:first-child .btn__arrow { transform: scaleX(-1); }
+.ambiente__seta .btn__arrow { width: 16px; height: 16px; }
 
-/* O quadro reserva o retrato 3:4 antes de a foto chegar, e as quatro dividem a
-   mesma célula: é isso que faz a troca não mexer em altura nenhuma. */
-.vitrine__quadro {
+/* O quadro reserva a proporção por aspect-ratio, e não por padding calculado
+   sobre o tamanho nativo: trocar a foto por outra de outra dimensão não pede
+   recalcular número nenhum aqui. As fotos do ambiente dividem a MESMA célula
+   de grade, e é isso que faz a troca não mexer em altura. */
+.ambiente__quadro {
   display: grid;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 3;
   background: var(--ground-lift);
   border-radius: var(--r-painel);
   overflow: hidden;
 }
-.vitrine__foto {
+.ambiente__foto {
   grid-area: 1 / 1;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transform: scale(1.04);
-  transition: opacity 700ms var(--ease), transform 700ms var(--ease);
+  transform: scale(1.03);
+  transition: opacity 600ms var(--ease), transform 600ms var(--ease);
   /* Fora de vista, a foto sai também do alcance do ponteiro: sem isto o
      clique cairia sempre na última do empilhamento. */
   pointer-events: none;
 }
-.vitrine__foto[data-ativo] {
+.ambiente__foto[data-ativo] {
   opacity: 1;
   transform: none;
+  pointer-events: auto;
 }
 
-/* Abaixo de 900px vira uma coluna, com a foto em cima: o retrato é o que
-   identifica o ambiente, e num telefone ele precisa vir antes do texto. */
+/* Abaixo de 900px vira uma coluna, com a foto em cima: é ela que identifica o
+   ambiente, e num telefone precisa vir antes do texto. A alternância perde o
+   sentido — não há dois lados — e o espelho é desligado para todos caírem na
+   mesma ordem. */
 @media (max-width: 899px) {
-  .vitrine__grade { grid-template-columns: 1fr; gap: var(--s6); }
-  .vitrine__texto { grid-row: 2; }
-  .vitrine__quadro { grid-row: 1; }
-  .vitrine__corpo { max-width: none; }
+  .ambiente { grid-template-columns: 1fr; gap: var(--s6); }
+  .ambiente--espelho .ambiente__quadro,
+  .ambiente--espelho .ambiente__texto { grid-column: auto; grid-row: auto; }
+  .ambiente__quadro { grid-row: 1; }
+  .ambiente__texto { grid-row: 2; }
+  .ambiente__meta { max-width: none; }
 }
 
 /* Movimento reduzido: a troca é imediata. A foto não cresce e não esmaece —
-   aparece. Quem faz a escolha é a media query, e não um irmão do componente:
-   aqui não há hook a pular, e trocar de componente na hidratação criaria um
-   problema onde não havia — ver o comentário de VitrineAmbientes.tsx. */
+   aparece.
+
+   Quem resolve isto é a media query, e SÓ ela. O componente não chama
+   useReducedMotion: o hook devolve um valor no servidor e outro no cliente, e
+   tudo que ele mudasse na marcação viraria divergência de hidratação. A versão
+   anterior deste bloco contornava isso com dois componentes de marcação
+   idêntica, e a ginástica existia porque o useScroll da máscara não podia ser
+   condicional. Sem máscara, não há hook a pular — ver o comentário no topo de
+   components/AmbienteBloco.tsx. */
 @media (prefers-reduced-motion: reduce) {
-  .vitrine__foto { transition: none; transform: none; }
-  .vitrine__foto[data-ativo] { transform: none; }
-  .vitrine__link-seta { transition: none; }
+  .ambiente__foto { transition: none; transform: none; }
+  .ambiente__foto[data-ativo] { transform: none; }
+  .ambiente__go { transition: none; }
 }
 
-/* --- 11c. O traço da vitrine ------------------------------------------------
-   Camada absoluta sobre a seção INTEIRA — cabeçalho incluído —, atrás do
-   conteúdo. Ela é absoluta e não declara `top` nem `left`, então resolve
-   contra o primeiro ancestral posicionado, que é .pagina-ambientes; a
-   .vitrine de propósito não é posicionada, senão o traço encolheria para
-   dentro dela e o cabeçalho ficaria de fora.
+/* --- 11c. O traço que costura a lista ---------------------------------------
+   Camada absoluta sobre a lista inteira, atrás dos blocos. É absoluta e não
+   declara `top` nem `left`, então resolve contra o primeiro ancestral
+   posicionado — a .lista-ambientes, logo acima. O cabeçalho da página fica de
+   fora de propósito: o traço costura os blocos, e o cabeçalho não é um deles.
 
    O SVG é esticado com preserveAspectRatio="none", então acompanha a altura
-   real da seção sem nenhum número em px — ver o comentário de
+   real da lista sem nenhum número em px — ver o comentário de
    components/TracoAmbientes.tsx.
 
-   O traço deixou de desenhar por rolagem e passou a marcar posição na
-   sequência: é a barra de progresso dos quatro ambientes. O componente tem um
-   irmão por modo — rolagem, sequência e estático —, e quem escolhe é a
-   presença da prop `progresso`.
+   Ele é desenhado pela ROLAGEM. Chegou a virar barra de progresso de um slider
+   de ambientes, e o TracoControlado que aquilo exigiu continua no componente;
+   nada o consome hoje. Ver o relatório da rodada que trouxe a lista de volta.
 
-   z-index negativo dentro do `isolation` da seção: fica atrás da foto e do
+   z-index negativo dentro do `isolation` da lista: fica atrás das fotos e do
    texto, e não escapa para trás do fundo da página. */
 .traco__caixa {
   position: absolute;
