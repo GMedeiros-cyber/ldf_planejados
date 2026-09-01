@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useRef, type Ref } from "react";
-import { useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
+import {
+  useMotionValue,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "motion/react";
 
 /* O traço que costura /ambientes: uma linha só, serpenteando por trás dos
    blocos, desenhada conforme o visitante rola.
@@ -53,7 +60,7 @@ function desenhar(ondas: number) {
   return d;
 }
 
-type Props = { ondas: number };
+type Props = { ondas: number; progresso?: number };
 
 function Desenho({ ondas, linhaRef }: Props & { linhaRef?: Ref<SVGPathElement> }) {
   return (
@@ -118,7 +125,52 @@ function TracoAnimado({ ondas }: Props) {
   );
 }
 
+/* Terceiro irmão: o traço deixa de medir rolagem e passa a medir POSIÇÃO NUMA
+   SEQUÊNCIA. É o que a vitrine precisa — ela não rola, ela troca de slide, e a
+   linha vira a barra de progresso dos quatro ambientes.
+
+   Não cria useScroll nenhum: o valor chega pronto, de fora. O resto do caminho
+   é idêntico ao do TracoAnimado, e de propósito — mesma mola, mesma inversão,
+   mesma custom property. Duas curvas diferentes para o mesmo traço seriam duas
+   coisas para calibrar quando uma delas ficasse errada.
+
+   O MotionValue é criado uma vez e ATUALIZADO por efeito, em vez de nascer a
+   cada renderização: a mola precisa do mesmo objeto entre renderizações para
+   ter de onde partir. Recriando, cada troca de slide começaria do zero e o
+   amortecimento não existiria. */
+function TracoControlado({ ondas, progresso = 0 }: Props) {
+  const linha = useRef<SVGPathElement>(null);
+  const alvo = useMotionValue(progresso);
+
+  useEffect(() => {
+    alvo.set(progresso);
+  }, [alvo, progresso]);
+
+  const suave = useSpring(alvo, { stiffness: 170, damping: 24 });
+  const offset = useTransform(suave, [0, 1], [1, 0]);
+
+  const escrever = (v: number) => {
+    linha.current?.style.setProperty("--traco", v.toFixed(4));
+  };
+
+  useEffect(() => {
+    escrever(offset.get());
+  }, [offset]);
+
+  useMotionValueEvent(offset, "change", escrever);
+
+  return (
+    <div className="traco__caixa" aria-hidden="true">
+      <Desenho ondas={ondas} linhaRef={linha} />
+    </div>
+  );
+}
+
 export default function TracoAmbientes(props: Props) {
   const semMovimento = useReducedMotion();
-  return semMovimento ? <TracoEstatico {...props} /> : <TracoAnimado {...props} />;
+  /* Movimento reduzido cai no estático em qualquer um dos dois modos: é o
+     único que não assina nada e não anima nada. */
+  if (semMovimento) return <TracoEstatico {...props} />;
+  /* Com `progresso`, quem manda é a sequência; sem ele, a rolagem, como antes. */
+  return props.progresso === undefined ? <TracoAnimado {...props} /> : <TracoControlado {...props} />;
 }

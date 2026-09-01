@@ -1,43 +1,37 @@
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import AmbienteBloco from "@/components/AmbienteBloco";
-import TracoAmbientes from "@/components/TracoAmbientes";
+import VitrineAmbientes from "@/components/VitrineAmbientes";
 import Comercial from "@/components/Comercial";
 import Fechamento from "@/components/Fechamento";
-import { ambientes } from "@/lib/dados";
 
 export const metadata: Metadata = {
   title: "Ambientes planejados — LDF Planejados",
   description:
-    "Cozinha, dormitório, closet, home office, área gourmet, banheiro, sala e lavanderia: cada ambiente tem a sua régua, e a LDF projeta cada um no seu próprio capítulo.",
+    "Cozinha, dormitório, sala e banheiro planejados, de fábrica própria. Closet, home office, área gourmet e lavanderia entram no mesmo projeto do ambiente vizinho.",
 };
 
-/* Quatro tempos: abertura → residencial → comercial → CTA.
+/* Quatro tempos: abertura → vitrine → comercial → CTA.
 
-   A PILHA SAIU. Cards que grudavam no topo e eram cobertos pelo seguinte
-   funcionam com quatro ou cinco; com oito viravam sete telas de rolagem
-   presa, e quem quisesse chegar ao comercial pagava as oito antes. No lugar
-   entra uma lista comum, que rola no ritmo de quem lê, com a revelação em
-   máscara marcando a chegada de cada bloco.
+   A LISTA VERTICAL SAIU, e com ela a revelação em máscara. Eram oito blocos
+   alternando foto e texto, cada um abrindo por clip-path conforme atravessava
+   a viewport. Dois motivos para trocar: os ambientes caíram de oito para
+   quatro — quatro blocos não sustentam uma página de rolagem — e a máscara,
+   medida com as fotos reais, só chegava ao quadro cheio quando o bloco já
+   estava saindo pelo topo. Na posição de leitura a foto era um disco.
 
-   Com ela saiu também a restrição que dominava este arquivo: o sticky morria
-   em silêncio se qualquer ancestral tivesse overflow. A regra continua boa
-   higiene e nada aqui a viola — .lista-ambientes é `position: relative` e só,
-   porque precisa ser o bloco de contenção do traço, e nenhum wrapper novo
-   declara overflow. Mas hoje a página não depende mais disso para funcionar.
+   No lugar entra a VitrineAmbientes: um painel só, um ambiente por vez,
+   navegação por setas. A foto não é mais recompensa de rolagem; está inteira
+   desde o primeiro quadro.
 
-   O TRAÇO é irmão dos blocos, não pai: uma camada absoluta dentro da mesma
-   seção. Assim ele não entra na cadeia de ancestrais de nada.
+   O TRAÇO FICA, com outro trabalho. Deixou de desenhar conforme a página rola
+   e passou a marcar em que ambiente se está — barra de progresso dos quatro.
+   A .traco__caixa é absoluta e resolve contra ESTA section, que é quem tem
+   position: relative, então ele cobre o cabeçalho também.
 
-   O <Comercial /> continua IRMÃO da seção residencial, e continua também na
-   home. O id="comercial" dele é a âncora desta rota.
-
-   O CTA reaproveita o <Fechamento />, com o fundo de madeira. Ele traz o
-   id="contato" junto — é o mesmo alvo que a home oferece, agora também aqui,
-   e por isso o botão do <Comercial /> continuar apontando para "/#contato"
-   manda para a home quando bastaria descer. Não mexi nisso: é decisão do
-   Comercial, que vive nas duas páginas. */
+   O <Comercial /> continua IRMÃO da seção, e continua também na home. O
+   id="comercial" dele é a âncora desta rota. O CTA reaproveita o
+   <Fechamento />, que traz o id="contato" junto. */
 
 export default function PaginaAmbientes() {
   return (
@@ -56,15 +50,7 @@ export default function PaginaAmbientes() {
             </p>
           </div>
 
-          <div className="lista-ambientes">
-            {/* Uma onda por bloco, mais uma de entrada, para o traço já estar
-                em curso quando o primeiro ambiente chega. */}
-            <TracoAmbientes ondas={ambientes.length + 1} />
-
-            {ambientes.map((amb, i) => (
-              <AmbienteBloco key={amb.nome} amb={amb} indice={i} />
-            ))}
-          </div>
+          <VitrineAmbientes />
         </section>
 
         <Comercial />

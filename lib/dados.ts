@@ -66,93 +66,82 @@ export const acabamentoInicial: ChaveAcabamento = "nogueira";
 
 /* --- Ambientes ------------------------------------------------------------ */
 
-/* href null = ainda não existe página própria. O card não vira link e o
-   rodapé manda para a listagem, em vez de prometer navegação que não existe.
-   TODO: criar as páginas dos outros sete ambientes conforme o cliente enviar
-   fotos e conteúdo.
+/* Quatro ambientes, não oito. Closet, home office, área gourmet e lavanderia
+   continuam sendo executados pela LDF — só não têm foto própria à altura, e
+   por isso são citados dentro do ambiente vizinho em vez de ganharem um card
+   com imagem aproximada. Trocar por foto real e promover a slide próprio é o
+   caminho quando o cliente enviar material.
+   TODO: fotos reais de closet, home office, área gourmet e lavanderia.
+   TODO: a foto do banheiro é print de story reenquadrado — substituir. */
 
-   As oito fotos vivem em public/ambientes/, em WebP, todas 1400×1050 — a
-   proporção 4:3 que .ambiente__quadro reserva e que AMBIENTE_LARGURA e
-   AMBIENTE_ALTURA declaram no <img>. Conferido arquivo por arquivo: os oito
-   medem exatamente isso.
+/* href null = ainda não existe página própria. A vitrine não renderiza nada
+   no lugar do link: quem está vendo o ambiente não precisa de um rótulo
+   dizendo que a página não existe. O rodapé manda para a listagem.
+
+   As quatro fotos vivem em public/ambientes/, em WebP, todas 1200×1600 — o
+   retrato 3:4 que .vitrine__quadro reserva e que AMBIENTE_LARGURA e
+   AMBIENTE_ALTURA declaram no <img>. Conferido arquivo por arquivo.
 
    O nome do arquivo é o slug do ambiente, com uma exceção: "Sala e living" é
-   `sala.webp`, e não `sala-living.webp`. Trocar uma foto pede manter 4:3 — se
-   a nova tiver outra proporção, a caixa continua reservando 4:3 e o
-   object-fit: cover corta o excesso, sem salto de layout mas com recorte que
-   ninguém escolheu.
+   `sala.webp`. Trocar uma foto pede manter 3:4 — se a nova tiver outra
+   proporção, a caixa continua reservando 3:4 e o object-fit: cover corta o
+   excesso, sem salto de layout mas com recorte que ninguém escolheu.
 
    O `alt` NÃO mora aqui de propósito: é montado no componente a partir de
    `nome` e `meta`, que já descrevem o que a foto mostra. Duplicar a descrição
    num terceiro campo é criar duas fontes para o mesmo fato, e a que ninguém
-   olha é a que envelhece. */
+   olha é a que envelhece.
+
+   O campo `fin` saiu. Ele nomeava um acabamento por ambiente e nunca foi lido:
+   o Amostrario trabalha sobre `acabamentos`, e o data-fin do <body> vem de
+   `acabamentoInicial`. Era dado morto se passando por configuração. */
 
 export const ambientes = [
   {
     nome: "Cozinha",
     meta: "Torre quente, gaveteiro, coifa e despensa",
+    subline: "TORRE QUENTE · GAVETEIRO · DESPENSA · LAVANDERIA",
+    texto:
+      "A cozinha se resolve por circulação e altura de bancada, não por metro linear de armário. Torre quente na altura de tirar a assadeira sem se abaixar, gaveta funda para panela, despensa em coluna quando o espaço permite — e quando não permite, o projeto diz isso em vez de vender o módulo. A lavanderia entra no mesmo desenho: torre de máquinas, tanque e armário alto.",
     href: "/ambientes/cozinha",
-    fin: "nogueira",
     img: "/ambientes/cozinha.webp",
   },
   {
     nome: "Dormitório",
     meta: "Guarda-roupa, cabeceira e criado suspenso",
+    subline: "GUARDA-ROUPA · CLOSET · BANCADA DE TRABALHO",
+    texto:
+      "Guarda-roupa, cabeceira e criado suspenso definem o quarto. O closet é o mesmo projeto sem porta: módulos abertos, gaveteiro e sapateira, com volumetria e iluminação interna resolvidas junto. Quando o quarto também é escritório, a bancada e o painel com passagem de cabos entram no desenho — não como móvel avulso encostado na parede depois.",
     href: null,
-    fin: "carvalho",
     img: "/ambientes/dormitorio.webp",
-  },
-  {
-    nome: "Closet",
-    meta: "Módulos abertos, gaveteiro e sapateira",
-    href: null,
-    fin: "laca-branca",
-    img: "/ambientes/closet.webp",
-  },
-  {
-    nome: "Home office",
-    meta: "Bancada, painel e passagem de cabos",
-    href: null,
-    fin: "freijo",
-    img: "/ambientes/home-office.webp",
-  },
-  {
-    nome: "Área gourmet",
-    meta: "Churrasqueira, adega e bancada de apoio",
-    href: null,
-    fin: "laca-grafite",
-    img: "/ambientes/area-gourmet.webp",
-  },
-  {
-    nome: "Banheiro",
-    meta: "Gabinete, espelheira e nicho",
-    href: null,
-    fin: "cinza",
-    img: "/ambientes/banheiro.webp",
   },
   {
     nome: "Sala e living",
     meta: "Painel de TV, rack e estante",
+    subline: "PAINEL DE TV · ESTANTE · ÁREA GOURMET",
+    texto:
+      "Painel, rack e estante são um bloco só, e quem decide o resultado é o que fica escondido: profundidade para o equipamento, ventilação e por onde os cabos passam. A área gourmet segue a mesma lógica na varanda — churrasqueira, adega e bancada de apoio dimensionadas pela circulação e pelo calor, não pelo espaço que sobrou.",
     href: null,
-    fin: "carvalho",
     img: "/ambientes/sala.webp",
   },
   {
-    nome: "Lavanderia",
-    meta: "Torre de máquinas, tanque e armário alto",
+    nome: "Banheiro",
+    meta: "Gabinete, espelheira e nicho",
+    subline: "GABINETE · ESPELHEIRA · NICHO",
+    texto:
+      "Ambiente pequeno em que cada centímetro é disputado com a hidráulica. O gabinete se resolve em torno do sifão, e não o contrário. A espelheira ganha profundidade onde a parede permite. O nicho entra na alvenaria e precisa ser decidido antes do revestimento — depois, vira quebra.",
     href: null,
-    fin: "laca-branca",
-    img: "/ambientes/lavanderia.webp",
+    img: "/ambientes/banheiro.webp",
   },
 ] as const;
 
 export type Ambiente = (typeof ambientes)[number];
 
-/* Proporção nativa das fotos de ambiente. Vai nos atributos width e height do
-   <img> para o navegador reservar a caixa antes de baixar o arquivo — sem
-   isso a lista de oito blocos salta a cada foto que chega. */
-export const AMBIENTE_LARGURA = 1400;
-export const AMBIENTE_ALTURA = 1050;
+/* Proporção nativa das fotos de ambiente: retrato 3:4. Vai nos atributos
+   width e height do <img> para o navegador reservar a caixa antes de baixar o
+   arquivo — sem isso a vitrine salta quando a primeira foto chega. */
+export const AMBIENTE_LARGURA = 1200;
+export const AMBIENTE_ALTURA = 1600;
 
 /* --- As onze etapas ------------------------------------------------------- */
 
