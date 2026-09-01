@@ -89,9 +89,10 @@ export const acabamentoInicial: ChaveAcabamento = "nogueira";
    num terceiro campo é criar duas fontes para o mesmo fato, e a que ninguém
    olha é a que envelhece.
 
-   href null = ainda não existe página própria. O bloco não renderiza nada no
-   lugar do link: quem está vendo a foto do ambiente não precisa de um rótulo
-   dizendo que a página não existe. O rodapé manda para a listagem. */
+   NÃO HÁ MAIS `href`. O cliente deixou de querer página por ambiente, e a
+   única que existia — /ambientes/cozinha — foi apagada. Nenhum bloco leva a
+   lugar nenhum: a foto e o texto SÃO o conteúdo, não a chamada para ele. O
+   rodapé continua listando os quatro, todos apontando para /ambientes. */
 
 export const ambientes = [
   {
@@ -100,7 +101,6 @@ export const ambientes = [
     subline: "TORRE QUENTE · GAVETEIRO · DESPENSA · LAVANDERIA",
     texto:
       "A cozinha se resolve por circulação e altura de bancada, não por metro linear de armário. Torre quente na altura de tirar a assadeira sem se abaixar, gaveta funda para panela, despensa em coluna quando o espaço permite — e quando não permite, o projeto diz isso em vez de vender o módulo. A lavanderia entra no mesmo desenho: torre de máquinas, tanque e armário alto.",
-    href: "/ambientes/cozinha",
     fotos: [
       "/ambientes/cozinha-01.webp",
       "/ambientes/cozinha-02.webp",
@@ -113,7 +113,6 @@ export const ambientes = [
     subline: "GUARDA-ROUPA · CLOSET · BANCADA DE TRABALHO",
     texto:
       "Guarda-roupa, cabeceira e criado suspenso definem o quarto. O closet é o mesmo projeto sem porta: módulos abertos, gaveteiro e sapateira, com volumetria e iluminação interna resolvidas junto. Quando o quarto também é escritório, a bancada e o painel com passagem de cabos entram no desenho — não como móvel avulso encostado na parede depois.",
-    href: null,
     fotos: [
       "/ambientes/dormitorio-01.webp",
       "/ambientes/dormitorio-02.webp",
@@ -126,7 +125,6 @@ export const ambientes = [
     subline: "PAINEL DE TV · ESTANTE · ÁREA GOURMET",
     texto:
       "Painel, rack e estante são um bloco só, e quem decide o resultado é o que fica escondido: profundidade para o equipamento, ventilação e por onde os cabos passam. A área gourmet segue a mesma lógica na varanda — churrasqueira, adega e bancada de apoio dimensionadas pela circulação e pelo calor, não pelo espaço que sobrou.",
-    href: null,
     fotos: ["/ambientes/sala-01.webp"],
   },
   {
@@ -135,7 +133,6 @@ export const ambientes = [
     subline: "GABINETE · ESPELHEIRA · NICHO",
     texto:
       "Ambiente pequeno em que cada centímetro é disputado com a hidráulica. O gabinete se resolve em torno do sifão, e não o contrário. A espelheira ganha profundidade onde a parede permite. O nicho entra na alvenaria e precisa ser decidido antes do revestimento — depois, vira quebra.",
-    href: null,
     fotos: [],
   },
 ] as const;

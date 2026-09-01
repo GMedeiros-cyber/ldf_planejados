@@ -88,9 +88,11 @@ export default function Nav() {
      Uma âncora nunca marca rota: "/#contato" é um salto dentro da página, e
      não um destino próprio — em "/" quem apaga é a Home.
 
-     O prefixo com barra é o que separa a subpágina do vizinho de nome
-     parecido: "/ambientes/cozinha" casa, um futuro "/ambientes-comerciais"
-     não. */
+     O prefixo com barra é o que separa uma subpágina do vizinho de nome
+     parecido: sob "/ambientes", um futuro "/ambientes/closet" casa e um
+     futuro "/ambientes-comerciais" não. Hoje não há subpágina nenhuma — a
+     única que existia, /ambientes/cozinha, foi apagada —, e a barra fica
+     porque é ela que impede o casamento errado quando a primeira voltar. */
   const ehAtual = (href: string) => {
     if (href.includes("#")) return false;
     if (href === "/") return rota === "/";

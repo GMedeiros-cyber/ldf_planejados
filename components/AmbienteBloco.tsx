@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
-import { Seta, SetaDiagonal } from "./Icones";
+import { Seta } from "./Icones";
 import { AMBIENTE_ALTURA, AMBIENTE_LARGURA, type Ambiente } from "@/lib/dados";
 
 /* Um ambiente da lista de /ambientes: foto de um lado, texto do outro. Quem
@@ -69,7 +68,14 @@ export default function AmbienteBloco({ amb, indice }: Props) {
       className={`ambiente${indice % 2 ? " ambiente--espelho" : ""}`}
       onKeyDown={aoTeclar}
     >
-      <div className="ambiente__quadro">
+      {/* `rise` no QUADRO, nunca em cada <img>. O Reveal do layout observa toda
+          .rise da página e acrescenta .in quando ela entra na viewport; a
+          classe mexe na opacity do elemento em que está. Posta em cada foto,
+          disputaria a opacity com o crossfade — as fotos alternam por essa
+          mesma propriedade, e uma zeraria a outra. No quadro as duas opacidades
+          se multiplicam, que é o que se quer: o quadro surge, e dentro dele as
+          fotos trocam. */}
+      <div className="ambiente__quadro rise">
         {amb.fotos.map((src, i) => (
           <img
             key={src}
@@ -107,16 +113,6 @@ export default function AmbienteBloco({ amb, indice }: Props) {
         <p className="ambiente__subline">{amb.subline}</p>
         <p className="ambiente__meta">{amb.texto}</p>
 
-        {/* Sem href não vai nada no lugar. O artigo é feminino porque hoje só a
-            Cozinha tem página; quando um ambiente masculino ganhar a dele,
-            isto vira dado. */}
-        {amb.href ? (
-          <Link className="ambiente__link" href={amb.href}>
-            Ver a {amb.nome.toLowerCase()}
-            <SetaDiagonal className="ambiente__go" />
-          </Link>
-        ) : null}
-
         {varias ? (
           <div className="ambiente__setas">
             <button
@@ -129,7 +125,7 @@ export default function AmbienteBloco({ amb, indice }: Props) {
             </button>
             <button
               type="button"
-              className="ambiente__seta ambiente__seta--ativa"
+              className="ambiente__seta"
               onClick={() => setFoto((i) => passo(i, 1, total))}
               aria-label={`Próxima foto de ${amb.nome}`}
             >

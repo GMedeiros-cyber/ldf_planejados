@@ -31,7 +31,7 @@ app/
   layout.tsx              fontes, metadata, <body data-fin>
   page.tsx                home
   globals.css             o sistema de design inteiro
-  ambientes/cozinha/      página de ambiente
+  ambientes/              listagem de ambientes
 components/               uma seção por arquivo
 lib/dados.ts              dados do cliente e conteúdo — fonte única
 ```
