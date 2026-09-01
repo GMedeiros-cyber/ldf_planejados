@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AmbienteBloco from "@/components/AmbienteBloco";
-import Cortina from "@/components/Cortina";
 import TracoAmbientes from "@/components/TracoAmbientes";
 import Fechamento from "@/components/Fechamento";
 import { ambientes } from "@/lib/dados";
@@ -66,11 +65,17 @@ export default function PaginaAmbientes() {
               Manchete correndo até o pixel da borda num monitor largo não se
               lê — a linha fica longa demais para o olho voltar ao começo.
 
-              O <Cortina> é a ÚNICA parte cliente desta rota, e existe só para
-              ler o sessionStorage depois da montagem: a cortina sobe uma vez
-              por sessão, não uma vez por visita. O conteúdo continua sendo
-              renderizado no servidor e entra como children. */}
-          <Cortina>
+              A CORTINA ANIMA EM TODA ENTRADA, e voltou a ser CSS puro. Por
+              uma rodada ela subiu uma vez por sessão, guardada em
+              sessionStorage por um componente cliente; a decisão foi revertida
+              de propósito. Animar na primeira visita e não animar nas
+              seguintes lê como defeito, não como memória — a inconsistência
+              custa mais que os ~600ms. O que mitiga a repetição é a animação
+              ser curta, e não ela sumir.
+
+              Esta rota voltou a ser 100% servidor: nenhum componente cliente
+              nasceu aqui. Ver a seção 11a da folha. */}
+          <div className="cortina rise">
             <div className="cortina__faixas" aria-hidden="true">
               <span className="cortina__faixa" />
               <span className="cortina__faixa" />
@@ -112,7 +117,7 @@ export default function PaginaAmbientes() {
                 seu próprio capítulo.
               </p>
             </div>
-          </Cortina>
+          </div>
 
           <div className="lista-ambientes">
             <TracoAmbientes ondas={comFoto.length + 1} />
