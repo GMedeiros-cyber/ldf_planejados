@@ -92,7 +92,27 @@ function Cartao({ a }: { a: Avaliacao }) {
         </span>
         <span className="avaliacao__quem">
           <span className="avaliacao__nome">{a.nome}</span>
-          <span className="avaliacao__quando">{a.quando}</span>
+          {/* Linha de contexto: o ambiente, quando a pessoa disse qual foi, e
+              a data. CINCO DAS OITO NÃO TÊM AMBIENTE e não vão ganhar um — o
+              porquê está em lib/avaliacoes.ts. Sem o rótulo sobra a data
+              sozinha, que é uma linha completa por si; nada de placeholder
+              nem de traço ocupando o lugar, que só anunciariam a falta.
+
+              O ponto médio é aria-hidden: separador é desenho, e lido em voz
+              alta vira ruído entre dois fatos. Sem ele o leitor de tela
+              encontra "Dormitório" e "5 meses atrás" como dois trechos, que é
+              exatamente como devem ser ouvidos. */}
+          <span className="avaliacao__contexto">
+            {a.ambiente ? (
+              <>
+                <span className="avaliacao__ambiente">{a.ambiente}</span>
+                <span className="avaliacao__ponto" aria-hidden="true">
+                  ·
+                </span>
+              </>
+            ) : null}
+            {a.quando}
+          </span>
         </span>
       </p>
     </li>

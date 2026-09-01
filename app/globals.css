@@ -2799,10 +2799,45 @@ a { color: inherit; }
    por isso a seção declara `background` em vez de herdar o do body: o degradê
    precisa de uma cor nomeada para desaparecer dentro.
 
-   Nenhuma cor nova. Campo em --ground, cartão em --ground-lift, aresta em
-   --edge, estrela cheia em --ink e vazia em --edge-3. O vermelho fica de
-   fora: cinco estrelas vezes oito cartões seriam o maior campo de --red da
-   página, e ele é tinta de instrumento, não preenchimento. */
+   ══ A COR DO CAMPO TEM UM NOME SÓ: --campo ══
+
+   Três lugares precisam da MESMA cor — o fundo da seção e os dois degradês
+   das bordas. Enquanto os três citavam --ground direto, trocar o fundo e
+   esquecer um degradê deixava a máscara desaparecendo dentro da cor errada:
+   em vez de sumir, a faixa terminava numa emenda visível de dois tons. É
+   erro que não avisa, porque só aparece nos ~100px de cada ponta.
+
+   `--campo` é declarado uma vez em `.avaliacoes` e lido pelos três. Trocar o
+   fundo da seção passa a ser uma linha, e os degradês acompanham por
+   construção em vez de por lembrança.
+
+   Nenhuma cor nova. Campo em --ground-deep — o mesmo preto chapado da faixa
+   de marcas e do campo da Fábrica, e não um tom inventado para cá. Cartão em
+   --ground-lift, aresta em --edge, estrela cheia em --ink e vazia em
+   --edge-3. O vermelho fica de fora: cinco estrelas vezes oito cartões seriam
+   o maior campo de --red da página, e ele é tinta de instrumento, não
+   preenchimento.
+
+   O campo escureceu de --ground para --ground-deep e todo o contraste subiu
+   junto, porque tudo o que se lê aqui é claro sobre ele. Medido contra o campo,
+   antes → depois:
+
+     cartão --ground-lift    1,08:1 → 1,15:1
+     aresta --edge           1,28:1 → 1,36:1
+     estrela vazia --edge-3  2,44:1 → 2,60:1
+     data --ink-3            4,95:1 → 5,26:1
+     agregado/link --ink-2   7,26:1 → 7,72:1
+     texto do cartão --ink  15,76:1 → 16,75:1
+
+   Nada piorou com a troca.
+
+   A FRONTEIRA COM A FÁBRICA SOME, e é aceitável pelo motivo já registrado na
+   faixa de marcas: a Fábrica é --ground-deep também, agora exatamente a mesma
+   cor (1,000:1 contra 1,063:1 de antes). Não vira uma linha reta porque o
+   lado de cima tem o shader do FundoAuralis, com grão e luz variando — a
+   passagem é de matéria com textura para campo liso, não de um chapado para
+   outro. A régua de topo já estava zerada ali por `.fabrica-campo + .section`,
+   pela mesma razão. */
 
 /* A régua de topo sai, como já sai depois da faixa de marcas e do Processo, e
    pelo mesmo motivo: o shader da Fábrica tem vinheta e chega escuro na
@@ -2819,7 +2854,11 @@ a { color: inherit; }
      diferentes leem como dois relógios errados. */
   --desfile: 72s;
 
-  background: var(--ground);
+  /* A cor do campo, declarada UMA vez. O fundo abaixo e os dois degradês das
+     bordas leem daqui — ver o bloco no topo da seção. */
+  --campo: var(--ground-deep);
+
+  background: var(--campo);
 }
 
 /* Menos folga que o --s8 padrão do .section__head: o agregado é legenda da
@@ -2900,13 +2939,15 @@ a { color: inherit; }
   width: clamp(2.5rem, 8vw, 7rem);
   pointer-events: none;
 }
+/* --campo, e não a cor direta: é o que garante que a máscara desapareça
+   dentro do mesmo tom que o fundo da seção pinta. Ver o topo da seção. */
 .avaliacoes__faixa::before {
   inset-inline-start: 0;
-  background: linear-gradient(to right, var(--ground), transparent);
+  background: linear-gradient(to right, var(--campo), transparent);
 }
 .avaliacoes__faixa::after {
   inset-inline-end: 0;
-  background: linear-gradient(to left, var(--ground), transparent);
+  background: linear-gradient(to left, var(--campo), transparent);
 }
 
 .avaliacoes__trilho {
@@ -2995,11 +3036,34 @@ a { color: inherit; }
   font-size: var(--t-sm);
   color: var(--ink);
 }
-.avaliacao__quando {
+/* Linha de contexto sob o nome: ambiente (quando existe) e data. Era só a
+   data, e por isso a classe se chamava `__quando` — o nome mudou junto com o
+   conteúdo, senão passaria a mentir sobre o que carrega.
+
+   `flex` com `wrap` e não uma linha rígida: em 85vw de tela estreita
+   "Dormitório · um mês atrás" pode não caber, e quebrar em duas linhas é
+   melhor do que cortar o nome do ambiente. O `gap` dá o respiro dos dois
+   lados do ponto médio sem depender de espaço em branco no JSX. */
+.avaliacao__contexto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.4em;
   font-family: var(--font-texto);
   font-size: var(--t-xs);
   color: var(--ink-3);
 }
+
+/* O ambiente é o fato mais útil da linha, então recebe um degrau a mais de
+   tinta que a data. É essa diferença que faz o cartão SEM ambiente ler como
+   completo em vez de faltando: quem tem, tem uma informação a mais destacada;
+   quem não tem, mostra a data no tom da data. Nenhum placeholder ocupa o
+   lugar vazio — ver o comentário em Avaliacoes.tsx. */
+.avaliacao__ambiente { color: var(--ink-2); }
+
+/* Separador de desenho. Não recebe cor própria: herda o --ink-3 da linha, um
+   degrau abaixo do ambiente, que é o que um separador deve ser. */
+.avaliacao__ponto { opacity: 0.65; }
 
 /* -- Tela estreita --------------------------------------------------------- */
 
