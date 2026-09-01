@@ -86,13 +86,18 @@ export default function PaginaAmbientes() {
               <style>{".cortina__faixas{display:none}"}</style>
             </noscript>
 
-            {/* .display, e não .h2: é o degrau de manchete da folha, e a
-                abertura de uma rota pede o mesmo peso que a abertura do site.
-                A família vem por herança — .display não declara nenhuma, então
-                cai na Archivo do body, que é a variável de que o
-                font-variation-settings "wdth" 92 precisa. */}
+            {/* .display dá o degrau de TAMANHO; .manchete-serifada troca a
+                família para a Instrument Serif e zera o eixo "wdth" que a
+                .display pede — a serifada não é variável, e o eixo aplicado
+                nela dá resultado que muda de navegador para navegador. O
+                porquê completo está na seção 3 da folha.
+
+                CORREÇÃO DE ROTA: por uma rodada esta manchete saiu em Archivo,
+                porque `.display` não declara família e herda a do body. O
+                :root sempre disse que a serifada é da manchete — era a home
+                que estava certa, e esta página é que estava fora do sistema. */}
             <div className="section__head cortina__cabeca rise">
-              <h1 className="display" id="t-amb">
+              <h1 className="display manchete-serifada" id="t-amb">
                 Cada ambiente tem a sua régua, e é ela que decide o projeto.
               </h1>
               <p className="lede">
