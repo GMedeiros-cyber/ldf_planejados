@@ -1022,24 +1022,34 @@ a { color: inherit; }
 /* Gradiente estático: é o que aparece em celular, em movimento reduzido e
    quando o contexto WebGL falha.
 
+   ESTE GRADIENTE ESPELHA A PALETA DO SHADER, E O SHADER É A FONTE. A direção
+   importa: o ::before é o fallback, existe para quando o WebGL não roda, e
+   imita o shader — nunca o contrário. Se os dois divergirem, quem está errado
+   é este lado.
+
+   As três paradas são, na ordem, o array CORES de components/FundoAuralis.tsx:
+
+     CORES[0] #df0100  →  var(--red), que é exatamente esse valor
+     CORES[1] #6e2a14
+     CORES[2] #2a1410
+
+   Já divergiram uma vez: esta parada do meio esteve em #5e2a18 enquanto o
+   shader dizia #6e2a14, e o comentário de então afirmava "mesmas cores do
+   shader", o que escondia a diferença em vez de denunciá-la. Mexer aqui pede
+   conferir o array lá.
+
    EXCEÇÃO ao sistema, e deliberada. Estes hex são PARADAS DE GRADIENTE do
    fundo, não cores de interface: nada de texto, borda ou superfície de
-   componente sai daqui. Entram na paleta do DESIGN.md e passariam a ser
+   componente sai daqui. Entrassem na paleta do DESIGN.md, passariam a ser
    oferecidos como tinta — que é exatamente o que não devem ser. A cor de
-   interface deste bloco é uma só, --red, e essa já é do sistema.
-
-   ⚠ DIVERGÊNCIA ABERTA, e o comentário anterior a escondia dizendo "mesmas
-   cores do shader": o shader usa #6e2a14 (CORES[1] em FundoAuralis.tsx) e aqui
-   está #5e2a18. As outras duas paradas casam (--red = #df0100 = CORES[0], e
-   #2a1410 = CORES[2]). Uma das duas derivou e não sei qual é a boa, então não
-   mexi no valor — ver o relatório desta rodada. */
+   interface deste bloco é uma só, --red, e essa já é do sistema. */
 .fundo-auralis::before {
   content: "";
   position: absolute; inset: 0;
   background:
     radial-gradient(70% 55% at 18% 22%, color-mix(in srgb, var(--red) 26%, transparent), transparent 68%),
-    /* impeccable-disable-next-line design-system-color -- parada de gradiente do fundo, não cor de interface; divergência com o shader anotada acima */
-    radial-gradient(60% 50% at 82% 30%, color-mix(in srgb, #5e2a18 40%, transparent), transparent 70%),
+    /* impeccable-disable-next-line design-system-color -- parada de gradiente do fundo, não cor de interface; espelha CORES[1] do shader */
+    radial-gradient(60% 50% at 82% 30%, color-mix(in srgb, #6e2a14 40%, transparent), transparent 70%),
     radial-gradient(80% 70% at 50% 92%, color-mix(in srgb, #2a1410 60%, transparent), transparent 74%),
     var(--ground-deep);
 }
