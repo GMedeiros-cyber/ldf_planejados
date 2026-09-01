@@ -277,7 +277,13 @@ export const ficha = [
 ] as const;
 
 /* --- Prova social: slots honestos ------------------------------------------
-   Nada aqui pode ser inventado. Ver PRODUCT.md, Evidence on Hand. */
+   Nada aqui pode ser inventado. Ver PRODUCT.md, Evidence on Hand.
+
+   "Avaliações no Google" SAIU desta lista: foi entregue. A nota, o total e
+   oito trechos literais estão em lib/avaliacoes.ts, na faixa que a home
+   mostra antes do CTA. Continuar listando como pendente o que já está no ar
+   é a única coisa que esta lista não pode fazer — ela existe para dizer o
+   que falta, e um item falso aqui contamina os outros três. */
 
 export const slotsProva = [
   {
@@ -288,10 +294,6 @@ export const slotsProva = [
   {
     o: "Depoimentos de clientes",
     porque: "Nome, ambiente e o que foi dito. Texto, áudio ou vídeo. Nada aqui é escrito por nós.",
-  },
-  {
-    o: "Avaliações no Google",
-    porque: "Nota e volume, puxados do perfil da LDF.",
   },
   {
     o: "Fotos da fábrica e da montagem",

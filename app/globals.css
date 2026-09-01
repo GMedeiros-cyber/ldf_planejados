@@ -2675,6 +2675,291 @@ a { color: inherit; }
 .slot__why {
   font-family: var(--font-texto); color: var(--ink-3); font-size: var(--t-sm); }
 
+/* --- 16b. Avaliações do Google ----------------------------------------------
+   Faixa contínua entre a Fábrica e o CTA. Vem logo depois de 16 de propósito:
+   aquele é o vazio honesto — o que ainda não chegou — e este é o primeiro
+   slot daquela lista que chegou de verdade.
+
+   O MARQUEE É SÓ CSS. Duas trilhas idênticas lado a lado, ambas deslizando
+   -100% da PRÓPRIA largura. Ao fim do ciclo a segunda ocupa exatamente o
+   lugar onde a primeira começou, e o quadro seguinte é pixel a pixel igual ao
+   primeiro: o laço fecha sem salto.
+
+   Isso só vale se `translateX(-100%)` corresponder à distância entre o começo
+   de uma trilha e o começo da outra. Por isso NÃO HÁ `gap` em nenhuma das
+   duas caixas: o vão vive no margin-inline-end do cartão, inclusive no
+   último, e assim entra na largura que o -100% mede. Um `gap` na faixa ficaria
+   de fora dessa conta e devolveria um salto do tamanho do vão a cada volta.
+
+   A máscara das duas bordas é degradê da COR DA SEÇÃO para transparente —
+   por isso a seção declara `background` em vez de herdar o do body: o degradê
+   precisa de uma cor nomeada para desaparecer dentro.
+
+   Nenhuma cor nova. Campo em --ground, cartão em --ground-lift, aresta em
+   --edge, estrela cheia em --ink e vazia em --edge-3. O vermelho fica de
+   fora: cinco estrelas vezes oito cartões seriam o maior campo de --red da
+   página, e ele é tinta de instrumento, não preenchimento. */
+
+/* A régua de topo sai, como já sai depois da faixa de marcas e do Processo, e
+   pelo mesmo motivo: o shader da Fábrica tem vinheta e chega escuro na
+   própria borda, então um fio de --edge seria a linha mais clara do trecho.
+   Irmão adjacente, para sobreviver à reordenação das seções. */
+.fabrica-campo + .section { border-top: 0; }
+
+.avaliacoes {
+  --largura-cartao: 320px;
+  --vao-cartao: var(--s5);
+  /* Uma volta inteira da trilha: 8 × (320 + 24) = 2752px em 72s dão ~38px/s —
+     a MESMA velocidade do carrossel de marcas (VELOCIDADE, em
+     CarrosselMarcas.tsx). Duas faixas na mesma página andando em ritmos
+     diferentes leem como dois relógios errados. */
+  --desfile: 72s;
+
+  background: var(--ground);
+}
+
+/* Menos folga que o --s8 padrão do .section__head: o agregado é legenda da
+   faixa, e não introdução a um bloco de texto. */
+.avaliacoes__cabeca { margin-bottom: var(--s7); }
+
+.avaliacoes__agregado {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s3);
+  max-width: none;
+  margin: var(--s5) 0 0;
+  font-family: var(--font-texto);
+  font-size: var(--t-md);
+  color: var(--ink-2);
+}
+
+/* 120×24 no viewBox: 5:1. A altura sai da largura, não o contrário. */
+.avaliacoes__media {
+  width: 115px;
+  height: auto;
+  align-self: center;
+}
+/* O gradiente cobre UMA estrela — a fracionária — e o corte vem do componente,
+   junto com o porquê. Aqui ficam só as duas tintas, como no Icones.tsx: lá a
+   geometria, aqui a cor. As cheias e as vazias usam as mesmas duas classes
+   dos cartões, mais abaixo. */
+.avaliacoes__media stop:first-child { stop-color: var(--ink); }
+.avaliacoes__media stop:last-child { stop-color: var(--edge-3); }
+
+.avaliacoes__nota {
+  font-size: var(--t-h3);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* O ÚNICO link sublinhado do site, e de propósito. Em todo o resto o sublinhado
+   sai porque o contexto já diz o que é clicável — item de rodapé, botão,
+   migalha. Aqui ele está no meio de uma frase corrida e é a saída para as
+   avaliações que não escolhemos. Um link que não se vê é uma amostra que
+   fingiu ser vitrine. */
+.avaliacoes__link {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--edge-3);
+  text-underline-offset: 0.22em;
+  transition: color 200ms var(--ease), text-decoration-color 200ms var(--ease);
+}
+.avaliacoes__link:hover {
+  color: var(--ink);
+  text-decoration-color: var(--ink);
+}
+
+/* -- A faixa --------------------------------------------------------------- */
+
+/* `position` para as duas máscaras se pendurarem, `overflow` para cortar o
+   que passou, `display: flex` para as duas trilhas ficarem lado a lado — e
+   nenhum `gap`, pelo motivo no topo da seção. */
+.avaliacoes__faixa {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+}
+
+/* O foco desenha para DENTRO: o outline do sistema tem offset de 3px, e a
+   caixa é `overflow: hidden` — ele sairia cortado nos quatro lados. */
+.avaliacoes__faixa:focus-visible { outline-offset: -3px; }
+
+.avaliacoes__faixa::before,
+.avaliacoes__faixa::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  z-index: 1;
+  width: clamp(2.5rem, 8vw, 7rem);
+  pointer-events: none;
+}
+.avaliacoes__faixa::before {
+  inset-inline-start: 0;
+  background: linear-gradient(to right, var(--ground), transparent);
+}
+.avaliacoes__faixa::after {
+  inset-inline-end: 0;
+  background: linear-gradient(to left, var(--ground), transparent);
+}
+
+.avaliacoes__trilho {
+  display: flex;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: desfilar var(--desfile) linear infinite;
+}
+
+/* Pausa no ponteiro E no teclado. Sem a segunda, quem chega pela tecla Tab
+   recebe o foco na faixa e continua sem conseguir ler: o cartão sai de cena
+   enquanto está sendo lido. */
+.avaliacoes__faixa:hover .avaliacoes__trilho,
+.avaliacoes__faixa:focus-within .avaliacoes__trilho {
+  animation-play-state: paused;
+}
+
+@keyframes desfilar {
+  to { transform: translateX(-100%); }
+}
+
+/* -- O cartão -------------------------------------------------------------- */
+
+/* Largura fixa e altura em `stretch` (o padrão do flex): os oito têm a mesma
+   altura, ditada pelo trecho mais longo, e o rodapé de cada um encosta na
+   base pelo `margin` automático — não por altura mínima chutada. */
+.avaliacao {
+  flex: 0 0 var(--largura-cartao);
+  width: var(--largura-cartao);
+  margin-inline-end: var(--vao-cartao);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  padding: var(--s5);
+  background: var(--ground-lift);
+  box-shadow: inset 0 0 0 1px var(--edge);
+}
+
+.avaliacao__estrelas { width: 84px; height: auto; }
+.estrela--cheia { fill: var(--ink); }
+.estrela--vazia { fill: var(--edge-3); }
+
+.avaliacao__texto {
+  margin: 0;
+  max-width: none;
+  font-family: var(--font-texto);
+  font-size: var(--t-md);
+  line-height: 1.5;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.avaliacao__pe {
+  margin: auto 0 0;
+  max-width: none;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding-block-start: var(--s4);
+  border-top: 1px solid var(--edge);
+}
+
+/* Iniciais desenhadas, e não foto: o retrato do Google é hospedado pelo
+   Google, mostra a cara de quem escreveu, e nem o arquivo nem a autorização
+   são nossos. Ver o comentário em Avaliacoes.tsx. */
+.avaliacao__iniciais {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--r-pill);
+  background: var(--edge);
+  color: var(--ink-2);
+  font-variation-settings: "wdth" 66;
+  font-weight: 700;
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+}
+
+.avaliacao__quem { display: grid; gap: 2px; min-width: 0; }
+.avaliacao__nome {
+  font-weight: 700;
+  font-size: var(--t-sm);
+  color: var(--ink);
+}
+.avaliacao__quando {
+  font-family: var(--font-texto);
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
+/* -- Tela estreita --------------------------------------------------------- */
+
+/* O cartão passa a 85vw — um por vez, com a beirada do seguinte à mostra para
+   dizer que há mais. A volta fica MAIS LENTA em px por segundo, e não só mais
+   longa: 8 × (85vw + 16px) num aparelho de 390px dá ~2780px, e 116s baixam a
+   marcha para ~24px/s. Mantida a duração de 72s, a faixa passaria na mesma
+   velocidade de antes com um cartão três vezes maior — rápido demais para ler
+   um trecho de quatro linhas. */
+@media (max-width: 700px) {
+  .avaliacoes {
+    --largura-cartao: 85vw;
+    --vao-cartao: var(--s4);
+    --desfile: 116s;
+  }
+  .avaliacoes__cabeca { margin-bottom: var(--s6); }
+  .avaliacoes__media { width: 100px; }
+  .avaliacao { padding: var(--s4); }
+}
+
+/* -- Movimento reduzido ---------------------------------------------------- */
+
+/* Sem hook, como em AmbienteBloco.tsx: a marcação é a mesma nos dois modos, e
+   quem decide é a folha. A faixa vira grade que quebra linha e mostra as oito
+   de uma vez.
+
+   A TRILHA DUPLICADA SOME. Ela existe só para fechar o laço; parada, ela é
+   cada avaliação impressa duas vezes.
+
+   As máscaras somem junto: elas apagam as bordas de uma fila que atravessa a
+   caixa, e sobre uma grade centrada apagariam o começo e o fim das linhas.
+
+   `animation: none` e não só a duração: a regra global de movimento reduzido,
+   no fim da folha, zera `animation-duration` com !important — o que faria a
+   faixa PULAR para o fim do percurso em 1ms, não parar. O que resolve é não
+   ter animação nenhuma. */
+@media (prefers-reduced-motion: reduce) {
+  .avaliacoes__faixa { overflow: visible; }
+  .avaliacoes__faixa::before,
+  .avaliacoes__faixa::after { display: none; }
+
+  /* Grade de verdade, e não `flex-wrap`. As duas quebram linha, mas no flex
+     cada LINHA se dimensiona sozinha: medido em 1440px, a primeira fila
+     fechava em 249px de altura e a segunda em 226px, e a fileira de cartões
+     ficava com degrau. `grid-auto-rows: 1fr` iguala todas as linhas, que é o
+     que "altura igual entre cartões" quer dizer quando eles param de desfilar.
+
+     A trilha parada é a mesma grade de `.aguardando`, na seção 16 — auto-fit
+     com minmax. O cartão perde a largura fixa aqui: os 320px existem para o
+     desfile ter passo constante, e numa grade estática eles só deixariam
+     sobra à direita. */
+  .avaliacoes__trilho {
+    animation: none;
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--largura-cartao)), 1fr));
+    grid-auto-rows: 1fr;
+    gap: var(--vao-cartao);
+  }
+  .avaliacoes__trilho[aria-hidden="true"] { display: none; }
+
+  .avaliacao { width: auto; margin-inline-end: 0; }
+}
+
 /* --- 17. Fechamento e rodapé --------------------------------------------- */
 
 /* A faixa de madeira. Não usa .section: não leva régua de topo nem o
