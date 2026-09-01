@@ -1633,10 +1633,18 @@ a { color: inherit; }
 /* Duração, passo e número de faixas ficam aqui em cima, não no meio da regra:
    ajustar o ritmo da cortina não deveria pedir uma caçada. A contagem entra na
    base do flex, então trocar o número faz as faixas se redistribuírem
-   sozinhas. */
+   sozinhas.
+
+   OS DOIS NÚMEROS ENCOLHERAM — 0,8s → 0,55s e 0,08s → 0,05s. É a mitigação
+   real da repetição, e substitui o mecanismo que fazia a cortina subir uma vez
+   por sessão. A conta do percurso é `dur + passo × (faixas − 1)`: eram
+   0,8 + 0,32 = 1,12s de percurso, agora 0,55 + 0,20 = 0,75s. A curva não muda.
+
+   Cortina que a pessoa vê toda vez tem de ser curta; cortina que aparece e
+   some conforme um estado invisível é que vira defeito. */
 .cortina {
-  --cortina-dur: 0.8s;
-  --cortina-passo: 0.08s;
+  --cortina-dur: 0.55s;
+  --cortina-passo: 0.05s;
   --cortina-faixas: 5;
 
   position: relative;
@@ -1763,27 +1771,40 @@ a { color: inherit; }
   .cortina__faixa:nth-child(5) { display: none; }
 }
 
-/* VISITA REPETIDA NA MESMA SESSÃO: sem faixa e sem animação.
+/* ══ A CORTINA ANIMA EM TODA ENTRADA. NÃO PROCURE O ESTADO DE SESSÃO ══
 
-   A cortina sobe UMA VEZ POR SESSÃO. Quem põe o atributo é components/
-   Cortina.tsx, num efeito depois da montagem — o porquê da sessão (e não da
-   visita, e não do navegador inteiro) está lá.
+   Por uma rodada existiu aqui `.cortina[data-cortina="vista"]`, posto por um
+   components/Cortina.tsx que lia sessionStorage depois da montagem: a cortina
+   subia uma vez por sessão e as entradas seguintes abriam sem faixa. FOI
+   REVERTIDO DE PROPÓSITO, e o componente inteiro saiu com a regra — ele não
+   fazia mais nada além disso, então a rota voltou a ser 100% servidor.
 
-   O ATRIBUTO MARCA A EXCEÇÃO, NUNCA A REGRA. Sem ele, faixas cobrindo: é o
-   estado que o HTML do servidor traz e o que o primeiro render do cliente
-   repete, então não há divergência de hidratação nem um quadro de cabeçalho
-   à mostra antes de a cortina descer.
+   O motivo da reversão é de leitura, não de código: animar na primeira visita
+   e não animar nas seguintes lê como DEFEITO, não como memória. Quem entra
+   duas vezes vê dois sites diferentes e não tem como saber por quê. A
+   inconsistência custa mais que o percurso, e o percurso encolheu para 0,75s
+   justamente para poder ser pago toda vez.
 
-   `display: none` e não `transform: scaleY(0)`: o resultado é o mesmo estado
-   final, mas sem transição para cortar e sem chance de sobrar um fio de faixa
-   por arredondamento. É o mesmo tratamento do movimento reduzido, logo
-   abaixo, e por isso os dois convivem sem disputa. */
-.cortina[data-cortina="vista"] .cortina__faixas { display: none; }
+   ══ E A REVERSÃO FECHA A JANELA DE FLASH ══
+
+   O mecanismo de sessão tinha um custo que ficou documentado quando entrou:
+   como o estado de repouso é FAIXAS COBRINDO, o HTML do servidor sempre trazia
+   a faixa, e na visita repetida era o JavaScript que precisava desfazê-la
+   depois da hidratação. Media-se 16,6ms contra 68ms de first-paint em
+   localhost, e por isso o efeito era `useLayoutEffect` — mas numa conexão
+   lenta a hidratação chega depois da primeira pintura, e a faixa vermelha de
+   ponta a ponta seria PINTADA antes de sumir.
+
+   Sem estado de sessão essa janela deixa de existir. O HTML do servidor já é
+   o estado correto em toda entrada, nada precisa ser desfeito na hidratação, e
+   a ressalva sobre conexão lenta não vale mais. A cortina passou a depender
+   só do `in` que o Reveal acrescenta — que é animação, e chegar tarde apenas
+   atrasa o início dela em vez de expor um quadro errado. */
 
 /* Movimento reduzido: as faixas não existem. Não é a animação desligada com a
    cobertura de pé — é a cobertura fora, e o cabeçalho visível desde o primeiro
-   quadro. Ganha de tudo, inclusive da primeira visita da sessão: aqui não há
-   cortina em nenhuma entrada. O Reveal já revelaria tudo de imediato nesse
+   quadro. Ganha de tudo: aqui não há cortina em entrada nenhuma, nem na
+   primeira. O Reveal já revelaria tudo de imediato nesse
    modo, mas a cortina não depende disso: se o JS falhar E a media query
    estiver ligada, o texto continua à vista. */
 @media (prefers-reduced-motion: reduce) {
