@@ -8,10 +8,13 @@ import Logo from "./Logo";
 
 /* Navegação em painel flutuante. Três destinos, e não mais cinco.
 
-   O que saiu não sumiu do site: "Espaços comerciais" é âncora dentro de
-   /ambientes (#comercial), e "Como funciona" e "A LDF" são seções da home,
-   alcançáveis rolando. Os três continuam no rodapé, que é onde um mapa
-   exaustivo pertence — a barra do topo carrega decisão, não índice. */
+   O que saiu não sumiu do site: "Como funciona" e "A LDF" são seções da home,
+   alcançáveis rolando, e continuam no rodapé — que é onde um mapa exaustivo
+   pertence. A barra do topo carrega decisão, não índice.
+
+   "Espaços comerciais" saiu da lista de vez: era âncora para #comercial em
+   /ambientes, e aquela seção foi removida do site. O rodapé perdeu o item no
+   mesmo commit. */
 
 const links = [
   { href: "/", texto: "Home" },

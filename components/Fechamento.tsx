@@ -16,9 +16,11 @@ import FundoMadeira from "./FundoMadeira";
 
    O id="contato" continua AQUI. Ele é o alvo de todas as âncoras "#contato"
    do site, e a rota /contato ainda não existe — mover o id agora quebraria a
-   navegação, o rodapé, o comercial, a página de cozinha e os sete ambientes
-   de lib/dados.ts. Quando app/contato/page.tsx nascer, o id sai daqui e
-   essas âncoras viram "/contato". */
+   navegação e o rodapé. Quando app/contato/page.tsx nascer, o id sai daqui e
+   essas âncoras viram "/contato".
+
+   A lista de quem apontava para cá encolheu: o bloco comercial e a página da
+   cozinha, que também citavam este id, não existem mais. */
 
 export default function Fechamento() {
   return (
