@@ -71,12 +71,16 @@ export const acabamentoInicial: ChaveAcabamento = "nogueira";
    TODO: criar as páginas dos outros sete ambientes conforme o cliente enviar
    fotos e conteúdo.
 
-   ⚠ OS ARQUIVOS DE `img` AINDA NÃO EXISTEM em public/ambientes/. Os caminhos
-   abaixo são o contrato: o nome de cada arquivo é o slug do ambiente, em
-   .jpg, e a proporção esperada é 4:3 (1400×1050), que é a que o
-   .ambiente__quadro reserva. Enquanto os oito não forem colocados lá, a
-   listagem de /ambientes renderiza com imagem quebrada — o layout não salta,
-   porque width e height vão declarados no <img>.
+   As oito fotos vivem em public/ambientes/, em WebP, todas 1400×1050 — a
+   proporção 4:3 que .ambiente__quadro reserva e que AMBIENTE_LARGURA e
+   AMBIENTE_ALTURA declaram no <img>. Conferido arquivo por arquivo: os oito
+   medem exatamente isso.
+
+   O nome do arquivo é o slug do ambiente, com uma exceção: "Sala e living" é
+   `sala.webp`, e não `sala-living.webp`. Trocar uma foto pede manter 4:3 — se
+   a nova tiver outra proporção, a caixa continua reservando 4:3 e o
+   object-fit: cover corta o excesso, sem salto de layout mas com recorte que
+   ninguém escolheu.
 
    O `alt` NÃO mora aqui de propósito: é montado no componente a partir de
    `nome` e `meta`, que já descrevem o que a foto mostra. Duplicar a descrição
@@ -89,56 +93,56 @@ export const ambientes = [
     meta: "Torre quente, gaveteiro, coifa e despensa",
     href: "/ambientes/cozinha",
     fin: "nogueira",
-    img: "/ambientes/cozinha.jpg",
+    img: "/ambientes/cozinha.webp",
   },
   {
     nome: "Dormitório",
     meta: "Guarda-roupa, cabeceira e criado suspenso",
     href: null,
     fin: "carvalho",
-    img: "/ambientes/dormitorio.jpg",
+    img: "/ambientes/dormitorio.webp",
   },
   {
     nome: "Closet",
     meta: "Módulos abertos, gaveteiro e sapateira",
     href: null,
     fin: "laca-branca",
-    img: "/ambientes/closet.jpg",
+    img: "/ambientes/closet.webp",
   },
   {
     nome: "Home office",
     meta: "Bancada, painel e passagem de cabos",
     href: null,
     fin: "freijo",
-    img: "/ambientes/home-office.jpg",
+    img: "/ambientes/home-office.webp",
   },
   {
     nome: "Área gourmet",
     meta: "Churrasqueira, adega e bancada de apoio",
     href: null,
     fin: "laca-grafite",
-    img: "/ambientes/area-gourmet.jpg",
+    img: "/ambientes/area-gourmet.webp",
   },
   {
     nome: "Banheiro",
     meta: "Gabinete, espelheira e nicho",
     href: null,
     fin: "cinza",
-    img: "/ambientes/banheiro.jpg",
+    img: "/ambientes/banheiro.webp",
   },
   {
     nome: "Sala e living",
     meta: "Painel de TV, rack e estante",
     href: null,
     fin: "carvalho",
-    img: "/ambientes/sala-living.jpg",
+    img: "/ambientes/sala.webp",
   },
   {
     nome: "Lavanderia",
     meta: "Torre de máquinas, tanque e armário alto",
     href: null,
     fin: "laca-branca",
-    img: "/ambientes/lavanderia.jpg",
+    img: "/ambientes/lavanderia.webp",
   },
 ] as const;
 
