@@ -4,7 +4,6 @@ import { ambientes, contato, creditos, empresa, whatsappUrl } from "@/lib/dados"
 const institucional = [
   { href: "/#fabrica", texto: "A LDF" },
   { href: "/#processo", texto: "Como funciona" },
-  { href: "/ambientes#comercial", texto: "Espaços comerciais" },
   { href: "/#contato", texto: "Contato" },
 ];
 

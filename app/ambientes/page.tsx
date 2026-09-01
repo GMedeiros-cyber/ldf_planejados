@@ -3,7 +3,6 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AmbienteBloco from "@/components/AmbienteBloco";
 import TracoAmbientes from "@/components/TracoAmbientes";
-import Comercial from "@/components/Comercial";
 import Fechamento from "@/components/Fechamento";
 import { ambientes } from "@/lib/dados";
 
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
     "Cozinha, dormitório e sala planejados, de fábrica própria, com foto de obra entregue. Closet, home office, área gourmet, lavanderia e banheiro entram no mesmo projeto do ambiente vizinho.",
 };
 
-/* Quatro tempos: abertura → lista → comercial → CTA.
+/* Três tempos: abertura → lista → CTA.
 
    A LISTA SÓ RENDERIZA AMBIENTE COM FOTO. O array tem quatro, e o banheiro
    entra com `fotos: []` de propósito — a única foto existente é print de story
@@ -36,9 +35,17 @@ export const metadata: Metadata = {
    blocos que REALMENTE renderizam, mais uma de entrada — contar o array inteiro
    daria uma onda a mais para um bloco que não existe na página.
 
-   O <Comercial /> continua IRMÃO da seção, e continua também na home. O
-   id="comercial" dele é a âncora desta rota. O CTA reaproveita o
-   <Fechamento />, que traz o id="contato" junto. */
+   O BLOCO COMERCIAL SAIU, e com ele o id="comercial" que era a âncora desta
+   rota. O <Comercial /> e o <Elevacao /> que ele consumia foram apagados, e o
+   item "Espaços comerciais" saiu do rodapé no mesmo commit — a âncora deixou
+   de existir e o link ficaria quebrado.
+
+   Nota para quem for reconstruir: o comentário que estava aqui afirmava que o
+   <Comercial /> "continua também na home". Era falso — o grep mostra que ele
+   só era importado por este arquivo, e a home nunca o teve na lista. Foi por
+   isso que a remoção pôde ser feita numa rota só.
+
+   O CTA reaproveita o <Fechamento />, que traz o id="contato" junto. */
 
 const comFoto = ambientes.filter((a) => a.fotos.length > 0);
 
@@ -104,8 +111,6 @@ export default function PaginaAmbientes() {
             ))}
           </div>
         </section>
-
-        <Comercial />
 
         <Fechamento />
       </main>
