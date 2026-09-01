@@ -21,7 +21,25 @@
   --ink-on-paper-2:#5A544A;
 
   /* Marca. O vermelho é tinta de instrumento e etiqueta de amostra —
-     nunca preenchimento de banner, nunca texto corrido. */
+     nunca preenchimento de banner, nunca texto corrido.
+
+     ══ UMA EXCEÇÃO, E SÓ UMA ══
+
+     A CORTINA DE ABERTURA DE /ambientes (seção 11a) preenche área com --red.
+     São cinco faixas de borda a borda cobrindo o cabeçalho, e isso é
+     exatamente o "preenchimento de banner" que a regra acima proíbe. É
+     deliberado, e é DECISÃO DO CLIENTE: puxar a marca para a abertura da
+     página, onde o vermelho é a primeira coisa que se vê e sai de cena em
+     menos de um segundo.
+
+     O que a exceção NÃO autoriza: vermelho como fundo de seção, de card, de
+     botão largo ou de qualquer superfície que fique parada na tela. O que
+     justifica a cortina é ela ser transitória — some sozinha e não volta na
+     mesma visita. Superfície vermelha permanente continua fora.
+
+     Se você chegou aqui por ter visto a cortina vermelha e achado que era
+     violação da regra: não é, é esta exceção. Não reverta. Medido em 3,69:1
+     contra o --ground da página. */
   --red:           #DF0100;
   --red-bright:    #FF4436;
 
@@ -1589,9 +1607,30 @@ a { color: inherit; }
    opaca.
 
    Foi medido sem JavaScript, e ali a consequência é pior: o Reveal não roda, o
-   `in` nunca chega, e o cabeçalho fica invisível de vez. Com esta regra o
-   texto está lá desde o primeiro quadro, com ou sem script — que é o que o
-   <noscript> desta seção precisa para ser suficiente. */
+   `in` nunca chega. Hoje o @media (scripting: none) no fim da folha também
+   revela `.rise` nesse caso, mas as duas regras não se cobrem: aquela vale
+   para `.rise` em qualquer lugar, esta vale mesmo COM script, que é quando a
+   cortina de fato acontece. E esta é a que funciona em navegador sem suporte
+   a `scripting`. Nenhuma das duas é sobra da outra.
+
+   ══ O QUE O <noscript> AINDA FAZ, E A MEDIA QUERY NÃO ══
+
+   O <noscript> de app/ambientes/page.tsx esconde `.cortina__faixas`. As
+   faixas NÃO são `.rise`: são spans cujo repouso é scaleY(1) e que só se
+   movem sob `.cortina.in`. O @media (scripting: none) revela `.rise` e não
+   encosta nelas. Verificado no protocolo com o script desligado — a única
+   regra que casa com .cortina__faixas e a esconde é a do <noscript>. Sem
+   ele, sem JS, a rota abriria com uma tapadeira vermelha de ponta a ponta
+   por cima do cabeçalho, e ela não sairia nunca.
+
+   ══ DE PONTA A PONTA, E VERMELHA ══
+
+   A faixa escapa do gutter e ocupa a largura cheia do documento; o texto
+   continua dentro do wrap. A conta e o motivo de não haver nenhum vw nela
+   estão em `.cortina`, logo abaixo. A cor saiu de --edge-3 e virou --red por
+   decisão do cliente — a regra que isso contraria e a exceção que a autoriza
+   estão registradas no :root, em cima do --red, com os números de contraste
+   em `.cortina__faixa`. */
 
 .cortina.rise,
 .cortina .rise { opacity: 1; transform: none; }
@@ -1609,6 +1648,53 @@ a { color: inherit; }
   /* Prende o empilhamento das faixas ao bloco: sem isto o z-index delas
      disputaria com o resto da página. */
   isolation: isolate;
+
+  /* ══ FULL BLEED SEM NENHUM vw ══
+
+     Cancela exatamente o padding do .wrap, que é a única coisa que separa
+     esta seção das bordas do body — .wrap não tem largura máxima, e nem body,
+     nem main, nem .pagina-ambientes têm. Então `-gutter` de cada lado põe a
+     faixa na largura cheia do documento, e a conta fecha em qualquer
+     viewport porque os dois lados usam o MESMO token.
+
+     POR QUE NÃO `calc(50% - 50vw)`: o html desta folha tem
+     `scrollbar-gutter: stable` (seção 1), então o espaço da barra fica
+     reservado SEMPRE. O body é permanentemente mais estreito que 100vw, e
+     qualquer full bleed em vw estouraria a largura pela grossura da barra —
+     ~15px de rolagem horizontal em toda a rota, em toda tela. `100dvw` tem o
+     mesmo defeito: dvw também não desconta a barra. A saída em vw pediria
+     `overflow-x: clip` num ancestral para esconder o estouro; seria um
+     segundo remendo para um problema que este cálculo não cria.
+
+     E não há precedente de full bleed na folha para seguir: procurei por vw,
+     por calc de 50% e por margin-inline negativa, e o que existe é só
+     `margin-inline: auto` centralizando. Este é o primeiro, e por isso fica
+     documentado.
+
+     O TEXTO NÃO ESCAPA JUNTO: .cortina__cabeca devolve o gutter, logo
+     abaixo. */
+  margin-inline: calc(var(--gutter) * -1);
+}
+
+/* O cabeçalho dentro da cortina: recebe de volta o gutter que a faixa
+   dispensou, e centraliza.
+
+   Centralizado porque a faixa agora é de ponta a ponta: texto alinhado à
+   esquerda dentro de uma cobertura simétrica desequilibra o bloco, e a
+   cortina de teatro abre no meio, não no canto.
+
+   O `max-width` do lede NÃO é redeclarado aqui: `.lede` já o carrega em 46ch
+   (seção 3), e é ele que impede a linha longa demais no centro. Repetir o
+   número criaria duas fontes para o mesmo fato, e a que ninguém olha é a que
+   envelhece. O que falta ao .lede é só o centramento, porque o `max-width`
+   sozinho encosta o bloco à esquerda. */
+.cortina__cabeca {
+  padding-inline: var(--gutter);
+  text-align: center;
+}
+
+.cortina__cabeca .lede {
+  margin-inline: auto;
 }
 
 .cortina__faixas {
@@ -1628,15 +1714,33 @@ a { color: inherit; }
 .cortina__faixa {
   flex: 1 0 calc(100% / var(--cortina-faixas));
   height: 100%;
-  /* --edge-3 é o degrau mais claro da família de arestas — a matéria de
-     estrutura da folha, e não de marca nem de texto. Contra o --ground da
-     página dá 2,24:1: pouco para texto, muito para uma aresta em movimento,
-     que é o que a faixa é. O vermelho da referência não entra: o DESIGN.md
-     declara que o vermelho é tinta de instrumento e etiqueta, nunca
-     preenchimento de banner, e cinco faixas cobrindo um cabeçalho são
-     exatamente um banner. --ink daria um piscar quase branco numa página
+  /* VERMELHO, e a decisão inverteu de propósito. A rodada anterior escolheu
+     --edge-3 argumentando que o vermelho é tinta de instrumento e nunca
+     preenchimento de banner, e que cinco faixas cobrindo um cabeçalho são
+     exatamente um banner. O argumento continua correto — o cliente pediu a
+     exceção mesmo assim, para a marca aparecer na abertura da rota. A regra
+     e a exceção estão registradas juntas no :root, em cima do --red; leia lá
+     antes de reverter isto.
+
+     CONTRASTE, no mesmo método de antes (razão WCAG do token contra o
+     --ground #131211, que é o fundo pintado da página):
+
+       --red     #DF0100   3,69:1
+       --edge-3  #5A524A   2,44:1   ← o que saiu
+
+     O vermelho é mais forte que o cinza que substituiu, e é o que se quer:
+     cobertura de abertura tem de ser vista. Nenhum dos dois é razão de
+     texto, e nem precisa ser — a faixa é superfície opaca em movimento, não
+     tem nada escrito em cima. O texto que ela cobre está POR BAIXO, em --ink
+     sobre --ground, a 15,76:1.
+
+     Correção de um número antigo: o comentário anterior dizia 2,24:1 para o
+     --edge-3. A razão dele contra --ground é 2,44:1; 2,26:1 é contra
+     --ground-lift, que não é o fundo desta página. O valor certo ficou acima.
+
+     --ink continua fora: daria um piscar quase branco a 15,76:1 numa página
      escura, o oposto do que uma cortina de teatro faz. */
-  background: var(--edge-3);
+  background: var(--red);
   transform-origin: bottom center;
   transition: transform var(--cortina-dur) cubic-bezier(0.76, 0, 0.24, 1);
 }
