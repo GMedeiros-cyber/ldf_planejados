@@ -36,9 +36,12 @@ export default function Footer() {
           <ul>
             {ambientes.map((a) => (
               <li key={a.nome}>
-                {/* Sem página própria, o nome leva à listagem — nunca ao
-                    formulário de contato, que era o destino antigo. */}
-                <Link href={a.href ?? "/ambientes"}>{a.nome}</Link>
+                {/* Nenhum ambiente tem página própria: todos levam à listagem.
+                    Já foi `a.href ?? "/ambientes"`, quando a Cozinha tinha a
+                    dela; o cliente deixou de querer página por ambiente e a
+                    rota foi apagada. O destino nunca foi o formulário de
+                    contato, que era o de antes disso. */}
+                <Link href="/ambientes">{a.nome}</Link>
               </li>
             ))}
           </ul>
