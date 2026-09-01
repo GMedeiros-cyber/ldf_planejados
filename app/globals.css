@@ -1545,6 +1545,134 @@ a { color: inherit; }
   padding-block-start: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
 }
 
+/* --- 11a. Cortina do cabeçalho ----------------------------------------------
+   Cinco faixas verticais cobrem o cabeçalho de /ambientes e sobem em sequência
+   quando ele entra na tela, como cortina de teatro. Cada faixa vai de
+   scaleY(1) a scaleY(0) com origem na base; o atraso entre elas é o que faz a
+   onda.
+
+   NÃO É PRELOADER. Nada de position: fixed, nada de mexer no overflow do
+   documento: a cortina cobre um bloco da página, não a tela, e a página rola
+   normalmente por baixo dela.
+
+   ══ O GATILHO É O REVEAL, E NÃO UM OBSERVER PRÓPRIO ══
+
+   components/Reveal.tsx já está montado no layout e já acrescenta `in` a toda
+   `.rise` que entra na viewport. A cortina pega carona: a classe `rise` vai no
+   .cortina, e as faixas animam sob `.cortina.in`.
+
+   Um observer próprio aqui seria um segundo mecanismo fazendo o mesmo
+   trabalho, com o seu próprio rootMargin para divergir do primeiro — e, pior,
+   com o seu próprio caminho de movimento reduzido para alguém esquecer de
+   manter. O Reveal já resolve os dois: ele revela tudo de uma vez quando a
+   media query está ligada, e faz `unobserve` no primeiro disparo, então a
+   cortina sobe UMA vez e não volta a descer se a página rolar de volta.
+
+   ══ POR QUE O `rise` PRECISA SER NEUTRALIZADO AQUI ══
+
+   `.rise` nasce com opacity 0 e translateY(18px) — é um elemento que aparece
+   subindo. Numa cortina isso está invertido: o conteúdo tem de estar lá,
+   opaco, e quem se move é o que o cobre. Sem a neutralização o cabeçalho
+   estaria transparente por baixo das faixas, e a cortina subiria revelando
+   nada.
+
+   A regra é ESPECÍFICA e fica contida nesta seção: `.rise` continua como está
+   para o resto do site, e Reveal.tsx não é tocado. `.cortina.rise` tem duas
+   classes contra uma, então vence antes de `in` chegar; depois de `in`, os
+   valores coincidem com os de `.rise.in` e não há disputa.
+
+   A NEUTRALIZAÇÃO ALCANÇA TAMBÉM O QUE ESTÁ DENTRO. O .section__head já tinha
+   `rise` antes da cortina existir, e ele continua com ela — então, sem esta
+   segunda regra, o cabeçalho estaria em opacity 0 por baixo das faixas: a
+   cortina subiria revelando nada, e o texto só apareceria depois, no seu
+   próprio tempo. É animação que ninguém vê, escondida atrás de uma cobertura
+   opaca.
+
+   Foi medido sem JavaScript, e ali a consequência é pior: o Reveal não roda, o
+   `in` nunca chega, e o cabeçalho fica invisível de vez. Com esta regra o
+   texto está lá desde o primeiro quadro, com ou sem script — que é o que o
+   <noscript> desta seção precisa para ser suficiente. */
+
+.cortina.rise,
+.cortina .rise { opacity: 1; transform: none; }
+
+/* Duração, passo e número de faixas ficam aqui em cima, não no meio da regra:
+   ajustar o ritmo da cortina não deveria pedir uma caçada. A contagem entra na
+   base do flex, então trocar o número faz as faixas se redistribuírem
+   sozinhas. */
+.cortina {
+  --cortina-dur: 0.8s;
+  --cortina-passo: 0.08s;
+  --cortina-faixas: 5;
+
+  position: relative;
+  /* Prende o empilhamento das faixas ao bloco: sem isto o z-index delas
+     disputaria com o resto da página. */
+  isolation: isolate;
+}
+
+.cortina__faixas {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  z-index: 2;
+  /* Nunca interceptam clique nem seleção. Antes de subir cobrem o texto, mas
+     não o bloqueiam: quem quiser selecionar a manchete no primeiro quadro
+     consegue. Depois de subir elas continuam no DOM, com altura zero na base,
+     e continuam inertes. */
+  pointer-events: none;
+}
+
+/* aria-hidden mora no TSX, não aqui: as faixas são decoração e não entram na
+   ordem de leitura em momento nenhum. */
+.cortina__faixa {
+  flex: 1 0 calc(100% / var(--cortina-faixas));
+  height: 100%;
+  /* --edge-3 é o degrau mais claro da família de arestas — a matéria de
+     estrutura da folha, e não de marca nem de texto. Contra o --ground da
+     página dá 2,24:1: pouco para texto, muito para uma aresta em movimento,
+     que é o que a faixa é. O vermelho da referência não entra: o DESIGN.md
+     declara que o vermelho é tinta de instrumento e etiqueta, nunca
+     preenchimento de banner, e cinco faixas cobrindo um cabeçalho são
+     exatamente um banner. --ink daria um piscar quase branco numa página
+     escura, o oposto do que uma cortina de teatro faz. */
+  background: var(--edge-3);
+  transform-origin: bottom center;
+  transition: transform var(--cortina-dur) cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* O estado de repouso é COBRINDO. As faixas só saem quando o Reveal marca o
+   bloco, e é por isso que a transição vive na faixa e não no estado: no
+   primeiro quadro não há mudança de valor, então nada anima sozinho. */
+.cortina.in .cortina__faixa { transform: scaleY(0); }
+
+/* A onda. O atraso é o índice vezes o passo — a primeira sai na hora, a
+   quinta 0,32s depois. */
+.cortina.in .cortina__faixa:nth-child(1) { transition-delay: calc(var(--cortina-passo) * 0); }
+.cortina.in .cortina__faixa:nth-child(2) { transition-delay: calc(var(--cortina-passo) * 1); }
+.cortina.in .cortina__faixa:nth-child(3) { transition-delay: calc(var(--cortina-passo) * 2); }
+.cortina.in .cortina__faixa:nth-child(4) { transition-delay: calc(var(--cortina-passo) * 3); }
+.cortina.in .cortina__faixa:nth-child(5) { transition-delay: calc(var(--cortina-passo) * 4); }
+
+/* Abaixo de 700px, três faixas. Cinco numa tela estreita viram listras de
+   ~70px, e o movimento delas deixa de ser onda e vira ruído. As duas últimas
+   saem e a contagem cai para três, então as que ficam se redistribuem sem
+   nenhum número novo. */
+@media (max-width: 699px) {
+  .cortina { --cortina-faixas: 3; }
+  .cortina__faixa:nth-child(4),
+  .cortina__faixa:nth-child(5) { display: none; }
+}
+
+/* Movimento reduzido: as faixas não existem. Não é a animação desligada com a
+   cobertura de pé — é a cobertura fora, e o cabeçalho visível desde o primeiro
+   quadro. O Reveal já revelaria tudo de imediato nesse modo, mas a cortina não
+   depende disso: se o JS falhar E a media query estiver ligada, o texto
+   continua à vista. */
+@media (prefers-reduced-motion: reduce) {
+  .cortina__faixas { display: none; }
+}
+
 /* --- 11b. Lista de ambientes ------------------------------------------------
    Blocos alternando lado: foto de um, texto do outro, invertendo a cada item.
    É a alternância que dá ritmo a uma repetição curta.

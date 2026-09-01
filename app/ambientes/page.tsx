@@ -48,15 +48,36 @@ export default function PaginaAmbientes() {
       <Nav />
       <main>
         <section className="section wrap pagina-ambientes" aria-labelledby="t-amb">
-          <div className="section__head rise">
-            <h1 className="h2" id="t-amb">
-              Cada ambiente tem a sua régua.
-            </h1>
-            <p className="lede">
-              Uma cozinha se resolve por circulação e altura de bancada. Um closet, por volumetria
-              e iluminação interna. São projetos diferentes, e o site trata cada um no seu próprio
-              capítulo.
-            </p>
+          {/* A cortina cobre só o cabeçalho e sobe quando ele entra na tela.
+              O gatilho é o `rise` daqui, que o Reveal do layout já observa —
+              nenhum IntersectionObserver novo. O CSS da seção 11a explica por
+              que o `rise` precisa ser neutralizado neste elemento. */}
+          <div className="cortina rise">
+            <div className="cortina__faixas" aria-hidden="true">
+              <span className="cortina__faixa" />
+              <span className="cortina__faixa" />
+              <span className="cortina__faixa" />
+              <span className="cortina__faixa" />
+              <span className="cortina__faixa" />
+            </div>
+
+            {/* Sem JS o Reveal não roda, o `in` nunca chega e as faixas
+                ficariam cobrindo o cabeçalho para sempre. Aqui elas somem, e
+                o texto — que nunca dependeu delas — continua legível. */}
+            <noscript>
+              <style>{".cortina__faixas{display:none}"}</style>
+            </noscript>
+
+            <div className="section__head rise">
+              <h1 className="h2" id="t-amb">
+                Cada ambiente tem a sua régua.
+              </h1>
+              <p className="lede">
+                Uma cozinha se resolve por circulação e altura de bancada. Um closet, por
+                volumetria e iluminação interna. São projetos diferentes, e o site trata cada um no
+                seu próprio capítulo.
+              </p>
+            </div>
           </div>
 
           <div className="lista-ambientes">
