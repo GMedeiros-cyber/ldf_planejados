@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AmbienteBloco from "@/components/AmbienteBloco";
+import Cortina from "@/components/Cortina";
 import TracoAmbientes from "@/components/TracoAmbientes";
 import Fechamento from "@/components/Fechamento";
 import { ambientes } from "@/lib/dados";
@@ -63,8 +64,13 @@ export default function PaginaAmbientes() {
               A FAIXA É DE PONTA A PONTA e o TEXTO NÃO. Quem escapa do gutter é
               só o .cortina; o .cortina__cabeca devolve o gutter ao conteúdo.
               Manchete correndo até o pixel da borda num monitor largo não se
-              lê — a linha fica longa demais para o olho voltar ao começo. */}
-          <div className="cortina rise">
+              lê — a linha fica longa demais para o olho voltar ao começo.
+
+              O <Cortina> é a ÚNICA parte cliente desta rota, e existe só para
+              ler o sessionStorage depois da montagem: a cortina sobe uma vez
+              por sessão, não uma vez por visita. O conteúdo continua sendo
+              renderizado no servidor e entra como children. */}
+          <Cortina>
             <div className="cortina__faixas" aria-hidden="true">
               <span className="cortina__faixa" />
               <span className="cortina__faixa" />
@@ -106,7 +112,7 @@ export default function PaginaAmbientes() {
                 seu próprio capítulo.
               </p>
             </div>
-          </div>
+          </Cortina>
 
           <div className="lista-ambientes">
             <TracoAmbientes ondas={comFoto.length + 1} />
