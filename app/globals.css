@@ -807,6 +807,237 @@ a { color: inherit; }
 /* Régua de cabelo: 1px, largura total, sem ornamento. O único divisor. */
 .regua { display: block; height: 1px; background: var(--edge); border: 0; }
 
+/* --- 7b. Botão de revelação -------------------------------------------------
+   O <BotaoRevelar />. Fica AQUI, entre os botões, e não na seção da rota de
+   contato: é um botão do sistema que hoje tem um consumidor só. Guardá-lo
+   junto da página faria dele um enfeite daquela rota, e o próximo consumidor
+   copiaria em vez de reusar.
+
+   ══ O REPOUSO ══
+
+   Contorno claro sobre fundo preto translúcido — o mesmo idioma do
+   `.btn--contorno`, e pela mesma razão que o justifica lá: este botão vive
+   sobre fotografia (a madeira), onde um contorno em --edge-3 desaparece e um
+   preenchimento vermelho brigaria com o vermelho do logo três dedos acima. A
+   diferença para o .btn--contorno é a forma: pílula, porque o efeito é um
+   disco que cresce, e disco crescendo dentro de um retângulo mostra o canto.
+
+   LARGURA NÃO É FIXA. `min-width: var(--s11)` (12rem) é PISO, e o padding
+   horizontal empurra a partir dele — "Falar com a LDF" cabe, e um rótulo mais
+   longo em português também. A referência de onde veio a ideia era `w-32`,
+   8rem travados, e é por isso que esta linha existe.
+
+   ══ AS TRÊS CAMADAS ══
+
+   Disco, rótulo em repouso e rótulo revelado dividem a MESMA célula de grade.
+   Nada de position: absolute para empilhar: na mesma célula, quem dita a
+   largura e a altura do botão é o maior dos dois rótulos, e o botão não muda
+   de tamanho quando o conteúdo troca. O `visibility` também não entra — os
+   dois rótulos existem sempre, e o que os separa é opacity e transform.
+
+   O DISCO É QUADRADO E CIRCULAR: `aspect-ratio: 1` sobre a largura do botão,
+   então o diâmetro em repouso é uma fração da largura, e não um valor em px
+   que ficaria grande demais num botão estreito e pequeno demais num largo.
+   Para cobrir a pílula inteira ele precisa de raio maior ou igual à metade da
+   diagonal, ou seja escala maior ou igual a raiz(1 + (altura/largura)²). Com o
+   piso de 12rem e cerca de 3rem de altura isso dá 1,031; `1.2` cobre com folga
+   e CONTINUA cobrindo se o rótulo crescer, porque aumentar a largura só
+   diminui a escala necessária. */
+
+.btn-revelar {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  isolation: isolate;
+  min-width: var(--s11);
+  padding: var(--s3) var(--s6);
+  border: 0;
+  border-radius: var(--r-pill);
+  /* Recorta o disco na forma da pílula e segura os dois rótulos dentro dela
+     enquanto atravessam. `clip` e não `hidden`: não precisa virar contêiner de
+     rolagem. */
+  overflow: hidden;
+  overflow: clip;
+
+  background: rgba(0, 0, 0, 0.30);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 55%, transparent);
+
+  font-family: inherit;
+  font-size: var(--t-sm);
+  font-weight: 700;
+  font-variation-settings: "wdth" 88;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Sem destino ainda. O cursor diz ao ponteiro o que o `disabled` já diz ao
+   teclado e ao leitor de tela; a tinta cai um degrau para o botão não prometer
+   o que não cumpre. `--ink-2` e não `--ink-3`: medido sob o véu desta madeira,
+   --ink-3 dá 2,1:1 — ver a nota de contraste na seção 18. */
+.btn-revelar:disabled {
+  cursor: not-allowed;
+  color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent);
+}
+
+/* Os dois rótulos na MESMA célula. É isso que faz o botão medir o maior dos
+   dois e não mudar de tamanho quando eles trocam. */
+.btn-revelar__repouso,
+.btn-revelar__revelado {
+  grid-area: 1 / 1;
+}
+
+/* O DISCO É ABSOLUTO, e não um terceiro item da célula. Item de grade
+   DIMENSIONA a faixa: com `aspect-ratio: 1` sobre a largura do botão, o disco
+   media 12rem de altura e empurrava a pílula para 12rem de alto — virava um
+   círculo com uma frase no meio. Medido na primeira captura. Absoluto, ele
+   continua com a largura do botão como referência (a caixa de padding do
+   ancestral posicionado) e não pesa mais no layout.
+
+   NASCE À ESQUERDA, e não no centro. Centrado, o ponto em repouso cai
+   exatamente sobre o meio do rótulo — na captura ele pousou no "o" de "com" e
+   lia como sujeira, não como desenho. Encostado na esquerda, dentro do
+   padding, é uma marca vermelha que abre a pílula, e o preenchimento cresce a
+   partir dela.
+
+   A ESCALA SOBE PARA 2.1 por causa dessa mudança. Do centro bastaria ~1,03;
+   de um ponto a --s6 da borda esquerda o canto mais distante fica a
+   raiz((L - --s6)² + (A/2)²), e com o piso de 12rem por ~3rem isso pede ~1,85.
+   2.1 cobre com folga, e o excesso é grátis: o `overflow: clip` da pílula
+   apara o que passa. */
+.btn-revelar__disco {
+  position: absolute;
+  top: 50%;
+  left: var(--s6);
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--red);
+  transform: translate(-50%, -50%) scale(0.08);
+  /* Atrás dos dois rótulos, dentro do `isolation` do botão. */
+  z-index: -1;
+}
+
+.btn-revelar__repouso {
+  /* Centrado na célula: sem isto o span esticaria na largura toda e o
+     translateX de 120% mediria a caixa cheia, não o texto. */
+  justify-self: center;
+}
+
+.btn-revelar__revelado {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  color: var(--white);
+  /* Entra pela DIREITA, como pedido: nasce fora do quadro à direita e caminha
+     para o centro enquanto o rótulo em repouso sai pelo mesmo lado. Os dois se
+     cruzam, e o fade é o que faz o cruzamento ler como troca e não como
+     colisão. Se um dia se quiser a esteira — tudo caminhando para a direita —
+     é trocar este 120% por -120% e mais nada. */
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+.btn-revelar .btn__arrow { width: 14px; height: 14px; }
+
+/* ══ O EFEITO ══
+
+   TUDO DENTRO DE @media (hover: hover). Em tela de toque não existe ponteiro
+   que entre e saia, e uma regra pendurada em :hover pode GRUDAR depois de um
+   tap em alguns navegadores — o botão ficaria vermelho e com a seta, sem gesto
+   que desfaça. A media query não é otimização, é a saída dessa armadilha.
+
+   `:not(:disabled)` porque o :hover ainda casa com um botão desabilitado em
+   vários navegadores: sem esta guarda, o botão de hoje — que não leva a lugar
+   nenhum — se acenderia em vermelho ao passar o ponteiro e prometeria uma ação
+   que não existe.
+
+   O :focus-visible ANDA JUNTO com o :hover, e dá exatamente o mesmo destaque.
+   Ele não tem efeito na página de contato de hoje, e isso é consequência do
+   `disabled`, não esquecimento: elemento desabilitado não entra na ordem do
+   Tab. No dia em que a prop `href` chegar, o botão vira <Link>, passa a ser
+   focável, e esta regra já está escrita.
+
+   Anima só transform, opacity, background e box-shadow. Nada que force
+   layout. */
+@media (hover: hover) {
+  .btn-revelar__disco,
+  .btn-revelar__repouso,
+  .btn-revelar__revelado {
+    transition:
+      transform var(--dur) var(--ease),
+      opacity var(--dur) var(--ease);
+  }
+  .btn-revelar {
+    transition:
+      background var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease);
+  }
+
+  .btn-revelar:not(:disabled):hover,
+  .btn-revelar:not(:disabled):focus-visible {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+
+  .btn-revelar:not(:disabled):hover .btn-revelar__disco,
+  .btn-revelar:not(:disabled):focus-visible .btn-revelar__disco {
+    transform: translate(-50%, -50%) scale(2.1);
+  }
+
+  .btn-revelar:not(:disabled):hover .btn-revelar__repouso,
+  .btn-revelar:not(:disabled):focus-visible .btn-revelar__repouso {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+
+  .btn-revelar:not(:disabled):hover .btn-revelar__revelado,
+  .btn-revelar:not(:disabled):focus-visible .btn-revelar__revelado {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* O anel de foco fica FORA da media query acima. O preenchimento vermelho é
+   ênfase, não indicador de foco, e num aparelho com (hover: none) o bloco
+   inteiro não se aplica — o Tab ficaria sem marca nenhuma. Este anel vale em
+   qualquer aparelho. Offset positivo porque aqui, ao contrário dos cards de
+   /ambientes, não há vizinho colado para cortá-lo. */
+.btn-revelar:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Movimento reduzido: sem percurso, e o botão já nasce no ESTADO FINAL —
+   rótulo e seta à vista, disco preenchido. Não é o repouso congelado: o pedido
+   é que quem desligou a animação veja o resultado, não a partida.
+
+   Vem depois do bloco de hover de propósito; a especificidade é a mesma e quem
+   decide é a ordem. Nada de !important.
+
+   `:disabled` fica de fora: o botão sem destino continua contornado e apagado,
+   porque o estado final DELE é esse. */
+@media (prefers-reduced-motion: reduce) {
+  .btn-revelar,
+  .btn-revelar__disco,
+  .btn-revelar__repouso,
+  .btn-revelar__revelado {
+    transition: none;
+  }
+
+  .btn-revelar:not(:disabled) {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+  .btn-revelar:not(:disabled) .btn-revelar__disco { transform: translate(-50%, -50%) scale(2.1); }
+  .btn-revelar:not(:disabled) .btn-revelar__repouso { transform: translateX(120%); opacity: 0; }
+  .btn-revelar:not(:disabled) .btn-revelar__revelado { transform: translateX(0); opacity: 1; }
+}
+
 /* --- 8. Herói ------------------------------------------------------------- */
 
 .hero { position: relative; }
@@ -2296,7 +2527,29 @@ a { color: inherit; }
    repeat-y porque a seção pode ficar mais alta que a imagem, e
    background-size 100% auto (não `cover`): cover escalaria para cobrir também
    a altura, ampliando a madeira até virar borrão. Assim a imagem cobre a
-   largura, mantém a proporção e se repete para baixo. */
+   largura, mantém a proporção e se repete para baixo.
+
+   ══ A TEXTURA É PARÂMETRO, NÃO CONSTANTE ══
+
+   Os dois arquivos entram por `--textura-1x` e `--textura-2x`, declarados no
+   SELETOR PAI de cada seção que hospeda a camada — .fechamento com a madeira
+   fria da home, .contato__palco com a quente da rota de contato. O componente
+   FundoMadeira é um só e continua sendo um só: duplicá-lo para trocar duas
+   URLs seria garantir que uma das cópias divirja da outra na primeira vez que
+   alguém mexer no parallax.
+
+   `var()` DENTRO de `image-set()` funciona, e não foi deduzido: medido no
+   Chrome 152, o valor computado da forma com variável é idêntico, token por
+   token, ao da forma literal — `image-set(url("…1600.webp") 1dppx,
+   url("…2400.webp") 2dppx)` — e o arquivo é de fato baixado e pintado. Por
+   isso NÃO foi preciso o caminho alternativo da classe modificadora que
+   sobrescreve o background-image inteiro.
+
+   O FALLBACK dentro do var() é rede de segurança, não a interface. Sem ele,
+   uma terceira seção que hospedasse a camada e esquecesse de declarar o par
+   deixaria `image-set(1x, 2x)` — declaração inválida, e a camada viraria um
+   buraco em vez de madeira. Com ele, o pior caso é a madeira da home no lugar
+   errado: visível, e portanto corrigível. */
 .fundo-madeira__textura {
   position: absolute;
   left: 0;
@@ -2304,8 +2557,8 @@ a { color: inherit; }
   top: -15%;
   height: 130%;
   background-image: image-set(
-    url("/madeira-cta-1600.webp") 1x,
-    url("/madeira-cta-2400.webp") 2x
+    var(--textura-1x, url("/madeira-cta-1600.webp")) 1x,
+    var(--textura-2x, url("/madeira-cta-2400.webp")) 2x
   );
   background-repeat: repeat-y;
   background-size: 100% auto;
@@ -3454,6 +3707,11 @@ a { color: inherit; }
    contra, isolation para o z-index negativo dela não escapar para a página, e
    overflow porque a textura é mais alta que a seção. */
 .fechamento {
+  /* A madeira DESTA seção. Fria, RGB médio (53,50,45) — ver o comentário da
+     .fundo-madeira__textura, na seção 11b, para o porquê de a URL entrar por
+     variável em vez de estar escrita lá dentro. */
+  --textura-1x: url("/madeira-cta-1600.webp");
+  --textura-2x: url("/madeira-cta-2400.webp");
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -3575,6 +3833,212 @@ a { color: inherit; }
     justify-items: start;
     gap: var(--s3);
   }
+}
+
+/* --- 18. Rota de contato ----------------------------------------------------
+   Dois tempos: o palco de madeira com o pedido, e uma faixa seca com os dados.
+
+   ══ A MADEIRA DAQUI É OUTRA, E ISSO É O DESENHO ══
+
+   Muito mais quente que a do CTA da home: RGB médio (88,53,30) contra
+   (53,50,45), medido nos arquivos de 1600 com sharp. A troca de temperatura é
+   o que faz esta rota parecer OUTRO LUGAR, e não a home com outro texto. Quem
+   chegar aqui achando que as duas madeiras deveriam combinar: não deveriam. Não
+   "corrija" a diferença.
+
+   O <FundoMadeira /> é o MESMO componente do Fechamento — mesmo parallax, mesma
+   amplitude, mesma variável. O que troca são duas URLs, e elas entram por
+   `--textura-1x` e `--textura-2x` aqui embaixo. O porquê do arranjo, e a prova
+   de que `var()` funciona dentro de `image-set()`, estão no comentário da
+   `.fundo-madeira__textura`, na seção 11b.
+
+   ══ O VÉU CONTINUA EM 50%, E O NÚMERO NOVO É MELHOR ══
+
+   Medido nesta textura, composta sob rgba(0,0,0,0.50), com a luminância
+   relativa da WCAG 2.x:
+
+     --ink    no pixel MAIS CLARO ... 7,25:1   (arquivo 1600)
+                                      6,56:1   (arquivo 2400, que resolve mais
+                                                brilho e por isso mede pior)
+     --ink    no percentil 99 ....... 9,93:1
+     --ink    na mediana ............ 14,15:1
+
+   O comentário do .fundo-madeira__veu registra 6,7:1 no pixel mais claro da
+   madeira da home; pelo meu método o mesmo arquivo mede 6,30:1. A diferença
+   é de método, não de material — e nos dois métodos a conclusão é a mesma:
+   ESTA madeira é mais fácil de escrever em cima que a da home. Por isso os 50%
+   ficam, e não sobem.
+
+   ⚠ SÓ --ink SOBREVIVE A ESTA SUPERFÍCIE. Sob o mesmo véu:
+
+     --ink-2  pixel mais claro ...... 3,02:1
+     --ink-3  pixel mais claro ...... 2,06:1
+
+   Os dois reprovam nos 4,5:1 de texto normal em AA. É a mesma conclusão que o
+   comentário do véu já tinha registrado para a madeira da home ("aqui só existe
+   --ink"), e vale igual aqui. É por isso que a linha "Formulário em breve." é
+   --ink-2 e NÃO --ink-3, e por que ela é pequena e espaçada em vez de apagada:
+   quem quiser deixá-la mais discreta mexe no TAMANHO, não na tinta. */
+
+.contato__palco {
+  /* A madeira DESTA seção. Quente. Ver o bloco acima antes de trocar.
+
+     ⚠ madeira-contato-1000.webp ESTÁ EM public/ E NÃO TEM CONSUMIDOR. Não é
+     esquecimento: é o degrau de celular, e ele fica parado pelo mesmo motivo
+     que o madeira-cta-1000.webp da home já está parado — ligá-lo pede um par
+     de variáveis a mais por seção e uma media query na camada, e isso mudaria
+     também o Fechamento, que nesta rodada devia continuar exatamente como
+     está. TODO: quando valer a pena, o degrau entra para as DUAS madeiras de
+     uma vez, na .fundo-madeira__textura, e não aqui. São 59 KB contra 152 no
+     1x — vale. */
+  --textura-1x: url("/madeira-contato-1600.webp");
+  --textura-2x: url("/madeira-contato-2400.webp");
+
+  /* Mesmo trio do .fechamento, e pelas mesmas três razões: position para a
+     camada de fundo se posicionar contra, isolation para o z-index negativo
+     dela não escapar para a página, overflow porque a textura é 130% da altura
+     da seção. */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  display: grid;
+  align-content: center;
+
+  /* A ALTURA DA TELA MENOS A NAVEGAÇÃO. `dvh` e não `vh`: no celular a barra
+     do navegador entra e sai, e com `vh` o palco fica alto demais quando ela
+     está visível — a faixa de dados some abaixo da dobra sem nada indicando
+     que existe.
+
+     O `max()` é o PISO em px, e existe para a paisagem no celular: a 844x390
+     deitado sobrariam ~306px de dvh, e o logo mais a frase mais o botão não
+     cabem nisso sem esmagar. Abaixo do piso o palco simplesmente passa a rolar,
+     que é o comportamento honesto — `min-height`, e não `height`, então o
+     bloco cresce se o conteúdo pedir em vez de recortá-lo.
+
+     O PADDING DE TOPO DESCONTA A NAVEGAÇÃO DE NOVO, e não é redundância com o
+     `calc` acima. A altura entra ali para o BLOCO medir uma tela; entra aqui
+     para o CONTEÚDO não nascer debaixo da barra. A nav é `fixed` e a seção
+     começa em y=0 — sem este padding o `align-content: center` centra na caixa
+     inteira, inclusive nos 84px que a barra cobre. Em paisagem no celular,
+     onde a altura é curta, o logo sumia atrás dela: medido em 844x390. Os
+     --s4 a mais são a folga entre o painel da nav e o logo. */
+  min-height: max(480px, calc(100dvh - var(--altura-nav)));
+  padding-block: calc(var(--altura-nav) + var(--s4)) var(--s8);
+}
+
+.contato__conteudo {
+  display: grid;
+  justify-items: center;
+  gap: var(--s6);
+  text-align: center;
+}
+
+/* Mesmo degrau do logo do Fechamento: 56px. É o mesmo papel — a marca
+   assinando um pedido — e um segundo tamanho aqui só criaria um degrau novo
+   para manter. */
+.contato__marca {
+  display: block;
+  height: 56px;
+  width: auto;
+  aspect-ratio: 413.29 / 250.65;
+  color: var(--ink);
+}
+
+/* Instrument Serif. As três linhas de sempre — família, peso 400 e o eixo
+   zerado — porque a fonte não é variável e o body manda "wdth" 100 por
+   herança. Tamanho no degrau do .fechamento__frase: é a mesma frase-pedido no
+   mesmo tipo de bloco. */
+.contato__frase {
+  font-family: var(--font-serif);
+  font-size: clamp(2.1rem, 1.15rem + 4vw, 3.9rem);
+  font-weight: 400;
+  font-variation-settings: normal;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  max-width: 18ch;
+}
+
+/* A discrição vem do TAMANHO e do espacejamento, não de apagar a tinta — ver a
+   medição no topo desta seção. O gap do .contato__conteudo é --s6; aqui ele
+   encolhe para a linha ficar colada no botão que ela explica, e não boiando
+   entre ele e a borda. */
+.contato__aviso {
+  margin-top: calc(var(--s3) - var(--s6));
+  font-size: var(--t-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* --- 18b. A faixa de dados --------------------------------------------------
+   Fora do palco, sobre o fundo da página — onde --ink-2 e --ink-3 voltam a
+   passar, porque não há mais fotografia embaixo.
+
+   Três itens e ponto. Não é o rodapé de novo: o rodapé lista tudo, esta faixa
+   responde à pergunta de quem clicou em "Contato" no menu. */
+
+/* SEM A RÉGUA DE TOPO que o `.section` traz. Não é descuido: a regra já está
+   escrita no Fechamento, e é do sistema — quando o que separa duas seções é a
+   TROCA DE MATERIAL, e aqui é (madeira acima, o fundo da página abaixo), a
+   linha é redundante e sai. Uma régua de 1px encostada na borda da madeira lê
+   como sobra de recorte da imagem, não como divisão. */
+.contato__dados { border-top: 0; }
+
+.contato__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--s7);
+  margin-top: var(--s6);
+}
+
+.contato__item {
+  display: grid;
+  gap: var(--s2);
+  align-content: start;
+}
+
+.contato__rotulo {
+  font-size: var(--t-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1.2;
+}
+
+/* <address> chega do UA em itálico e com margem. As duas saem: o itálico é
+   convenção de navegador, não deste sistema. */
+.contato__valor {
+  font-style: normal;
+  margin: 0;
+  font-size: var(--t-md);
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* Sublinhado por box-shadow e não por text-decoration: assim a linha fica
+   afastada da base das letras e não corta os descendentes de "planejados". */
+.contato__link {
+  justify-self: start;
+  text-decoration: none;
+  box-shadow: inset 0 -1px 0 0 var(--edge-3);
+  transition: box-shadow 220ms var(--ease), color 220ms var(--ease);
+}
+.contato__link:hover { box-shadow: inset 0 -1px 0 0 var(--ink); }
+.contato__link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .contato__conteudo { gap: var(--s5); }
+  .contato__aviso { margin-top: calc(var(--s2) - var(--s5)); }
+  .contato__marca { height: 44px; }
+  .contato__lista { gap: var(--s6); }
 }
 
 /* --- 19. Revelação ------------------------------------------------------- */
