@@ -413,23 +413,12 @@ export const historia = {
    o bloco PLACEHOLDER que dizia que as empresas não existiam — ele passou a
    ser falso no momento em que estes nomes entraram.
 
-   DUAS ENTRAM SÓ COM O NOME, e é decisão de desenho, não descuido. A marca da
-   Tesla Soluções e a do Espaço Harmony são ilustração densa, de traço fino:
-   no símbolo pequeno da faixa elas viram borrão, e o que se lê é sujeira em
-   vez de marca. Aproximar, simplificar ou redesenhar marca de terceiro seria
-   pior do que não usar — vira uma marca que não é a deles, num lugar onde
-   estamos justamente afirmando que são clientes.
-
-   O tamanho do arquivo confirma o olho: as três que leem bem têm de 1,5 a
-   3,6 KB de traçado, e as duas que não leem têm 21 e 58 KB. É densidade a
-   mais do que 40px de altura conseguem mostrar.
-
-   Os SVG das duas continuam em public/marcas/, sem consumidor, esperando a
-   substituição.
-   TODO: pedir ao cliente a versão horizontal ou simplificada dessas duas. */
+   UMA ENTRA SÓ COM O NOME, e é decisão de desenho, não descuido. O porquê está
+   ao lado dela, logo abaixo — é específico daquela marca, e não uma regra
+   geral sobre marca de terceiro. */
 export type Marca = {
   readonly nome: string;
-  /* Opcional: só quem tem símbolo que lê em tamanho pequeno. Ver acima. */
+  /* Opcional: só quem tem símbolo que lê em tamanho pequeno. Ver abaixo. */
   readonly arquivo?: string;
 };
 
@@ -437,6 +426,31 @@ export const marcas: readonly Marca[] = [
   { nome: "Bradesco Prime", arquivo: "/marcas/bradesco-prime.svg" },
   { nome: "Boali", arquivo: "/marcas/boali.svg" },
   { nome: "Farmaciano", arquivo: "/marcas/farmaciano.svg" },
-  { nome: "Tesla Soluções" },
+
+  /* ⚠ O SÍMBOLO DA TESLA É UMA RELEITURA ENGROSSADA, NÃO A MARCA ORIGINAL.
+     Quem abrir o site ao lado do logotipo real vai ver diferença — o registro
+     está aqui para essa pessoa não concluir que o arquivo está errado e
+     "consertar".
+
+     O traço foi de 2,23% para 5% da altura do desenho. A 40px de símbolo, os
+     2,23% originais davam 0,89px de espessura: abaixo de um pixel inteiro o
+     navegador espalha a tinta em cinza, e a forma para de ser forma — vira
+     sujeira. Com o engrossamento os dentes da engrenagem fundiram num anel
+     sólido e as ferramentas engordaram. É RECONHECÍVEL, NÃO É IDÊNTICA.
+
+     TODO: pedir ao cliente a versão ícone ou horizontal oficial da Tesla e
+     substituir. Releitura automática é solução de contorno, não o certo. */
+  { nome: "Tesla Soluções", arquivo: "/marcas/tesla-solucoes.svg" },
+
+  /* SEM SÍMBOLO, e o mesmo engrossamento que salvou a Tesla NÃO salva esta.
+     A marca do Espaço Harmony é um rosto desenhado com UMA LINHA CONTÍNUA de
+     0,33% da altura — a 40px, 0,13px. Engrossar foi tentado e falhou por um
+     motivo que não é de ferramenta: a linha volta sobre si mesma, e nos pontos
+     apertados as voltas se colaram umas nas outras até o rosto desaparecer. É
+     um desenho que só existe em tamanho grande.
+
+     O arquivo foi APAGADO de public/marcas/ — não tinha consumidor e não vai
+     ter nesta forma.
+     TODO: pedir ao cliente a versão ícone do Espaço Harmony. */
   { nome: "Espaço Harmony" },
 ];
