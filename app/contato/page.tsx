@@ -44,6 +44,11 @@ export const metadata: Metadata = {
    `titulo="h1"` porque AQUI o bloco é a manchete da rota: não há outro título
    acima dele. Em /ambientes, que já tem o seu <h1>, ele fica no padrão "h2".
 
+   `marca` pelo mesmo motivo: o bloco é a CAPA desta rota, e acima dele só
+   existe a barra de navegação. Em /ambientes ele fecha a página, e ali o
+   logotipo apareceria pela terceira vez na mesma tela — por isso o padrão da
+   prop é não ter marca, e é lá que o padrão vale.
+
    `aviso` continua entrando porque o botão daqui continua desabilitado. Em
    /ambientes não entra: lá o botão converte.
 
@@ -59,6 +64,7 @@ export default function PaginaContato() {
             componente e a troca é de uma linha quando o formulário nascer —
             momento em que o `aviso` também sai daqui. */}
         <ChamadaMadeira
+          marca
           titulo="h1"
           idTitulo="t-contato"
           frase="Conta o que você quer fazer."

@@ -1815,7 +1815,19 @@ a { color: inherit; }
    padding-block padrão da .section (64–128px) não a limpa sozinho: em 1200px
    os dois empatam e o h1 encosta na barra. Sem régua de topo, porque não há
    seção anterior de que se separar. */
+/* O FUNDO É DECLARADO, e não herdado. Sem esta linha a seção era transparente
+   e caía no --ground do body (#131211); as seções da home são --ground-deep
+   (#0A0909), e o degrau ficava ENTRE AS ROTAS — a home escura, /ambientes
+   acinzentada ao lado dela. Medido no navegador antes da troca: todas as
+   seções de /ambientes davam rgb(19,18,17) e todas as da home, rgb(10,9,9).
+
+   A .comercial recebeu a mesma declaração pelo mesmo motivo, e é obrigatório
+   que as duas andem juntas: pintar só esta abriria um degrau NOVO no meio da
+   página, no ponto em que a lista termina e a grade comercial começa. A
+   .chamada não entra — ela é coberta de ponta a ponta pela textura de madeira
+   e pelo véu, e o fundo dela nunca aparece. */
 .pagina-ambientes {
+  background: var(--ground-deep);
   border-top: 0;
   padding-block-start: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
 }
@@ -2310,8 +2322,26 @@ a { color: inherit; }
 
    non-scaling-stroke está no atributo do path, e é o que impede a espessura
    de esticar junto com o viewBox. */
+/* ══ O TRAÇO É VERMELHO, E ISSO NÃO É EXCEÇÃO NENHUMA ══
+
+   A regra do :root diz que o vermelho é "tinta de instrumento e etiqueta de
+   amostra — nunca preenchimento de banner, nunca texto corrido". Um stroke de
+   1px costurando a lista é exatamente TINTA DE INSTRUMENTO: é o uso previsto,
+   não um desvio dele. Não invente uma segunda exceção ao lado da cortina — a
+   cortina precisou de exceção declarada porque PREENCHE ÁREA, que é o que a
+   regra proíbe. Uma linha de um pixel não preenche nada.
+
+   Contraste medido contra o fundo novo da rota (--ground-deep, #0A0909):
+   3,92:1. Elemento gráfico não textual pede 3:1 em AA — passa. Sobre o
+   --ground antigo dava 3,69:1, e também passaria; quem subiu o número foi o
+   escurecimento da página, não o vermelho.
+
+   O --edge-2 QUE ESTAVA AQUI dava 1,86:1 sobre este fundo (1,75:1 sobre o
+   antigo): o traço anterior REPROVAVA na régua de elemento gráfico, nas duas
+   páginas. A troca conserta duas coisas de uma vez — o traço aparece, e passa
+   a passar. */
 .traco__linha {
-  stroke: var(--edge-2);
+  stroke: var(--red);
   stroke-width: 1;
   stroke-linecap: round;
   stroke-dasharray: 1;
@@ -2352,7 +2382,17 @@ a { color: inherit; }
    para dentro do território da navegação fixa e do CTA. Fechado na seção, ele
    só disputa com os próprios irmãos. Mesmo arranjo da .lista-ambientes, que
    isola o z-index negativo do traço. */
-.comercial { isolation: isolate; }
+/* O `isolation` existe pelo z-index dos cards — ver o comentário logo acima.
+
+   O FUNDO ACOMPANHA A .pagina-ambientes, e não é decoração: as duas são
+   irmãs na mesma rota, e a seção acima passou a declarar --ground-deep. Sem
+   esta linha a grade comercial continuaria transparente, caindo no --ground do
+   body, e o degrau que a outra declaração fechou entre as ROTAS reabriria
+   dentro DESTA. As duas mudam juntas ou nenhuma muda. */
+.comercial {
+  isolation: isolate;
+  background: var(--ground-deep);
+}
 
 .comercial__grade {
   display: grid;
@@ -3400,31 +3440,48 @@ a { color: inherit; }
   display: grid;
   align-content: center;
 
-  /* A ALTURA DA TELA MENOS A NAVEGAÇÃO. `dvh` e não `vh`: no celular a barra
-     do navegador entra e sai, e com `vh` o bloco fica alto demais quando ela
-     está visível — o que vem depois some abaixo da dobra sem nada indicando
-     que existe.
+  /* AS MESMAS MEDIDAS DO .fechamento, na seção 17: 420px de piso e --s8 de
+     respiro. Os dois são o mesmo tipo de bloco e agora medem igual.
 
-     O `max()` é o PISO em px, e existe para a paisagem no celular: a 844x390
-     deitado sobrariam ~306px de dvh, e o logo mais a frase mais o botão não
-     cabem nisso sem esmagar. Abaixo do piso o bloco simplesmente passa a
-     rolar, que é o comportamento honesto — `min-height`, e não `height`,
-     então ele cresce se o conteúdo pedir em vez de recortá-lo.
+     Isto SUBSTITUIU uma altura de tela em dvh, com piso em px e um desconto da
+     barra fixa no padding de topo. O bloco ocupava a tela inteira, e a
+     proporção destoava do fecho da home. Com min-height fixo, todo aquele
+     raciocínio — barra do navegador que entra e sai no celular, paisagem em
+     844x390, conteúdo nascendo debaixo da nav — deixou de ter objeto: 420px
+     cabem em qualquer viewport, inclusive deitada, e o bloco nunca chega perto
+     de encostar na barra.
 
-     O PADDING DE TOPO DESCONTA A NAVEGAÇÃO DE NOVO, e não é redundância com o
-     `calc` acima. A altura entra ali para o BLOCO medir uma tela; entra aqui
-     para o CONTEÚDO não nascer debaixo da barra. A nav é `fixed` e a seção
-     começa em y=0 — sem este padding o `align-content: center` centra na caixa
-     inteira, inclusive nos 84px que a barra cobre. Em paisagem no celular,
-     onde a altura é curta, o logo sumia atrás dela: medido em 844x390. Os
-     --s4 a mais são a folga entre o painel da nav e o logo.
+     `min-height` e não `height`, como no .fechamento: se o conteúdo pedir mais
+     que 420px o bloco cresce em vez de recortar. */
+  min-height: 420px;
+  padding-block: var(--s8);
+}
 
-     ⚠ O DESCONTO DA NAV VALE PARA O BLOCO NO TOPO DA ROTA, que é o caso de
-     /contato. Em /ambientes ele fecha a página e a barra não está por cima —
-     o padding vira respiro a mais, e respiro a mais no fim de uma página é
-     inofensivo. Não vale a pena um modificador para isso. */
-  min-height: max(480px, calc(100dvh - var(--altura-nav)));
-  padding-block: calc(var(--altura-nav) + var(--s4)) var(--s8);
+/* ⚠ QUANDO O BLOCO É A PRIMEIRA COISA DA PÁGINA, ELE DESCONTA A BARRA FIXA.
+
+   NÃO é compensação de altura, e a prova é o `box-sizing: border-box` que a
+   folha aplica a tudo: o `min-height: 420px` acima já conta o padding, então
+   enquanto o conteúdo couber na área que sobra o bloco continua medindo
+   exatamente os mesmos 420px do .fechamento. O que muda é ONDE o conteúdo
+   pousa dentro deles, e não o tamanho do bloco.
+
+   Existe porque a navegação é `fixed` e a seção começa em y=0: sem isto o
+   `align-content: center` centra na caixa inteira, inclusive na faixa que a
+   barra cobre, e em /contato o logotipo ficava ATRÁS DELA — verificado na
+   captura, a 1440px.
+
+   ISTO NÃO É REGRA NOVA. É a mesma que a `.pagina-ambientes` já aplica na sua
+   primeira linha, `padding-block-start: calc(var(--altura-nav) + …)`. Toda
+   primeira seção de rota nesta folha desconta a barra; o que acontecia é que a
+   altura de tela que este bloco tinha antes escondia a falta.
+
+   O SELETOR É ESTRUTURAL de propósito — `main > .chamada:first-child` — e não
+   uma classe de rota nem uma prop nova. A condição que causa a colisão é
+   literalmente "este bloco é a primeira coisa do main", e é isso que o seletor
+   diz. Qualquer rota futura que abra com a chamada já nasce resolvida, e
+   /ambientes, onde ele FECHA a página, não é alcançado. */
+main > .chamada:first-child {
+  padding-block-start: calc(var(--altura-nav) + var(--s4));
 }
 
 .chamada__conteudo {
@@ -3481,7 +3538,11 @@ a { color: inherit; }
   color: var(--ink-2);
 }
 
+/* Mesmos ajustes de celular do .fechamento: piso menor, respiro menor e o logo
+   um degrau abaixo. O .chamada__aviso acompanha o gap, que é de quem ele
+   depende. */
 @media (max-width: 700px) {
+  .chamada { min-height: 320px; padding-block: var(--s7); }
   .chamada__conteudo { gap: var(--s5); }
   .chamada__aviso { margin-top: calc(var(--s2) - var(--s5)); }
   .chamada__marca { height: 44px; }

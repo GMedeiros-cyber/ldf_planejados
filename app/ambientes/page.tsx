@@ -5,7 +5,7 @@ import AmbienteBloco from "@/components/AmbienteBloco";
 import TracoAmbientes from "@/components/TracoAmbientes";
 import ProjetoComercial from "@/components/ProjetoComercial";
 import ChamadaMadeira from "@/components/ChamadaMadeira";
-import { ambientes, whatsappUrl } from "@/lib/dados";
+import { ambientes } from "@/lib/dados";
 
 export const metadata: Metadata = {
   title: "Ambientes planejados — LDF Planejados",
@@ -72,15 +72,27 @@ export const metadata: Metadata = {
    O <Fechamento /> continua existindo e continua na home. O que saiu foi o
    import daqui.
 
-   ══ POR QUE O BOTÃO VAI PARA O WHATSAPP, E NÃO PARA /contato ══
+   ══ O BOTÃO APONTA PARA /contato ══
 
-   /contato é mockup, e a peça central dela é ESTE MESMO BLOCO com o botão
-   desabilitado. Mandar quem acabou de clicar num CTA para uma página onde o
-   próximo clique não faz nada é clicar e nada acontecer — pior do que não ter
-   botão. O WhatsApp converte hoje.
+   REVERSÃO CONSCIENTE, e o registro fica porque o argumento revertido não era
+   bobo. Na rodada anterior este botão ia para o WhatsApp, com o raciocínio de
+   que /contato é mockup e o botão DE LÁ está desabilitado — mandar quem
+   acabou de clicar num CTA para um próximo clique inerte seria pior do que
+   não ter botão.
 
-   Quando o formulário existir: `href` vira "/contato" e o rótulo volta a
-   "Falar com a LDF". Uma linha, e as duas rotas voltam a falar a mesma língua.
+   O que mudou não foi o raciocínio, foi o que se entende por destino: não é o
+   botão daquela página, é A PÁGINA. Ela hoje carrega a faixa "Onde nos achar",
+   com endereço da fábrica, e-mail e WhatsApp — três caminhos abertos, e nenhum
+   deles passa pelo botão apagado. O salto direto para o WhatsApp tirava a
+   pessoa do site inteiro para entregar um canal só.
+
+   O rótulo volta a ser "Falar com a LDF", igual ao de /contato: as duas rotas
+   voltam a falar a mesma língua.
+
+   CONSEQUÊNCIA NO COMPONENTE: sendo link INTERNO, o <BotaoRevelar> tem de sair
+   como <Link>, sem `target="_blank"` e sem `rel="noopener"` — aqueles valiam
+   para a URL do WhatsApp, que é de outro domínio. Ele decide isso pelo
+   PROTOCOLO do href, e não por um padrão fixo; verificado no HTML servido.
 
    A FRASE É DIFERENTE DA DE /contato de propósito. Os dois blocos são o mesmo
    componente, com a mesma madeira e o mesmo desenho; se o texto também fosse o
@@ -188,11 +200,15 @@ export default function PaginaAmbientes() {
             .chamada__frase consertaria aqui e mexeria na quebra de /contato,
             que nesta rodada tem de sair pixel por pixel igual. Uma cola entre
             duas palavras que não devem se separar é o remédio local. */}
+        {/* SEM `marca`, que é o padrão da prop. O logotipo já está no painel
+            da navegação, no topo, e no rodapé, logo abaixo deste bloco — uma
+            terceira aparição no fecho é repetição, não assinatura. Em /contato
+            ele entra, porque lá o bloco é a capa da rota. */}
         <ChamadaMadeira
           idTitulo="t-chamada-amb"
           frase={"Manda a planta. A\u00A0gente devolve o projeto."}
-          rotulo="Chamar no WhatsApp"
-          href={whatsappUrl}
+          rotulo="Falar com a LDF"
+          href="/contato"
         />
       </main>
       <Footer />
