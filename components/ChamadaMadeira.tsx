@@ -40,11 +40,27 @@ import BotaoRevelar from "./BotaoRevelar";
 
    Ele existe para EXPLICAR UM BOTÃO QUE NÃO CONVERTE. Em /contato o botão está
    desabilitado e a linha diz por quê. Onde o botão leva a algum lugar, ela não
-   entra: seria uma ressalva pendurada numa ação que funciona. */
+   entra: seria uma ressalva pendurada numa ação que funciona.
+
+   ══ A MARCA É OPCIONAL, E O PADRÃO É NÃO TER ══
+
+   `marca` nasce FALSE porque o caso comum é o bloco fechando uma página que já
+   tem a marca duas vezes — no painel da navegação, no topo, e no rodapé, logo
+   abaixo. Uma terceira aparição no fecho é repetição, não assinatura: é o que
+   acontecia em /ambientes.
+
+   Onde o bloco é a CAPA da rota, ela volta. /contato passa `marca` porque ali
+   não há nada acima do bloco além da barra, e a página precisa se apresentar.
+
+   O padrão é o caso comum, e não o primeiro que existiu: se o padrão fosse
+   `true`, toda página nova nasceria com a repetição e teria de lembrar de
+   desligá-la. */
 
 type Props = {
   frase: string;
   rotulo: string;
+  /* O logotipo acima da frase. Só onde o bloco é capa de rota — ver acima. */
+  marca?: boolean;
   /* Repassado ao BotaoRevelar. Sem ele o botão sai desabilitado — ver aquele
      arquivo. */
   href?: string;
@@ -59,6 +75,7 @@ export default function ChamadaMadeira({
   rotulo,
   href,
   aviso,
+  marca = false,
   titulo = "h2",
   idTitulo,
 }: Props) {
@@ -69,7 +86,7 @@ export default function ChamadaMadeira({
       <FundoMadeira />
 
       <div className="chamada__conteudo wrap">
-        <Logo className="chamada__marca" />
+        {marca ? <Logo className="chamada__marca" /> : null}
 
         {/* A família serifada está resolvida na `.chamada__frase`, com as três
             linhas de sempre — família, peso 400 e o eixo "wdth" zerado, porque
