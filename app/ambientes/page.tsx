@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import AmbienteBloco from "@/components/AmbienteBloco";
 import TracoAmbientes from "@/components/TracoAmbientes";
 import ProjetoComercial from "@/components/ProjetoComercial";
-import ChamadaMadeira from "@/components/ChamadaMadeira";
+import Fechamento from "@/components/Fechamento";
 import FundoAuralis from "@/components/FundoAuralis";
 import { ambientes } from "@/lib/dados";
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "Cozinha, dormitório e sala planejados, de fábrica própria, com foto de obra entregue. Closet, home office, área gourmet, lavanderia e banheiro entram no mesmo projeto do ambiente vizinho. E uma loja comercial inteira, da fachada à linha de serviço.",
 };
 
-/* Quatro tempos: abertura → lista → projeto comercial → chamada.
+/* Quatro tempos: abertura → lista → projeto comercial → CTA.
 
    A LISTA SÓ RENDERIZA AMBIENTE COM FOTO. O array tem quatro, e o banheiro
    entra com `fotos: []` de propósito — a única foto existente é print de story
@@ -57,51 +57,44 @@ export const metadata: Metadata = {
    isso que a remoção pôde ser feita numa rota só, e é por isso que esta volta
    também é de uma rota só.
 
-   ══ O CTA DEIXOU DE SER O <Fechamento /> ══
+══ O CTA É O <Fechamento />, O MESMO DA HOME ══
 
-   Ele era o <Fechamento /> reaproveitado, e com ele vinha o id="contato" de
-   carona — a rota tinha uma segunda cópia do alvo das âncoras do site. Agora o
-   fim da página é o <ChamadaMadeira />, o mesmo bloco que abre /contato, e o
-   id="contato" volta a existir em UM lugar só: a home. É melhoria, e não
-   regressão.
+   ⚠ ISTO É UMA REVERSÃO, E ESTÁ ESCRITO AQUI PARA NÃO SER DESFEITA POR ENGANO.
 
-   AS TRÊS ÂNCORAS NÃO QUEBRAM. Conferido por grep antes da troca: Nav linha 22
-   (item do menu), Nav linha 157 (botão-cápsula) e Footer linha 7 são todas
-   "/#contato", com a barra — apontam para a RAIZ, e a raiz continua tendo o
-   <Fechamento /> com o id. Nenhuma delas dependia desta rota.
+   Por duas rodadas o fim desta página foi o <ChamadaMadeira /> — o bloco de
+   madeira com botão de revelação que hoje abre /contato. Ele foi ao ar, o
+   CLIENTE VIU E PREFERIU O ANTERIOR. A volta é decisão dele, e não conserto de
+   defeito: aquele bloco não tinha bug, não regrediu em contraste, em CLS nem
+   em acessibilidade, e segue medido e documentado. Quem for ler o histórico e
+   encontrar a troca de ida e a de volta — as duas foram deliberadas. Não
+   "conserte" nenhuma das duas.
 
-   O <Fechamento /> continua existindo e continua na home. O que saiu foi o
-   import daqui.
+   O <ChamadaMadeira /> NÃO FOI APAGADO. Perdeu um consumidor, não a razão de
+   ser: continua sendo a capa de /contato, com a prop `marca` ligada.
 
-   ══ O BOTÃO APONTA PARA /contato ══
+   ══ O id="contato" VOLTA A EXISTIR EM DUAS PÁGINAS ══
 
-   REVERSÃO CONSCIENTE, e o registro fica porque o argumento revertido não era
-   bobo. Na rodada anterior este botão ia para o WhatsApp, com o raciocínio de
-   que /contato é mockup e o botão DE LÁ está desabilitado — mandar quem
-   acabou de clicar num CTA para um próximo clique inerte seria pior do que
-   não ter botão.
+   Ele vem de carona no <Fechamento />, e agora está na home e aqui. Repetir um
+   id no MESMO documento seria erro; em documentos diferentes não é — cada rota
+   é um documento, e em nenhuma delas há dois.
 
-   O que mudou não foi o raciocínio, foi o que se entende por destino: não é o
-   botão daquela página, é A PÁGINA. Ela hoje carrega a faixa "Onde nos achar",
-   com endereço da fábrica, e-mail e WhatsApp — três caminhos abertos, e nenhum
-   deles passa pelo botão apagado. O salto direto para o WhatsApp tirava a
-   pessoa do site inteiro para entregar um canal só.
+   E NENHUMA ÂNCORA QUEBRA. Conferido por grep antes da troca: Nav linha 22
+   (item do menu), Nav linha 157 (botão-cápsula) e Footer linha 7 são as três
+   ocorrências de "/#contato" no código, todas COM A BARRA — apontam para a
+   raiz, e não para a rota em que quem clica está. Sair de /ambientes pelo
+   "Contato" do menu leva à home e desce até o bloco de lá, como sempre levou.
 
-   O rótulo volta a ser "Falar com a LDF", igual ao de /contato: as duas rotas
-   voltam a falar a mesma língua.
+   O id daqui é um segundo alvo inofensivo. O que o tornaria nocivo seria
+   alguém escrever uma âncora "#contato" SEM barra: essa resolveria dentro da
+   página atual, e o destino passaria a depender da rota. Não existe nenhuma
+   assim hoje, e não deve existir enquanto o id morar em dois lugares.
 
-   CONSEQUÊNCIA NO COMPONENTE: sendo link INTERNO, o <BotaoRevelar> tem de sair
-   como <Link>, sem `target="_blank"` e sem `rel="noopener"` — aqueles valiam
-   para a URL do WhatsApp, que é de outro domínio. Ele decide isso pelo
-   PROTOCOLO do href, e não por um padrão fixo; verificado no HTML servido.
+   ══ O QUE MUDA NO PESO ══
 
-   A FRASE É DIFERENTE DA DE /contato de propósito. Os dois blocos são o mesmo
-   componente, com a mesma madeira e o mesmo desenho; se o texto também fosse o
-   mesmo, quem visse as duas rotas na mesma sessão acharia que caiu na página
-   errada. Lá o pedido é para contar; aqui, para mandar a planta.
-
-   SEM `aviso`. Aquela linha existe para explicar um botão apagado, e este
-   converte. */
+   A rota deixa de buscar a madeira quente de /contato e volta a buscar a fria
+   da home — madeira-contato-1600.webp sai, madeira-cta-1600.webp entra. O
+   <FundoMadeira /> é o mesmo componente nos dois blocos, então o `motion`
+   continua na rota; o que troca é o arquivo, por duas variáveis CSS. */
 
 const comFoto = ambientes.filter((a) => a.fotos.length > 0);
 
@@ -244,27 +237,10 @@ export default function PaginaAmbientes() {
             um item da lista, sob o mesmo h1. */}
         <ProjetoComercial />
 
-        {/* O ESPAÇO ENTRE "A" E "gente" É NÃO SEPARÁVEL (U+00A0), e não é
-            capricho: com espaço comum a frase quebrava em "Manda a planta. A"
-            / "gente devolve o projeto." — o artigo órfão no fim da linha, e
-            "A gente" partido ao meio. Medido em 1440px.
-
-            A correção é no CONTEÚDO, e de propósito. O `text-wrap: balance`
-            que os h1–h4 trazem equilibra COMPRIMENTO de linha, não sentido, e
-            foi ele que escolheu aquela quebra; trocar por `pretty` na
-            .chamada__frase consertaria aqui e mexeria na quebra de /contato,
-            que nesta rodada tem de sair pixel por pixel igual. Uma cola entre
-            duas palavras que não devem se separar é o remédio local. */}
-        {/* SEM `marca`, que é o padrão da prop. O logotipo já está no painel
-            da navegação, no topo, e no rodapé, logo abaixo deste bloco — uma
-            terceira aparição no fecho é repetição, não assinatura. Em /contato
-            ele entra, porque lá o bloco é a capa da rota. */}
-        <ChamadaMadeira
-          idTitulo="t-chamada-amb"
-          frase={"Manda a planta. A\u00A0gente devolve o projeto."}
-          rotulo="Falar com a LDF"
-          href="/contato"
-        />
+        {/* O mesmo componente que fecha a home, com o id="contato" junto. Ver
+            o bloco no topo do arquivo para a reversão que trouxe ele de volta
+            e para por que o id em duas páginas não quebra âncora nenhuma. */}
+        <Fechamento />
       </main>
       <Footer />
     </>

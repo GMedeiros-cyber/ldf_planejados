@@ -33,24 +33,33 @@ export const metadata: Metadata = {
    e não o rodapé inteiro — endereço, e-mail e WhatsApp, todos vindos de
    `contato` em lib/dados.ts. Nada é digitado aqui.
 
-   ══ O PALCO DE MADEIRA SAIU DAQUI ══
+   ══ O PALCO DE MADEIRA SAIU DAQUI, E CONTINUA FORA ══
 
    Ele era escrito à mão neste arquivo — <FundoMadeira />, <Logo />, a frase, o
-   botão e o aviso — e virou o <ChamadaMadeira />, porque /ambientes passou a
-   fechar com o mesmo bloco. Não foi copiado para lá: saiu daqui e as duas
-   rotas consomem o mesmo arquivo. O que esta página mostra não mudou nada com
-   a extração — conferido com captura antes e depois, nas três larguras.
+   botão e o aviso — e virou o <ChamadaMadeira />. A extração aconteceu quando
+   /ambientes passou a fechar com o mesmo bloco; aquela rota depois voltou ao
+   <Fechamento />, por decisão do cliente, e ESTA PÁGINA É O ÚNICO CONSUMIDOR
+   HOJE.
+
+   A EXTRAÇÃO CONTINUA VALENDO. Ela não se justificava pelo número de
+   chamadores: o bloco é componente por ser um bloco com contrato próprio —
+   cinco props, cada uma com regra escrita —, e trazê-lo de volta para dentro
+   desta rota devolveria sessenta linhas de JSX ao meio do arquivo em troca de
+   nada. O porquê completo está no topo de components/ChamadaMadeira.tsx.
+
+   O que esta página mostra não mudou com a extração nem com a reversão da
+   outra rota — conferido com captura antes e depois, nas três larguras.
 
    `titulo="h1"` porque AQUI o bloco é a manchete da rota: não há outro título
-   acima dele. Em /ambientes, que já tem o seu <h1>, ele fica no padrão "h2".
+   acima dele. O padrão da prop é "h2", para o dia em que ele voltar a fechar
+   uma página que já tem o seu <h1>.
 
    `marca` pelo mesmo motivo: o bloco é a CAPA desta rota, e acima dele só
-   existe a barra de navegação. Em /ambientes ele fecha a página, e ali o
-   logotipo apareceria pela terceira vez na mesma tela — por isso o padrão da
-   prop é não ter marca, e é lá que o padrão vale.
+   existe a barra de navegação. O padrão da prop é NÃO ter marca — o caso de
+   quem fecha uma página onde o logotipo já apareceu na nav e no rodapé.
 
-   `aviso` continua entrando porque o botão daqui continua desabilitado. Em
-   /ambientes não entra: lá o botão converte.
+   `aviso` entra porque o botão daqui está desabilitado e a linha diz por quê.
+   Onde o botão converter, não entra.
 
    A madeira, a medição do véu e o porquê de a URL vir por variável estão na
    seção 15 da folha, junto do bloco. */
