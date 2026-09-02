@@ -67,9 +67,9 @@ export default function Fabrica() {
 
           <TextBlockAnimation blockColor={COR_BLOCO} delay={0.2}>
             <p className="paragrafo-secundario">
-              Isso muda três coisas práticas. O prazo é o nosso prazo, não o da fila de uma fábrica
-              que atende centenas de lojas. Uma alteração no projeto conversa direto com quem vai
-              cortar a chapa. E na assistência técnica não existe para quem apontar o dedo.
+              O que isso significa na prática? Prazo real, sem depender de fábricas terceiras.
+              Alterações vão direto para a produção. E assistência técnica sem burocracia ou
+              intermediários.
             </p>
           </TextBlockAnimation>
 
@@ -101,8 +101,8 @@ export default function Fabrica() {
 
           <TextBlockAnimation blockColor={COR_BLOCO} delay={0.5}>
             <p className="fabrica__nota">
-              MDF 100%, corrediças telescópicas com amortecedor e fundos de 3 ou 6&nbsp;mm.
-              Fabricado em Guarulhos, entregue em São&nbsp;Paulo.
+              100% MDF. Corrediças telescópicas com amortecimento. Fundos robustos de 3 ou 6 mm.
+              Fabricação própria em Guarulhos, entrega garantida em São Paulo.
             </p>
           </TextBlockAnimation>
         </div>

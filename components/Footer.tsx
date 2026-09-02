@@ -48,7 +48,7 @@ import { menu } from "@/lib/menu";
    outros três lugares. Fica inline, e não no dados.ts, porque é COPY deste
    bloco — não é dado que outro componente vá querer ler. */
 const SOBRE =
-  "Fábrica própria em Guarulhos. O móvel sai de onde foi desenhado, sem revenda no meio.";
+  "Marcenaria inteligente, de Guarulhos para sua casa. Menos intermediários, mais excelência.";
 
 /* Instagram, Facebook e Google, todos de `contato`. A lista existe para o JSX
    não repetir três vezes a mesma âncora com `target` e `rel`. */

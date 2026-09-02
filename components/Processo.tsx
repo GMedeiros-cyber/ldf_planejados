@@ -94,9 +94,8 @@ export default function Processo() {
             O orçamento é o terceiro estágio, não o primeiro.
           </h2>
           <p className="lede">
-            Ninguém consegue precificar um móvel que ainda não foi desenhado. Por isso a medição e
-            o projeto vêm antes de qualquer número: você aprova o desenho no seu ambiente e só
-            então vê o valor.
+            Orçamentos de gaveta não funcionam. Nós medimos o local e desenhamos seu ambiente em
+            3D. Você só recebe os valores depois de aprovar o que realmente vai ser entregue.
           </p>
         </div>
 

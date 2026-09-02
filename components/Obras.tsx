@@ -59,8 +59,8 @@ export default function Obras() {
           Trabalho que fala por nós.
         </h2>
         <p className="lede">
-          Projeto, corte, montagem e entrega: tudo sai da nossa fábrica em
-          Guarulhos, sem intermediário no caminho.
+          Projeto, corte, montagem e entrega. Tudo sai da nossa fábrica direto para sua
+          casa. Nenhum intermediário no caminho.
         </p>
       </div>
 
