@@ -2240,11 +2240,52 @@ a { color: inherit; }
    `position: relative` porque é o bloco de contenção do traço. `isolation`
    para o z-index negativo dele ficar preso aqui em vez de cair atrás do fundo
    da seção. Nenhum overflow. */
+/* ══ TETO DE LARGURA ══
+
+   Sem ele a lista cresce com o monitor sem parar, porque a `.wrap` só tem
+   padding-inline e nenhum max-width — e isso é escolha documentada na seção
+   15, que continua valendo. O teto é LOCAL, e não sobe para a `.wrap` nem para
+   a `.pagina-ambientes`.
+
+   NÃO SOBE PARA A SEÇÃO, e o motivo é concreto: o cabeçalho, a cortina e o
+   shader da `.abertura` vão de ponta a ponta de propósito, e o teto na seção
+   desfaria isso. Fica na lista, que é quem tem o problema.
+
+   O NÚMERO NÃO É NOVO. `--coluna: min(1280px, 100%)` é a forma que o
+   `.processo` usa (seção 13) e o valor que a `.fabrica` já usa. Três
+   consumidores do mesmo teto é uma medida do sistema, não um palpite local.
+   O `min(…, 100%)` é o que impede o max-width de esticar a caixa em telas
+   estreitas — abaixo de 1280 quem manda é o 100%.
+
+   O QUE ISSO CONSERTA, medido nos arquivos que a lista serve. A foto de
+   ambiente tem 1600×1200; exibida em tela 2x o navegador pede o dobro da
+   largura de exibição:
+
+     tela    exibida   pede    tem     razão
+     1280     539px    1078    1600    1,48×  com folga
+     1440     611px    1222    1600    1,31×  com folga
+     1920     843px    1686    1600    0,95×  AMPLIANDO
+     2560    1163px    2326    1600    0,69×  AMPLIANDO
+
+   De 1920 para cima a foto parava de mostrar detalhe e passava a mostrar
+   interpolação. Com o teto ela estabiliza em 611px, e a razão trava em 1,31×
+   em qualquer monitor. O ganho é de NITIDEZ, não só de enquadramento.
+
+   O TRAÇO ACOMPANHA SOZINHO, e isto foi verificado antes e depois. A
+   `.traco__caixa` é `position: absolute; inset: 0` e resolve contra esta
+   caixa, que é a `position: relative` mais próxima — medido antes da mudança,
+   as duas tinham a mesma largura nas quatro telas (1142/1286/1750/2390). Com o
+   teto as duas continuam iguais, agora em 1280. Nenhuma regra precisou ser
+   escrita para alinhar as duas: escrever uma seria criar um segundo lugar para
+   manter a mesma largura. */
 .lista-ambientes {
+  --coluna: min(1280px, 100%);
   position: relative;
   isolation: isolate;
   display: grid;
   gap: clamp(var(--s8), 9vw, var(--s10));
+  max-width: var(--coluna);
+  margin-inline: auto;
 }
 
 /* Duas colunas de peso igual: a foto pede área e o texto é uma coluna de
@@ -2535,12 +2576,32 @@ a { color: inherit; }
   background: var(--ground-deep);
 }
 
+/* O MESMO TETO DA LISTA, e pela mesma razão. Vai na GRADE, e não na
+   `.comercial`: o `.section__head` da seção continua na largura cheia, como o
+   cabeçalho de qualquer outra seção da folha.
+
+   O card comercial serve um arquivo de 900×1200, e a conta é a mesma:
+
+     tela    exibido   pede    tem    razão
+     1280     274px     548     900   1,64×  com folga
+     1440     310px     620     900   1,45×  com folga
+     1920     426px     852     900   1,06×  no limite
+     2560     586px    1172     900   0,77×  AMPLIANDO
+
+   Ele aguenta mais que a foto residencial porque é retrato e a coluna é
+   estreita, mas a 2560 também amplia. Com o teto trava em 310px e 1,45×.
+
+   Ver a nota de teto na `.lista-ambientes`, na seção 11b, para o porquê da
+   forma e do número. */
 .comercial__grade {
+  --coluna: min(1280px, 100%);
   display: grid;
   /* Uma coluna é o piso. As duas media queries abaixo abrem para duas e
      quatro — mobile-first, como o resto da folha. */
   grid-template-columns: 1fr;
   gap: var(--s5);
+  max-width: var(--coluna);
+  margin-inline: auto;
 }
 
 @media (min-width: 480px) {
