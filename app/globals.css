@@ -2253,6 +2253,76 @@ a { color: inherit; }
   .marcas__carrossel canvas { height: 72px; }
 }
 
+/* ══ SEM JAVASCRIPT, A LISTA DE NOMES APARECE ══
+
+   O carrossel é um <canvas> desenhado por JS. Sem script ele fica em branco, e
+   a faixa vira a headline "Empresas que já confiaram na gente" sobre espaço
+   vazio. RÓTULO QUE AFIRMA CLIENTES SEM LISTAR NENHUM É PIOR QUE A SEÇÃO NÃO
+   EXISTIR — a frase é uma declaração sobre a operação da empresa, e sem os
+   nomes ela fica sozinha, sem nada que a sustente.
+
+   Os nomes já estão no HTML do servidor: a lista de Marcas.tsx é a via textual
+   do leitor de tela, e está sempre lá. O que falta é torná-la VISÍVEL quando
+   não há quem desenhe o canvas.
+
+   ══ A OCULTAÇÃO SAI POR COMPLETO, E NÃO PELA METADE ══
+
+   `.oculto-visual` tira o elemento da tela com sete propriedades ao mesmo
+   tempo: position absolute, 1px de largura e altura, margin -1px, padding e
+   border zerados, overflow hidden, clip-path inset(50%) e white-space nowrap.
+   Mexer só numa delas — devolver a largura e esquecer o clip-path, por
+   exemplo — deixa o texto invisível de outro jeito, e o bug fica difícil de
+   ver porque parece que a regra "não pegou". Por isso a regra abaixo desfaz
+   as sete, uma a uma, antes de estilizar qualquer coisa.
+
+   E o resultado é tratado COMO LISTA: os nomes ganham o degrau de micro-tipo
+   da folha, o espaçamento da escala e o mesmo centramento do rótulo acima —
+   não um bloco de texto solto embaixo da headline. */
+@media (scripting: none) {
+  .marcas .oculto-visual {
+    /* Desfaz as sete de .oculto-visual, na mesma ordem. */
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+
+    /* Agora sim, o desenho da lista. */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: var(--s3) var(--s6);
+    list-style: none;
+    font-family: var(--font-texto);
+    font-size: var(--t-md);
+    color: var(--ink-2);
+    text-align: center;
+  }
+
+  /* O carrossel vazio sairia como uma faixa de 64px de nada entre o rótulo e
+     a lista. Sem script ele não tem o que mostrar. */
+  .marcas__carrossel { display: none; }
+
+  /* A folga que o rótulo reservava para o carrossel passa a ser da lista. */
+  .marcas__rotulo { margin-bottom: var(--s5); }
+}
+
+@media (scripting: none) and (max-width: 767px) {
+  /* Em coluna estreita a lista quebra linha, então o vão vertical encolhe —
+     mas o horizontal NÃO pode encolher junto: é ele que separa um nome do
+     seguinte na mesma linha, e apertado demais "Bradesco Prime Boali" lê como
+     um nome só. Daí os dois eixos com valores diferentes. */
+  .marcas .oculto-visual {
+    gap: var(--s2) var(--s4);
+    font-size: var(--t-sm);
+  }
+}
+
 /* --- 12. A fábrica -------------------------------------------------------- */
 
 /* O campo é da SEÇÃO, não da grade. `.fabrica` é a div interna, com max-width
