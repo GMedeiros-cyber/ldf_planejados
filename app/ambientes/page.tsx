@@ -3,9 +3,9 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import AmbienteBloco from "@/components/AmbienteBloco";
 import TracoAmbientes from "@/components/TracoAmbientes";
-import Fechamento from "@/components/Fechamento";
 import ProjetoComercial from "@/components/ProjetoComercial";
-import { ambientes } from "@/lib/dados";
+import ChamadaMadeira from "@/components/ChamadaMadeira";
+import { ambientes, whatsappUrl } from "@/lib/dados";
 
 export const metadata: Metadata = {
   title: "Ambientes planejados — LDF Planejados",
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     "Cozinha, dormitório e sala planejados, de fábrica própria, com foto de obra entregue. Closet, home office, área gourmet, lavanderia e banheiro entram no mesmo projeto do ambiente vizinho. E uma loja comercial inteira, da fachada à linha de serviço.",
 };
 
-/* Quatro tempos: abertura → lista → projeto comercial → CTA.
+/* Quatro tempos: abertura → lista → projeto comercial → chamada.
 
    A LISTA SÓ RENDERIZA AMBIENTE COM FOTO. O array tem quatro, e o banheiro
    entra com `fotos: []` de propósito — a única foto existente é print de story
@@ -56,7 +56,39 @@ export const metadata: Metadata = {
    isso que a remoção pôde ser feita numa rota só, e é por isso que esta volta
    também é de uma rota só.
 
-   O CTA reaproveita o <Fechamento />, que traz o id="contato" junto. */
+   ══ O CTA DEIXOU DE SER O <Fechamento /> ══
+
+   Ele era o <Fechamento /> reaproveitado, e com ele vinha o id="contato" de
+   carona — a rota tinha uma segunda cópia do alvo das âncoras do site. Agora o
+   fim da página é o <ChamadaMadeira />, o mesmo bloco que abre /contato, e o
+   id="contato" volta a existir em UM lugar só: a home. É melhoria, e não
+   regressão.
+
+   AS TRÊS ÂNCORAS NÃO QUEBRAM. Conferido por grep antes da troca: Nav linha 22
+   (item do menu), Nav linha 157 (botão-cápsula) e Footer linha 7 são todas
+   "/#contato", com a barra — apontam para a RAIZ, e a raiz continua tendo o
+   <Fechamento /> com o id. Nenhuma delas dependia desta rota.
+
+   O <Fechamento /> continua existindo e continua na home. O que saiu foi o
+   import daqui.
+
+   ══ POR QUE O BOTÃO VAI PARA O WHATSAPP, E NÃO PARA /contato ══
+
+   /contato é mockup, e a peça central dela é ESTE MESMO BLOCO com o botão
+   desabilitado. Mandar quem acabou de clicar num CTA para uma página onde o
+   próximo clique não faz nada é clicar e nada acontecer — pior do que não ter
+   botão. O WhatsApp converte hoje.
+
+   Quando o formulário existir: `href` vira "/contato" e o rótulo volta a
+   "Falar com a LDF". Uma linha, e as duas rotas voltam a falar a mesma língua.
+
+   A FRASE É DIFERENTE DA DE /contato de propósito. Os dois blocos são o mesmo
+   componente, com a mesma madeira e o mesmo desenho; se o texto também fosse o
+   mesmo, quem visse as duas rotas na mesma sessão acharia que caiu na página
+   errada. Lá o pedido é para contar; aqui, para mandar a planta.
+
+   SEM `aviso`. Aquela linha existe para explicar um botão apagado, e este
+   converte. */
 
 const comFoto = ambientes.filter((a) => a.fotos.length > 0);
 
@@ -145,7 +177,23 @@ export default function PaginaAmbientes() {
             um item da lista, sob o mesmo h1. */}
         <ProjetoComercial />
 
-        <Fechamento />
+        {/* O ESPAÇO ENTRE "A" E "gente" É NÃO SEPARÁVEL (U+00A0), e não é
+            capricho: com espaço comum a frase quebrava em "Manda a planta. A"
+            / "gente devolve o projeto." — o artigo órfão no fim da linha, e
+            "A gente" partido ao meio. Medido em 1440px.
+
+            A correção é no CONTEÚDO, e de propósito. O `text-wrap: balance`
+            que os h1–h4 trazem equilibra COMPRIMENTO de linha, não sentido, e
+            foi ele que escolheu aquela quebra; trocar por `pretty` na
+            .chamada__frase consertaria aqui e mexeria na quebra de /contato,
+            que nesta rodada tem de sair pixel por pixel igual. Uma cola entre
+            duas palavras que não devem se separar é o remédio local. */}
+        <ChamadaMadeira
+          idTitulo="t-chamada-amb"
+          frase={"Manda a planta. A\u00A0gente devolve o projeto."}
+          rotulo="Chamar no WhatsApp"
+          href={whatsappUrl}
+        />
       </main>
       <Footer />
     </>
