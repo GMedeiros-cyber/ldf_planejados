@@ -2094,6 +2094,181 @@ a { color: inherit; }
   .traco__linha { stroke-dashoffset: 0; }
 }
 
+/* --- 11d. Projeto comercial -------------------------------------------------
+   Quatro fotografias de UMA obra comercial entregue, fechando /ambientes antes
+   do CTA. Grade seca: sem card, sem moldura, sem sombra — a foto é a
+   superfície, e a legenda é o rótulo dela.
+
+   NENHUMA COR NOVA e nenhum valor fora da rampa --s1…--s11. O título usa
+   `.h2.manchete-serifada`, o degrau serifado de seção que a folha já tem; a
+   lede usa a `.lede` global.
+
+   ══ A CAIXA É RESERVADA DUAS VEZES ══
+
+   `aspect-ratio: 3 / 4` aqui e `width={900} height={1200}` no <img>. Dizem a
+   mesma coisa por caminhos diferentes, de propósito: os atributos valem sem
+   CSS, o aspect-ratio vale sem os atributos, e são quatro imagens abaixo da
+   dobra — sem caixa reservada a página salta quatro vezes enquanto elas
+   chegam. Mesmo arranjo das fotos de ambiente.
+
+   `object-fit: cover` é o que faz uma foto trocada no futuro não quebrar a
+   fileira: entra fora de 3:4 e sai recortada, não deformada e não mais alta
+   que as vizinhas. */
+
+/* O `isolation` existe pelo z-index dos cards, e não por enfeite. O card em
+   foco sobe para z-index 1 para passar por cima dos vizinhos; sem um contexto
+   de empilhamento aqui, esse 1 é contado na raiz da página e o card cresce
+   para dentro do território da navegação fixa e do CTA. Fechado na seção, ele
+   só disputa com os próprios irmãos. Mesmo arranjo da .lista-ambientes, que
+   isola o z-index negativo do traço. */
+.comercial { isolation: isolate; }
+
+.comercial__grade {
+  display: grid;
+  /* Uma coluna é o piso. As duas media queries abaixo abrem para duas e
+     quatro — mobile-first, como o resto da folha. */
+  grid-template-columns: 1fr;
+  gap: var(--s5);
+}
+
+@media (min-width: 480px) {
+  .comercial__grade { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .comercial__grade { grid-template-columns: repeat(4, 1fr); gap: var(--s4); }
+}
+
+.comercial__card {
+  /* <figure> vem do UA com margin lateral de 40px. Zerar é obrigatório: dentro
+     da grade ela apertaria a foto contra o centro da célula. */
+  margin: 0;
+  /* A origem do scale é a própria célula. Sem isso o card cresceria a partir
+     do centro geométrico do conteúdo, e a legenda escorregaria junto de um
+     jeito diferente do da foto. */
+  transform-origin: center;
+  /* O card cresce 5% no foco e precisa passar POR CIMA dos vizinhos, não por
+     baixo. Sem posição empilhada a ordem do DOM decide, e o último card da
+     fileira sempre ganharia. */
+  position: relative;
+  /* FOLGA PARA O ANEL DE FOCO, não respiro estético. O anel é desenhado na
+     caixa de borda da <figure> com offset negativo; sem esta faixa ele passa
+     rente à base da legenda e corta os descendentes de "Linha de serviço".
+     Medido no protocolo, com o Tab. */
+  padding-block-end: var(--s2);
+}
+
+.comercial__foto {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  /* A cor de espera da caixa enquanto o arquivo não chegou. Mesmo tom do
+     quadro de ambiente. */
+  background: var(--ground-lift);
+  border-radius: var(--r-painel);
+}
+
+/* A LEGENDA FICA ABAIXO DA FOTO, nunca sobreposta com véu. Sobre a imagem o
+   contraste passaria a depender da fotografia, e /ambientes não tem um só
+   texto por cima de foto — o padrão não nasce no fim da página. Aqui ela é
+   --ink-2 sobre o fundo da seção, contraste que não muda com a foto. */
+.comercial__legenda {
+  margin-top: var(--s3);
+  font-family: var(--font-texto);
+  font-size: var(--t-md);
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+/* ══ 11d-b. O FOCO DA GRADE ══
+
+   Passar o ponteiro na GRADE recua os quatro; o card sob o ponteiro anula o
+   recuo e avança. Puro CSS: :hover no contêiner e :hover no filho, sem estado,
+   sem JavaScript, sem um único ouvinte.
+
+   SÓ transform, opacity e filter. Nenhuma das três força layout — os quatro
+   cards continuam ocupando exatamente as mesmas células enquanto a fileira
+   inteira se mexe.
+
+   O EFEITO É SÓ ÊNFASE, e isso é verificável: as quatro legendas estão sempre
+   no fluxo e os quatro alt sempre na árvore. Nada aparece por causa do
+   ponteiro — o que ele faz é apagar o entorno, não revelar conteúdo. Se algum
+   dia alguém quiser esconder a legenda e trazê-la no hover, a regra é não.
+
+   TUDO DENTRO DE @media (hover: hover). Em tela de toque não existe ponteiro
+   que entre e saia, e um :hover pendurado pode GRUDAR depois de um tap em
+   alguns navegadores — o dedo sai, o estado fica, e sobram três cards borrados
+   sem gesto que desfaça. A media query não é otimização, é a saída dessa
+   armadilha.
+
+   O :focus-visible ANDA JUNTO com o :hover, e o :focus-within da grade anda
+   junto com o :hover dela. É o que dá a quem navega por teclado exatamente o
+   mesmo destaque de quem navega com o ponteiro; sem o par, o Tab percorreria
+   quatro cards e não aconteceria nada na tela. O anel de foco, esse, mora
+   FORA da media query — ver a regra logo abaixo. */
+@media (hover: hover) {
+  .comercial__card {
+    transition:
+      transform var(--dur) var(--ease),
+      opacity var(--dur) var(--ease),
+      filter var(--dur) var(--ease);
+  }
+
+  .comercial__grade:hover .comercial__card,
+  .comercial__grade:focus-within .comercial__card {
+    transform: scale(0.97);
+    opacity: 0.6;
+    filter: blur(2px);
+  }
+
+  .comercial__grade .comercial__card:hover,
+  .comercial__grade .comercial__card:focus-visible {
+    transform: scale(1.05);
+    opacity: 1;
+    filter: blur(0);
+    z-index: 1;
+  }
+}
+
+/* O ANEL DE FOCO NÃO ESTÁ NA MEDIA QUERY ACIMA, e é a única coisa que o
+   :focus-visible ganha a mais que o :hover. Motivo: o crescimento de 5% é
+   ênfase, não indicador de foco — num tablet com teclado, onde (hover: none)
+   vale, o bloco acima inteiro não se aplica e o Tab ficaria sem nenhuma marca
+   visível. O anel funciona em qualquer aparelho, com ou sem ponteiro.
+
+   `outline-offset` negativo joga o anel para DENTRO da caixa: por fora ele
+   seria cortado pelos vizinhos da grade nas telas estreitas. */
+.comercial__card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -3px;
+  border-radius: var(--r-painel);
+}
+
+/* Movimento reduzido: sem transição, sem escala, sem desfoque. Os quatro cards
+   ficam legíveis o tempo todo, e a grade vira o que sempre foi por baixo do
+   efeito — quatro fotos e quatro legendas.
+
+   Vem DEPOIS do bloco de hover de propósito. Os seletores têm a mesma
+   especificidade (0,3,0) dos que estão anulando, então quem decide é a ordem.
+   Nada de !important: a cascata basta, como no fim da folha.
+
+   A regra global de movimento reduzido já derruba a DURAÇÃO das transições
+   para 1ms, mas não desfaz transform, opacity nem filter — é por isso que os
+   três estão escritos aqui. */
+@media (prefers-reduced-motion: reduce) {
+  .comercial__card,
+  .comercial__grade:hover .comercial__card,
+  .comercial__grade:focus-within .comercial__card,
+  .comercial__grade .comercial__card:hover,
+  .comercial__grade .comercial__card:focus-visible {
+    transition: none;
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
 /* --- 11b. Fundo de madeira do CTA -------------------------------------------
    A textura existe SÓ no Fechamento. Já correu por trás da Fábrica também, e
    era por isso que não havia divisa entre as duas: dividiam a mesma

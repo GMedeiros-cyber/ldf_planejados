@@ -4,15 +4,16 @@ import Footer from "@/components/Footer";
 import AmbienteBloco from "@/components/AmbienteBloco";
 import TracoAmbientes from "@/components/TracoAmbientes";
 import Fechamento from "@/components/Fechamento";
+import ProjetoComercial from "@/components/ProjetoComercial";
 import { ambientes } from "@/lib/dados";
 
 export const metadata: Metadata = {
   title: "Ambientes planejados — LDF Planejados",
   description:
-    "Cozinha, dormitório e sala planejados, de fábrica própria, com foto de obra entregue. Closet, home office, área gourmet, lavanderia e banheiro entram no mesmo projeto do ambiente vizinho.",
+    "Cozinha, dormitório e sala planejados, de fábrica própria, com foto de obra entregue. Closet, home office, área gourmet, lavanderia e banheiro entram no mesmo projeto do ambiente vizinho. E uma loja comercial inteira, da fachada à linha de serviço.",
 };
 
-/* Três tempos: abertura → lista → CTA.
+/* Quatro tempos: abertura → lista → projeto comercial → CTA.
 
    A LISTA SÓ RENDERIZA AMBIENTE COM FOTO. O array tem quatro, e o banheiro
    entra com `fotos: []` de propósito — a única foto existente é print de story
@@ -35,15 +36,25 @@ export const metadata: Metadata = {
    blocos que REALMENTE renderizam, mais uma de entrada — contar o array inteiro
    daria uma onda a mais para um bloco que não existe na página.
 
-   O BLOCO COMERCIAL SAIU, e com ele o id="comercial" que era a âncora desta
-   rota. O <Comercial /> e o <Elevacao /> que ele consumia foram apagados, e o
-   item "Espaços comerciais" saiu do rodapé no mesmo commit — a âncora deixou
-   de existir e o link ficaria quebrado.
+   O QUARTO TEMPO É NOVO, E NÃO É O ANTIGO BLOCO COMERCIAL DE VOLTA. O
+   <Comercial /> e o <Elevacao /> que ele consumia foram apagados duas rodadas
+   atrás, e continuam apagados: aquilo era um desenho vetorial de elevação com
+   texto argumentativo e nenhuma fotografia — uma seção que se sustentava no
+   argumento porque não havia material. O que entra agora é o
+   <ProjetoComercial />, arquivo novo, e ele é o material: quatro fotos de uma
+   loja entregue. Quem for mexer aqui não deve recuperar o arquivo antigo do
+   histórico.
+
+   O id="comercial" NÃO VOLTOU. Ele era a âncora desta rota e saiu junto com o
+   bloco antigo; o item "Espaços comerciais" saiu do rodapé no mesmo commit.
+   A seção nova é rotulada por aria-labelledby="t-com" e não tem id — reviver
+   a âncora exigiria devolver o link do rodapé, e isso é outra decisão.
 
    Nota para quem for reconstruir: o comentário que estava aqui afirmava que o
    <Comercial /> "continua também na home". Era falso — o grep mostra que ele
    só era importado por este arquivo, e a home nunca o teve na lista. Foi por
-   isso que a remoção pôde ser feita numa rota só.
+   isso que a remoção pôde ser feita numa rota só, e é por isso que esta volta
+   também é de uma rota só.
 
    O CTA reaproveita o <Fechamento />, que traz o id="contato" junto. */
 
@@ -127,6 +138,12 @@ export default function PaginaAmbientes() {
             ))}
           </div>
         </section>
+
+        {/* IRMÃ da lista, não filha: fica FORA do </section> acima. A lista de
+            ambientes é residencial e tem o próprio cabeçalho e o próprio
+            traço; pendurar a obra comercial dentro dela a faria parecer mais
+            um item da lista, sob o mesmo h1. */}
+        <ProjetoComercial />
 
         <Fechamento />
       </main>
