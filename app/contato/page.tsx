@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ChamadaMadeira from "@/components/ChamadaMadeira";
+import FormularioContato from "@/components/FormularioContato";
 import { contato, whatsappUrl } from "@/lib/dados";
 
 export const metadata: Metadata = {
@@ -10,28 +11,44 @@ export const metadata: Metadata = {
     "Fale com a fábrica: endereço em Guarulhos, e-mail e WhatsApp da LDF Planejados. Formulário de projeto em breve.",
 };
 
-/* MOCKUP. O botão desta página ainda não leva a lugar nenhum — o formulário
-   vem depois, e é por isso que o <BotaoRevelar> entra sem `href` e renderiza
-   um <button disabled>.
+/* O FORMULÁRIO CHEGOU, e com ele o mockup acabou.
 
-   ══ AS ÂNCORAS "/#contato" NÃO MUDARAM ══
+   ══ TRÊS TEMPOS ══
 
-   O Nav e o Footer continuam apontando para o id="contato" do <Fechamento />,
-   na home. É deliberado, e o comentário daquele arquivo foi atualizado para
-   registrar o motivo: a conversão do site inteiro não pode desembocar num
-   botão inerte. A migração acontece quando o formulário existir, não quando a
-   rota existir — e a rota existe a partir de agora.
+   Herói de madeira (só a frase) → formulário → "Onde nos achar".
 
-   O que muda hoje é UMA coisa: o link "/contato" que o próprio <Fechamento />
-   já tinha deixa de ser 404.
+   O BOTÃO DO HERÓI SAIU. Ele existia para segurar a linha "Formulário em
+   breve"; com o formulário logo abaixo, virava um clique a mais para chegar
+   onde a pessoa já ia. Por isso o <ChamadaMadeira /> entra sem `rotulo` e sem
+   `aviso` — a prop virou opcional para isto, e o bloco sem ela é capa, não
+   pedido.
 
-   ══ DOIS TEMPOS ══
+   O <BotaoRevelar> não ficou órfão: virou o botão de ENVIAR do formulário,
+   com o novo `tipo="submit"`. É o lugar certo para ele.
 
-   O palco de madeira, com o pedido, e uma faixa seca embaixo com os dados. A
-   faixa não é enfeite nem repetição do rodapé: quem clica em "Contato" no
-   menu muitas vezes quer o endereço da fábrica, não um botão. São TRÊS itens,
+   ══ AS ÂNCORAS "/#contato" AINDA NÃO MIGRARAM, E AGORA PODEM ══
+
+   O Nav (linhas 22 e 157) e o Footer (linha 7) continuam apontando para o
+   id="contato" do <Fechamento />, na home. O gatilho da migração sempre foi o
+   FORMULÁRIO, e ele acabou de chegar — então a condição está satisfeita e a
+   troca virou trabalho de uma próxima rodada, não mais uma espera.
+
+   ⚠ NÃO FOI FEITA AQUI de propósito: mexer nas três âncoras muda a conversão
+   do site inteiro, e isso merece a sua própria rodada e a sua própria
+   verificação. O que falta está escrito em components/Fechamento.tsx.
+
+   O link "/contato" que o <Fechamento /> já tinha continua valendo, e agora
+   leva a uma página que faz alguma coisa.
+
+   ══ A FAIXA "ONDE NOS ACHAR" FICA ══
+
+   Ela não é enfeite nem repetição do rodapé: quem clica em "Contato" no menu
+   muitas vezes quer o endereço da fábrica, não um formulário. São TRÊS itens,
    e não o rodapé inteiro — endereço, e-mail e WhatsApp, todos vindos de
    `contato` em lib/dados.ts. Nada é digitado aqui.
+
+   Ela também é a SAÍDA quando o envio falha: a mensagem de erro do formulário
+   manda chamar no WhatsApp, e o número está logo abaixo dela.
 
    ══ O PALCO DE MADEIRA SAIU DAQUI, E CONTINUA FORA ══
 
@@ -69,17 +86,29 @@ export default function PaginaContato() {
     <>
       <Nav />
       <main>
-        {/* Sem `href`: não há para onde mandar ainda. A prop existe no
-            componente e a troca é de uma linha quando o formulário nascer —
-            momento em que o `aviso` também sai daqui. */}
+        {/* SEM `rotulo` e SEM `aviso`: o botão do herói saiu quando o
+            formulário chegou. `marca` fica — este bloco é a capa da rota, e
+            acima dele só existe a barra de navegação. */}
         <ChamadaMadeira
           marca
           titulo="h1"
           idTitulo="t-contato"
           frase="Conta o que você quer fazer."
-          rotulo="Falar com a LDF"
-          aviso="Formulário em breve."
         />
+
+        <section className="section wrap contato__formulario" aria-labelledby="t-form">
+          <div className="section__head">
+            <h2 className="h2 manchete-serifada" id="t-form">
+              Manda o seu pedido.
+            </h2>
+            <p className="lede">
+              Seis campos. A gente responde em até um dia útil com as próximas perguntas — ou
+              já com uma data para medir.
+            </p>
+          </div>
+
+          <FormularioContato />
+        </section>
 
         {/* FORA do palco de madeira, como faixa irmã. Dentro dele os dados
             competiriam com o pedido; aqui embaixo eles são o que sobra quando

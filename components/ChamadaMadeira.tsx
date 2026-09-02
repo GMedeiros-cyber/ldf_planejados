@@ -51,9 +51,24 @@ import BotaoRevelar from "./BotaoRevelar";
 
    ══ O AVISO É OPCIONAL, E A REGRA É ESTREITA ══
 
-   Ele existe para EXPLICAR UM BOTÃO QUE NÃO CONVERTE. Em /contato o botão está
-   desabilitado e a linha diz por quê. Onde o botão leva a algum lugar, ela não
-   entra: seria uma ressalva pendurada numa ação que funciona.
+   Ele existe para EXPLICAR UM BOTÃO QUE NÃO CONVERTE. Onde o botão leva a
+   algum lugar, ela não entra: seria uma ressalva pendurada numa ação que
+   funciona. E onde NÃO HÁ BOTÃO ela também não entra — ver abaixo.
+
+   ══ O RÓTULO É OPCIONAL, E SEM ELE NÃO HÁ BOTÃO NEM AVISO ══
+
+   `rotulo` era obrigatório enquanto o bloco sempre terminava numa ação. Deixou
+   de ser quando /contato ganhou o formulário: o botão do herói existia para
+   segurar a linha "Formulário em breve", e com o formulário logo abaixo ele
+   virava um clique a mais para chegar onde a pessoa já ia.
+
+   Sem `rotulo` o bloco é só marca, frase e madeira — uma capa, e não um
+   pedido. O `aviso` cai junto por consequência, não por regra separada: ele
+   existe para explicar um botão, e não há botão a explicar.
+
+   O TypeScript garante que ninguém peça `aviso` sem `rotulo` sem perceber: a
+   condição está no JSX, e passar só `aviso` renderiza nada — que é o certo, e
+   é o que este parágrafo existe para explicar a quem for procurar o bug.
 
    ══ A MARCA É OPCIONAL, E O PADRÃO É NÃO TER ══
 
@@ -77,7 +92,8 @@ import BotaoRevelar from "./BotaoRevelar";
 
 type Props = {
   frase: string;
-  rotulo: string;
+  /* Sem ele, o bloco não renderiza botão nem aviso — ver acima. */
+  rotulo?: string;
   /* O logotipo acima da frase. Só onde o bloco é capa de rota — ver acima. */
   marca?: boolean;
   /* Repassado ao BotaoRevelar. Sem ele o botão sai desabilitado — ver aquele
@@ -116,9 +132,9 @@ export default function ChamadaMadeira({
           {frase}
         </Titulo>
 
-        <BotaoRevelar rotulo={rotulo} href={href} />
+        {rotulo ? <BotaoRevelar rotulo={rotulo} href={href} /> : null}
 
-        {aviso ? <p className="chamada__aviso">{aviso}</p> : null}
+        {rotulo && aviso ? <p className="chamada__aviso">{aviso}</p> : null}
       </div>
     </section>
   );
