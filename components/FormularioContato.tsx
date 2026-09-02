@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 
 import BotaoRevelar from "./BotaoRevelar";
@@ -270,10 +271,21 @@ export default function FormularioContato() {
           enviar ("ao enviar você concorda") não é consentimento: não há ato
           próprio, e não dá para enviar sem concordar sem querer.
 
-          ⚠ O TEXTO NÃO TEM LINK, e é de propósito — a política de privacidade
-          ainda não existe. O TODO completo está em lib/dados.ts, junto do
-          texto, com o registro de que publicar o formulário antes da política
-          é risco assumido pelo cliente, não descuido nosso. */}
+          ══ O LINK DA POLÍTICA CHEGOU, E FICA FORA DA DECLARAÇÃO ══
+
+          O TODO que morava aqui — "o texto não tem link porque a política ainda
+          não existe" — está fechado: /politica-de-privacidade nasceu, e o
+          registro completo está em lib/dados.ts, junto de `consentimento`.
+
+          O LINK NÃO ENTROU NO MEIO DO TEXTO DA CAIXA, e é decisão. O que está
+          dentro do <label> é a DECLARAÇÃO que a pessoa assina; misturar nela um
+          link é misturar o que se aceita com onde se lê sobre isso — e, em
+          termos práticos, é pôr um alvo de clique que navega para fora dentro
+          do alvo de clique que marca a caixa. Quem erra o alvo perde o
+          formulário preenchido.
+
+          A linha abaixo é a saída: mesmo bloco, fora do rótulo, alcançável pelo
+          Tab logo depois da caixa. */}
       <div className="form__consentimento">
         <label className="form__aceite">
           <input
@@ -291,6 +303,10 @@ export default function FormularioContato() {
             {erro.consentimento}
           </p>
         ) : null}
+        <p className="form__nota-politica">
+          Quais dados, por quanto tempo e como pedir para apagar:{" "}
+          <Link href="/politica-de-privacidade">Política de Privacidade</Link>.
+        </p>
       </div>
 
       <BotaoRevelar

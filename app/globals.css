@@ -4263,23 +4263,107 @@ main > .chamada:first-child {
    token — é a cor deste rodapé, não do sistema. A régua de topo saiu: a
    faixa de madeira logo acima já é a divisão.
    Contraste verificado sobre este fundo: --ink 16.1:1, --ink-2 7.4:1 nos
-   links, --ink-3 5.1:1 na barra legal. Todos passam em AA. */
+   links, --ink-3 5.1:1 na barra de base. Todos passam em AA. */
 .footer { background: #0F0F0F; }
+
+/* ══ A TIPOGRAFIA É A DA PÁGINA. O QUE ERA SÓ DO RODAPÉ SAIU ══
+
+   Quatro declarações foram removidas nesta rodada, e vale registrar o que
+   cada uma fazia:
+
+     1. a margem de `.footer h4`. ÓRFÃ: nenhum <h4> existe no rodapé — os
+        rótulos são <h3 class="label"> desde que a coluna virou coluna. A regra
+        não casava com nada havia rodadas.
+
+     2. o tamanho de `.footer a`, que era o degrau --t-md. 0,95rem, um degrau
+        ABAIXO do corpo da folha: o mesmo link lia menor aqui do que em qualquer
+        outro lugar do site, sem motivo além do hábito de rodapé ser miúdo.
+        Agora herda o `body`.
+
+     3. o tamanho de `.footer address`, idem e pelo mesmo motivo. O endereço é
+        conteúdo, não nota de rodapé — e é sinal de SEO local (ver Footer.tsx).
+
+     4. a família de `.footer__legal`, que trocava Archivo pela serifada de
+        apoio SÓ na barra de base. Uma quinta família numa faixa de duas linhas.
+        Sai; a barra usa a fonte da página.
+
+   O QUE FICA declarado aqui é o que é de COMPORTAMENTO, não de escala: cor de
+   link, remoção de marcador de lista, `font-style` do <address> (que chega em
+   itálico do UA) e o degrau --t-sm da barra de base, que é hierarquia
+   deliberada — a barra é o rodapé do rodapé.
+
+   Os rótulos de coluna são `.label`, o degrau do sistema. Nenhum tamanho novo
+   entrou. */
 
 .footer__grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
   gap: var(--s7);
   padding-block: var(--s8);
 }
-@media (max-width: 880px) { .footer__grid { grid-template-columns: 1fr 1fr; gap: var(--s6); } }
-@media (max-width: 520px) { .footer__grid { grid-template-columns: 1fr; } }
 
-.footer h4 { margin-bottom: var(--s4); }
+/* A identificação pede menos largura que as três colunas juntas. 1fr 1.25fr,
+   e não meio a meio: três colunas de links com "Política de Privacidade"
+   dentro precisam de mais espaço que um endereço de três linhas. */
+@media (min-width: 881px) {
+  .footer__grid { grid-template-columns: 1fr 1.25fr; gap: var(--s9); }
+}
+
+.footer__identificacao {
+  display: grid;
+  justify-items: start;
+  gap: var(--s5);
+}
+
+/* Mesmo degrau do logo da navegação — 34px. É o mesmo papel: a marca
+   identificando a página, e não assinando um pedido (que é o degrau de 56px do
+   .fechamento e do .chamada). */
+.footer__marca {
+  display: block;
+  height: 34px;
+  width: auto;
+  aspect-ratio: 413.29 / 250.65;
+  color: var(--ink);
+}
+
+/* A frase curta. `--measure` não serve aqui: é uma coluna estreita, e o teto
+   que importa é o da própria coluna. 34ch segura duas linhas confortáveis. */
+.footer__sobre {
+  margin: 0;
+  max-width: 34ch;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.footer__navegacao {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s6);
+}
+
+/* Abaixo de 520px as três colunas empilham. Antes disso elas cabem: os
+   rótulos são curtos e os itens quebram em duas linhas sem atropelo. */
+@media (max-width: 519.98px) {
+  .footer__navegacao { grid-template-columns: 1fr; gap: var(--s5); }
+}
+
+.footer__coluna { min-width: 0; }
+
+.footer .label { display: block; margin-bottom: var(--s4); }
+
 .footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
-.footer a { color: var(--ink-2); text-decoration: none; font-size: var(--t-md); transition: color 200ms var(--ease); }
-.footer a:hover { color: var(--ink); }
-.footer address { font-style: normal; color: var(--ink-2); font-size: var(--t-md); line-height: 1.75; }
+.footer a { color: var(--ink-2); text-decoration: none; transition: color 200ms var(--ease); }
+@media (hover: hover) {
+  .footer a:hover { color: var(--ink); }
+}
+.footer a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* <address> chega do UA em itálico. O itálico é convenção de navegador, não
+   deste sistema — mesmo tratamento que o .cartao__endereco de /contato. */
+.footer__endereco {
+  font-style: normal;
+  color: var(--ink-2);
+  line-height: 1.75;
+}
 
 /* Assinatura em baixo-relevo, quase da largura do rodapé.
 
@@ -4307,31 +4391,33 @@ main > .chamada:first-child {
    o traço é longo e baixo, e 86% de 380px não desenha nada. */
 @media (max-width: 700px) { .footer__assinatura { width: 94%; } }
 
-/* Dois grupos: identificação à esquerda, links à direita. */
-.footer__legal {
-  font-family: var(--font-texto);
+/* A barra de base: copyright à esquerda, crédito à direita.
+
+   ERA `.footer__legal`, com quatro itens em dois grupos — razão social, CNPJ,
+   "Política de privacidade" (um <span> sem link) e o crédito. A razão social e
+   o CNPJ foram para a política de privacidade, onde identificam o controlador;
+   a política virou item da coluna Legal, com link de verdade. Sobraram dois
+   itens, um de cada lado, e o `space-between` de dois filhos não precisa mais
+   de grupos. `.footer__legal-grupo` foi removida junto. */
+.footer__base {
   border-top: 1px solid var(--edge);
   padding-block: var(--s5);
   display: flex; flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: var(--s4) var(--s6);
-  color: var(--ink-3); font-size: var(--t-sm);
+  gap: var(--s3) var(--s6);
+  color: var(--ink-3);
+  font-size: var(--t-sm);
 }
 
-.footer__legal-grupo {
-  display: flex; flex-wrap: wrap;
-  align-items: center;
-  gap: var(--s4) var(--s6);
-}
+.footer__copyright { margin: 0; max-width: none; }
 
 /* O crédito lê como o resto da barra, não como link do rodapé: aqui a
    hierarquia é --ink-3, e --ink-2 puxaria o olho para o lugar errado. */
-.footer__legal a { color: inherit; text-decoration: none; transition: color 200ms var(--ease); }
-.footer__legal a:hover { color: var(--ink); }
+.footer__base a { color: inherit; }
 
 @media (max-width: 640px) {
-  .footer__legal, .footer__legal-grupo {
+  .footer__base {
     display: grid;
     justify-items: start;
     gap: var(--s3);
@@ -5215,7 +5301,148 @@ main > .chamada:first-child {
    declarar aqui. O que precisaria de regra própria seria transform ou filter,
    e esta seção não usa nenhum dos dois. */
 
-/* --- 19. Revelação ------------------------------------------------------- */
+/* A saída para a política, logo abaixo da caixa de consentimento. FORA do
+   <label> de propósito — o porquê está em components/FormularioContato.tsx.
+   `--t-sm` porque é nota de apoio, não a declaração; o link herda o sublinhado
+   discreto do resto do formulário. */
+.form__nota-politica {
+  margin: var(--s3) 0 0;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.form__nota-politica a {
+  color: var(--ink-2);
+  text-decoration: none;
+  box-shadow: inset 0 -1px 0 0 var(--edge-3);
+  transition: box-shadow 220ms var(--ease);
+}
+@media (hover: hover) {
+  .form__nota-politica a:hover { box-shadow: inset 0 -1px 0 0 var(--ink); }
+}
+.form__nota-politica a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* --- 19. Rota de política de privacidade -------------------------------------
+   UMA COLUNA DE LEITURA, e nada mais. A rota não tem herói, não tem foto e não
+   tem seção de argumento: é um documento, e quem chega nele chega com uma
+   dúvida específica.
+
+   ══ A LARGURA É `--measure`, E NÃO A PÁGINA INTEIRA ══
+
+   68ch é o teto de leitura da folha — o mesmo que o `p` global já aplica a
+   todo parágrafo do site. A diferença é que aqui ele sobe para o INVÓLUCRO:
+   sem isso os parágrafos ficariam com 68ch e os títulos com a largura da
+   janela, e num monitor largo o h2 começaria a 68ch de distância do texto que
+   ele encabeça. Título e corpo têm de compartilhar a mesma coluna.
+
+   O fundo é declarado, não herdado — mesma razão registrada na .pagina-
+   ambientes: sem a linha, a rota cai no --ground do body (#131211) e fica
+   acinzentada ao lado das outras, que são --ground-deep (#0A0909). */
+
+.legal {
+  --topo-rota: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
+
+  background: var(--ground-deep);
+  padding-block: var(--topo-rota) clamp(var(--s8), 7vw, var(--s10));
+}
+
+.legal__coluna {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
+/* O cabeçalho do documento: título, uma linha de resumo e a data. */
+.legal__cabecalho { margin-bottom: var(--s8); }
+
+/* A data da última atualização. `.label` é o degrau do sistema para etiqueta;
+   o <time> herda dele. */
+.legal__data { display: block; margin-top: var(--s5); }
+
+/* ══ O ESPAÇAMENTO ENTRE SEÇÕES É `margin-top`, NÃO `gap` ══
+
+   As seções são irmãs num fluxo normal, e não uma grade: o documento cresce
+   por acréscimo de seção, e um `display: grid` no invólucro obrigaria toda
+   seção nova a ser filha direta. Com margem, um <section> pode ser envolvido,
+   condicionado ou movido sem que o ritmo vertical se desfaça. */
+.legal__secao { margin-top: clamp(var(--s7), 5vw, var(--s8)); }
+
+/* O h2 de cada seção. `.h3` é o degrau, e não `.h2`: a rampa do sistema trata
+   TAMANHO e NÍVEL como coisas separadas — o nível é decisão de hierarquia de
+   documento (e aqui só pode ser h2, abaixo do h1 único), e o tamanho é decisão
+   de desenho. Um `.h2` de 4rem numa página de texto corrido viraria manchete
+   de campanha no meio de um documento legal. */
+.legal__secao > .h3 { margin-bottom: var(--s4); }
+
+/* Âncora: cada seção tem id, e a barra fixa não pode cobrir o título quando
+   alguém chega por link direto. O `.section, .hero, [id]` da seção de layout
+   já dá 6rem de scroll-margin a qualquer elemento com id — esta linha existe
+   para o caso de o id migrar para o <h2>, e para deixar a dependência escrita
+   em vez de acidental. */
+.legal__secao[id] { scroll-margin-top: calc(var(--altura-nav) + var(--s4)); }
+
+/* A lista de direitos. Marcador em travessão, e não em bolinha: é o traço que
+   o resto do site usa para enumerar, e a bolinha do UA traria um estilo que
+   não existe em lugar nenhum desta folha. */
+.legal__lista {
+  list-style: none;
+  margin: 0 0 var(--s4);
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+  max-width: var(--measure);
+}
+
+.legal__lista li {
+  position: relative;
+  padding-inline-start: var(--s5);
+  text-wrap: pretty;
+}
+
+.legal__lista li::before {
+  content: "—";
+  position: absolute;
+  inset-inline-start: 0;
+  color: var(--ink-3);
+}
+
+/* Os links dentro do texto precisam ser reconhecíveis SEM depender só da cor —
+   é o mesmo sublinhado por box-shadow do .cartao__link de /contato: a linha
+   fica afastada da base das letras e não corta os descendentes. */
+.legal__coluna a {
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: inset 0 -1px 0 0 var(--edge-3);
+  transition: box-shadow 220ms var(--ease);
+}
+@media (hover: hover) {
+  .legal__coluna a:hover { box-shadow: inset 0 -1px 0 0 var(--ink); }
+}
+.legal__coluna a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* O bloco do controlador: os dados cadastrais da empresa, destacados do texto
+   corrido porque são consulta, não leitura. Mesmo painel do .cartao. */
+.legal__controlador {
+  margin: var(--s5) 0 0;
+  padding: var(--s5);
+  border-radius: var(--r-painel);
+  background: var(--ground-lift);
+  box-shadow: inset 0 0 0 1px var(--edge);
+  font-style: normal;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+
+/* A afirmação sobre cookies é a única frase da página que vale mais destacada:
+   ela diz o que o site NÃO faz, e é o tipo de coisa que ninguém acredita se
+   estiver diluída em parágrafo. */
+.legal__destaque {
+  margin: 0 0 var(--s4);
+  padding-inline-start: var(--s5);
+  border-inline-start: 2px solid var(--red);
+  color: var(--ink);
+  max-width: var(--measure);
+}
+
+/* --- 20. Revelação ------------------------------------------------------- */
 
 .rise { opacity: 0; transform: translateY(18px); }
 .rise.in { opacity: 1; transform: none; transition: opacity 760ms var(--ease), transform 760ms var(--ease); }
@@ -5249,7 +5476,7 @@ main > .chamada:first-child {
 
 
 
-/* --- 20. Sem JavaScript ----------------------------------------------------
+/* --- 21. Sem JavaScript ----------------------------------------------------
    A revelação é o Reveal.tsx quem faz: ele acrescenta `in` a cada .rise que
    entra na viewport. Sem script ele não roda, o `in` nunca chega, e .rise fica
    no seu estado de partida — opacity 0 — para sempre. Como `rise` está no

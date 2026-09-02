@@ -5,22 +5,22 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import Logo from "./Logo";
+import { menu } from "@/lib/menu";
 
 /* Navegação em painel flutuante. Três destinos, e não mais cinco.
 
    O que saiu não sumiu do site: "Como funciona" e "A LDF" são seções da home,
-   alcançáveis rolando, e continuam no rodapé — que é onde um mapa exaustivo
-   pertence. A barra do topo carrega decisão, não índice.
+   alcançáveis rolando. O RODAPÉ TAMBÉM DEIXOU DE LISTÁ-LAS — ele repetia um
+   índice que a barra já tinha abandonado, e passou a espelhar exatamente estes
+   três destinos. A barra do topo carrega decisão, não índice.
 
    "Espaços comerciais" saiu da lista de vez: era âncora para #comercial em
    /ambientes, e aquela seção foi removida do site. O rodapé perdeu o item no
    mesmo commit. */
 
-const links = [
-  { href: "/", texto: "Home" },
-  { href: "/ambientes", texto: "Ambientes" },
-  { href: "/contato", texto: "Contato" },
-];
+/* A LISTA SAIU DAQUI e virou `menu` em lib/menu.ts — arquivo próprio, e NÃO o
+   dados.ts, porque este componente é de cliente. O porquê medido está lá. */
+const links = menu;
 
 export default function Nav() {
   const [rolado, setRolado] = useState(false);
