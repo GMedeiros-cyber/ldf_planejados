@@ -2251,15 +2251,29 @@ a { color: inherit; }
    shader da `.abertura` vão de ponta a ponta de propósito, e o teto na seção
    desfaria isso. Fica na lista, que é quem tem o problema.
 
-   O NÚMERO NÃO É NOVO. `--coluna: min(1280px, 100%)` é a forma que o
-   `.processo` usa (seção 13) e o valor que a `.fabrica` já usa. Três
-   consumidores do mesmo teto é uma medida do sistema, não um palpite local.
-   O `min(…, 100%)` é o que impede o max-width de esticar a caixa em telas
-   estreitas — abaixo de 1280 quem manda é o 100%.
+   ══ O NÚMERO FOI 1280 E VIROU 1440 ══
 
-   O QUE ISSO CONSERTA, medido nos arquivos que a lista serve. A foto de
-   ambiente tem 1600×1200; exibida em tela 2x o navegador pede o dobro da
-   largura de exibição:
+   O primeiro teto foi 1280 — a forma do `.processo` (seção 13) com o valor que
+   a `.fabrica` já usava. Funcionou para a nitidez e ENCOLHEU DEMAIS: contra o
+   estado sem teto, a 1920, a lista caía de 1750px para 1280px, −26,9%. Com
+   1440 a queda é de −17,7%, que foi o alvo pedido. A 2560 as quedas são −46,4%
+   e −39,8%.
+
+   1440 continua não sendo palpite: é a largura de referência em que esta base
+   desenha, e é onde a lista já media 1286px sem teto nenhum — o teto passa a
+   ser "não cresça além do que você já era em 1440", que é uma regra mais fácil
+   de defender que um número menor escolhido por gosto.
+
+   O `min(…, 100%)` é o que impede o max-width de esticar a caixa em telas
+   estreitas: abaixo de 1440 quem manda é o 100%, e nada muda de 1440 para
+   baixo.
+
+   ══ O QUE O TETO CONSERTA ══
+
+   Medido nos arquivos que a lista serve. A foto de ambiente tem 1600×1200;
+   exibida em tela 2x o navegador pede o dobro da largura de exibição.
+
+   SEM TETO:
 
      tela    exibida   pede    tem     razão
      1280     539px    1078    1600    1,48×  com folga
@@ -2267,19 +2281,34 @@ a { color: inherit; }
      1920     843px    1686    1600    0,95×  AMPLIANDO
      2560    1163px    2326    1600    0,69×  AMPLIANDO
 
-   De 1920 para cima a foto parava de mostrar detalhe e passava a mostrar
-   interpolação. Com o teto ela estabiliza em 611px, e a razão trava em 1,31×
-   em qualquer monitor. O ganho é de NITIDEZ, não só de enquadramento.
+   COM O TETO DE 1440:
 
-   O TRAÇO ACOMPANHA SOZINHO, e isto foi verificado antes e depois. A
-   `.traco__caixa` é `position: absolute; inset: 0` e resolve contra esta
-   caixa, que é a `position: relative` mais próxima — medido antes da mudança,
-   as duas tinham a mesma largura nas quatro telas (1142/1286/1750/2390). Com o
-   teto as duas continuam iguais, agora em 1280. Nenhuma regra precisou ser
-   escrita para alinhar as duas: escrever uma seria criar um segundo lugar para
-   manter a mesma largura. */
+     tela    exibida   pede    tem     razão
+     1280     539px    1078    1600    1,48×  com folga
+     1440     611px    1222    1600    1,31×  com folga
+     1920     688px    1376    1600    1,16×  com folga
+     2560     688px    1376    1600    1,16×  com folga
+
+   De 1920 para cima a foto parava de mostrar detalhe e passava a mostrar
+   interpolação; agora a razão trava em 1,16× em qualquer monitor. O ganho é de
+   NITIDEZ, não só de enquadramento.
+
+   ⚠ 1,16× É A FOLGA REAL, e é bem menor que os 1,32× do teto de 1280. Continua
+   acima de 1,0, então nenhuma tela amplia — mas quem for subir o teto de novo
+   precisa saber que 1440 já é quase o limite deste arquivo: a partir de
+   ~1600px de lista a foto residencial volta a ampliar em tela 2x. Subir mais
+   pede arquivo maior, não só CSS.
+
+   ══ O TRAÇO ACOMPANHA SOZINHO ══
+
+   Verificado nos dois tetos. A `.traco__caixa` é `position: absolute;
+   inset: 0` e resolve contra esta caixa, que é a `position: relative` mais
+   próxima. Antes de existir teto as duas já tinham a mesma largura nas quatro
+   telas (1142/1286/1750/2390); com 1280 ficaram iguais em 1280, e com 1440
+   ficaram iguais em 1440. Nenhuma regra precisou ser escrita para alinhá-las —
+   escrever uma seria criar um segundo lugar para manter a mesma largura. */
 .lista-ambientes {
-  --coluna: min(1280px, 100%);
+  --coluna: min(1440px, 100%);
   position: relative;
   isolation: isolate;
   display: grid;
@@ -2580,7 +2609,9 @@ a { color: inherit; }
    `.comercial`: o `.section__head` da seção continua na largura cheia, como o
    cabeçalho de qualquer outra seção da folha.
 
-   O card comercial serve um arquivo de 900×1200, e a conta é a mesma:
+   O card comercial serve um arquivo de 900×1200, e a conta é a mesma.
+
+   SEM TETO:
 
      tela    exibido   pede    tem    razão
      1280     274px     548     900   1,64×  com folga
@@ -2588,13 +2619,29 @@ a { color: inherit; }
      1920     426px     852     900   1,06×  no limite
      2560     586px    1172     900   0,77×  AMPLIANDO
 
+   COM O TETO DE 1440:
+
+     tela    exibido   pede    tem    razão
+     1280     274px     548     900   1,64×  com folga
+     1440     310px     620     900   1,45×  com folga
+     1920     348px     696     900   1,29×  com folga
+     2560     348px     696     900   1,29×  com folga
+
    Ele aguenta mais que a foto residencial porque é retrato e a coluna é
-   estreita, mas a 2560 também amplia. Com o teto trava em 310px e 1,45×.
+   estreita — mesmo assim amplia a 2560 sem teto. Com o teto trava em 348px e
+   1,29×.
+
+   O TETO É O MESMO DA LISTA, E OS DOIS MUDAM JUNTOS. Não é coincidência nem
+   herança: são duas declarações independentes com o mesmo valor, e é assim de
+   propósito. Subir só um cria bordas diferentes em tela larga — a lista
+   terminando num x e a grade noutro — e uma fronteira visível no meio da
+   página, exatamente onde não há divisão nenhuma. Se um dia houver razão para
+   separá-los, ela precisa estar escrita aqui.
 
    Ver a nota de teto na `.lista-ambientes`, na seção 11b, para o porquê da
-   forma e do número. */
+   forma, do número e da troca de 1280 para 1440. */
 .comercial__grade {
-  --coluna: min(1280px, 100%);
+  --coluna: min(1440px, 100%);
   display: grid;
   /* Uma coluna é o piso. As duas media queries abaixo abrem para duas e
      quatro — mobile-first, como o resto da folha. */
