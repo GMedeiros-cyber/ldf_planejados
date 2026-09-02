@@ -464,3 +464,72 @@ export const marcas: readonly Marca[] = [
      TODO: pedir ao cliente a versão ícone do Espaço Harmony. */
   { nome: "Espaço Harmony" },
 ];
+
+/* --- Projeto comercial -----------------------------------------------------
+   A seção comercial mostra UM projeto, não um portfólio.
+
+   As quatro fotos são da mesma unidade, e o texto diz isso. "Nossos projetos
+   comerciais" no plural afirmaria uma variedade que estas fotos não mostram —
+   mesmo exagero que fez closet e home office saírem da lista residencial por
+   falta de foto própria.
+
+   Assumido, fica mais forte: em vez de quatro trabalhos soltos, uma operação
+   inteira equipada e funcionando. As legendas são as PARTES do mesmo trabalho,
+   não clientes.
+
+   O cliente NÃO é nomeado no texto. A marca aparece nas fotos porque está no
+   letreiro da loja — é o que a foto mostra, não uma afirmação nossa. Ela
+   também está na faixa de marcas, ali sim nomeada e autorizada; aqui o texto
+   se cala de propósito.
+
+   TODO: quando houver obra comercial de outro cliente fotografada, esta seção
+   pode virar plural de verdade.
+
+   ══ A ORDEM DAS FOTOS NÃO É ARBITRÁRIA ══
+
+   `fachada` e `noite` são as duas vistas mais parecidas entre si — as duas de
+   fora, de frente, com o letreiro e o expositor no quadro. Estão em 1 e 3
+   justamente para NÃO caírem lado a lado na fileira de quatro; entre elas
+   entra o interior, que muda o ponto de vista. Reordenar por gosto devolve a
+   repetição que este arranjo desfaz.
+
+   O tamanho do arquivo é o mesmo para as quatro (900×1200) e está no
+   componente, não aqui: é dado de arquivo, não de conteúdo — a foto que um dia
+   substituir uma destas continua entrando pelo mesmo campo. */
+export const projetoComercial = {
+  titulo: "Comercial: uma loja inteira, da fachada à linha de serviço.",
+  lede: "Ambiente comercial tem outra conta: uso intenso, muitos ciclos de abertura por dia, e uma obra que não pode parar esperando móvel.",
+  fotos: [
+    {
+      arquivo: "/comercial/boali-fachada.webp",
+      legenda: "Fachada e balcão",
+      alt: "Fachada de loja em shopping, com letreiro iluminado, balcão de atendimento em madeira clara e expositor refrigerado.",
+    },
+    {
+      arquivo: "/comercial/boali-salao.webp",
+      legenda: "Linha de serviço",
+      alt: "Interior da loja: linha de serviço com vitrine refrigerada, coifa e parede de tijolo com painel escrito à mão.",
+    },
+    {
+      arquivo: "/comercial/boali-noite.webp",
+      legenda: "Vitrine e painel",
+      alt: "Vista frontal da loja à noite, com o painel decorativo e o expositor refrigerado visíveis pela vitrine.",
+    },
+    {
+      arquivo: "/comercial/boali-vitrine.webp",
+      legenda: "Balcão de atendimento",
+      alt: "Balcão de atendimento e caixa vistos pela vitrine, com a linha de serviço ao fundo.",
+    },
+  ],
+} as const;
+
+/* Proporção nativa das fotos comerciais: em pé, 3:4 — o inverso das de
+   ambiente. Mesmo papel dos dois constantes acima: vão nos atributos width e
+   height do <img> para o navegador reservar a caixa antes do arquivo chegar, e
+   o CSS repete a proporção por aspect-ratio. Uma vale sem CSS, a outra sem os
+   atributos.
+
+   São o TAMANHO DO ARQUIVO, e não o tamanho na tela. Quem dimensiona a foto na
+   página é a grade. */
+export const COMERCIAL_LARGURA = 900;
+export const COMERCIAL_ALTURA = 1200;
