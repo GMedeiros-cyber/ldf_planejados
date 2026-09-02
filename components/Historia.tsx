@@ -23,14 +23,34 @@ export default function Historia() {
             </p>
           ))}
 
-          {/* A segunda linha só existe quando houver cargo: sem ele, repetiria
-              o nome. Nome completo e cargo estão como TODO em lib/dados.ts. */}
+          {/* A FIRMA É CONTEÚDO, NÃO ORNAMENTO, e por isso leva alt de verdade
+              e fica na árvore de acessibilidade. Não é o tratamento do rodapé:
+              lá o /assinatura-ldf.png é aria-hidden com alt vazio, porque o
+              nome da empresa aparece na barra legal logo abaixo. Aqui a
+              assinatura é a ÚNICA atribuição da seção — sem alt, os três
+              parágrafos ficam sem autor.
+
+              width e height são o viewBox arredondado (1217,67 × 200). Estão
+              aqui para o navegador reservar a caixa antes de baixar o arquivo,
+              e não para dimensionar: quem dimensiona é o CSS.
+
+              A SEGUNDA LINHA MUDOU DE CONTEÚDO. Antes ela repetia
+              `{nome} · {cargo}` porque a firma mostrava só o primeiro nome; a
+              assinatura agora traz o nome completo, então a linha passa a ser
+              só o cargo. Continua existindo apenas quando houver cargo — hoje
+              não há, e ela não renderiza. */}
           <div className="historia__assinatura">
-            <span className="historia__firma">{historia.assinatura.nome}</span>
+            <img
+              className="historia__firma"
+              src={historia.assinatura.svg}
+              alt={historia.assinatura.nome}
+              width={1218}
+              height={200}
+              loading="lazy"
+              decoding="async"
+            />
             {historia.assinatura.cargo ? (
-              <span className="historia__cargo">
-                {historia.assinatura.nome} · {historia.assinatura.cargo}
-              </span>
+              <span className="historia__cargo">{historia.assinatura.cargo}</span>
             ) : null}
           </div>
         </div>
