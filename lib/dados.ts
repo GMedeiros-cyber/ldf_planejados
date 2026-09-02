@@ -25,11 +25,19 @@ export const contato = {
 
 export const whatsappUrl = `https://wa.me/${contato.whatsapp}`;
 
+/* --- O menu do site --------------------------------------------------------
+   MORA EM lib/menu.ts, e não aqui. O <Nav /> é "use client", e importar deste
+   arquivo arrastaria o catálogo inteiro do site para o grafo do navegador —
+   medido: o conteúdo do dados.ts aparecia em três chunks de cliente com o
+   import, e em um só sem ele. O porquê completo está naquele arquivo. */
+
 /* Quem assinou o desenho e o código. Fica aqui, e não solto no JSX, pela
    mesma razão que o resto: um lugar só para editar. */
 export const creditos = {
   autor: "Tribus Labs",
-  url: "https://tribuslabs.com.br",
+  /* Instagram, e não o domínio. `tribuslabs.com.br` era o endereço institucional;
+     o perfil é o canal vivo, e é para onde o crédito do rodapé deve levar. */
+  url: "https://www.instagram.com/tribus__labs/",
 } as const;
 
 /* --- Números da casa -------------------------------------------------------
@@ -564,19 +572,17 @@ export const opcoesEstagio = [
 ] as const;
 
 /* --- Consentimento (LGPD) --------------------------------------------------
-   ⚠ TODO — A PÁGINA DE POLÍTICA DE PRIVACIDADE AINDA NÃO EXISTE, e o texto
-   abaixo NÃO tem link de propósito. Link para rota inexistente é pior que link
-   ausente: dá 404 no exato momento em que a pessoa foi conferir o que está
-   aceitando.
+   A POLÍTICA EXISTE, e o TODO que morava aqui está fechado. Ele dizia que o
+   texto ficaria sem link enquanto /politica-de-privacidade não nascesse, porque
+   link para rota inexistente dá 404 no exato momento em que a pessoa foi
+   conferir o que está aceitando. A rota nasceu; os dois lugares que o TODO
+   nomeava foram ligados:
 
-   PUBLICAR O FORMULÁRIO ANTES DA POLÍTICA É RISCO ASSUMIDO PELO CLIENTE, NÃO
-   DESCUIDO NOSSO. A decisão foi tomada com ele: o formulário vem primeiro, a
-   política na rodada seguinte.
-
-   Quando /politica-de-privacidade nascer, DOIS lugares precisam do link:
-     1. este texto, que passa a citá-la;
-     2. o rodapé — components/Footer.tsx já tem o item "Política de
-        privacidade" apontando para lugar nenhum.
+     1. components/FormularioContato.tsx — uma linha abaixo da caixa leva à
+        política. O TEXTO DO CONSENTIMENTO NÃO MUDOU, e é de propósito: ele é a
+        declaração que a pessoa assina, e enfiar um link no meio dela mistura o
+        que se aceita com onde se lê sobre isso.
+     2. components/Footer.tsx — a coluna Legal, que antes era um <span> morto.
 
    O TEXTO É ESPECÍFICO DE PROPÓSITO. "Concordo com o tratamento dos meus
    dados" não é consentimento informado: não diz quais dados, para quê, nem
@@ -584,6 +590,54 @@ export const opcoesEstagio = [
 export const consentimento = {
   texto:
     "Autorizo a LDF Planejados a usar meu nome, telefone e e-mail para responder a este pedido e para contato comercial sobre o projeto.",
+} as const;
+
+/* --- Política de privacidade -----------------------------------------------
+   Os NÚMEROS da política moram aqui pelo mesmo motivo que o resto do arquivo:
+   um lugar só para editar. O texto corrido vive na rota, em
+   app/politica-de-privacidade/page.tsx — o que não pode viver lá é dado.
+
+   ⚠⚠⚠ TODO GRANDE — GOOGLE ANALYTICS ⚠⚠⚠
+
+   HOJE O SITE NÃO GRAVA COOKIE NENHUM, e a política afirma isso com todas as
+   letras. A afirmação foi verificada, não suposta: não há analytics, tag
+   manager, pixel nem terceiro em nenhuma rota, e as fontes entram por
+   next/font/google, que BAIXA os arquivos no build e os serve do próprio
+   domínio — nenhuma requisição ao Google em execução.
+
+   O CLIENTE VAI INSTALAR GOOGLE ANALYTICS depois da revisão do site. No dia em
+   que isso acontecer, TRÊS COISAS ENTRAM NO MESMO COMMIT:
+
+     1. o banner de consentimento de cookies, com recusa tão fácil quanto o
+        aceite, e o script do GA só disparando depois do aceite;
+     2. a seção de cookies da política, dizendo quais cookies, de quem, para
+        quê e por quanto tempo;
+     3. a CORREÇÃO da afirmação "este site não usa cookies", que passa a ser
+        falsa no segundo em que o script subir.
+
+   GA NO AR COM ESTA PÁGINA DIZENDO "NÃO USAMOS COOKIES" É DECLARAÇÃO FALSA EM
+   DOCUMENTO LEGAL. Não é dívida técnica, não é detalhe de rodada seguinte, e
+   não se resolve depois: ou os três entram juntos, ou o GA não sobe. */
+export const politica = {
+  /* ISO, e uma só. A exibição em português é DERIVADA desta string na rota —
+     escrever "2 de setembro de 2026" num segundo campo criaria duas fontes
+     para a mesma data, e a que ninguém olha é a que envelhece. */
+  atualizadaEm: "2026-09-02",
+
+  /* Retenção, em unidades de tempo cheias.
+
+     24 MESES para quem pediu orçamento e não fechou, contados do último
+     contato — é o horizonte em que uma reforma adiada volta, e depois disso o
+     dado deixa de servir a quem o entregou.
+
+     5 ANOS para quem virou cliente, contados da entrega. O número NÃO é
+     redondo por gosto: é o mesmo prazo da garantia das madeiras que a LDF
+     anuncia (ver `ficha` e `numeros`, os dois com 5 anos). A empresa precisa
+     conseguir dizer de quem era o projeto durante todo o período em que pode
+     ser acionada por ele — guardar menos que a garantia é não conseguir honrar
+     a garantia. SE A GARANTIA MUDAR, ESTE NÚMERO MUDA JUNTO. */
+  retencaoLeadMeses: 24,
+  retencaoClienteAnos: 5,
 } as const;
 
 /* --- Mapa da fábrica -------------------------------------------------------
