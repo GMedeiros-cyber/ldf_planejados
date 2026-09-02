@@ -6,49 +6,64 @@ import FundoMadeira from "./FundoMadeira";
    e os dois botões antigos saíram de propósito: o fim da página faz um pedido
    só, não três.
 
-   A madeira é DAQUI, e só daqui. Ela já foi contínua por trás da Fábrica
+   A MADEIRA FRIA é daqui, e só daqui. Ela já foi contínua por trás da Fábrica
    também, e por isso não havia divisa entre as duas seções — dividiam a mesma
    superfície. Agora a Fábrica é escura como o resto da página e a troca de
    material faz a divisão sozinha: nenhuma régua, nenhuma linha.
 
+   "Só daqui" vale para ESTE arquivo de textura, e não para o material. Existe
+   uma segunda madeira no site, mais quente, na `.chamada` de /contato — a
+   escolha entre as duas é medida, e a conta está na seção 15 da folha. As duas
+   dividem o mesmo <FundoMadeira />; o que as separa são duas variáveis CSS.
+
    O desenho do fundo mora no FundoMadeira, uma camada absoluta dentro desta
    seção — mesmo arranjo do FundoAuralis na História e no Processo.
 
-   O id="contato" continua AQUI, e a razão MUDOU.
+   ══ ESTE BLOCO FECHA DUAS ROTAS: A HOME E /ambientes ══
 
-   Antes ele ficava porque a rota /contato não existia. Agora ela existe —
-   app/contato/page.tsx — e o id continua aqui mesmo assim: a migração está
-   ADIADA, de propósito, e o gatilho dela passou a ser o FORMULÁRIO, não a
-   rota.
+   Foi só da home por duas rodadas, enquanto /ambientes fechava com o
+   <ChamadaMadeira />. O cliente viu aquilo no ar e preferiu este — a volta é
+   decisão dele, não conserto de defeito. O registro completo da reversão está
+   no topo de app/ambientes/page.tsx.
 
-   O motivo é que a rota de hoje é mockup: o botão dela é um <button disabled>,
-   porque não há para onde mandar ninguém. Apontar as âncoras do Nav (duas) e
-   do rodapé (uma) para lá agora mandaria a conversão do site inteiro
-   desembocar num controle inerte — pior que o estado atual, em que ela chega
-   a este bloco, que ao menos oferece um caminho.
+   O <ChamadaMadeira /> NÃO foi apagado, e não é substituído por este
+   componente: ele é a capa de /contato. Os dois são blocos de madeira e
+   dividem a mesma camada de fundo, mas este traz o id="contato" e um <Link>
+   para /contato, e aquele traz o botão de revelação. Fundir os dois é decisão
+   a tomar quando o formulário existir e o id sair daqui — não antes.
 
-   Quando o formulário existir: o id sai daqui, as três âncoras "/#contato"
-   viram "/contato", e o BotaoRevelar da rota recebe a prop `href`.
+   ══ O id="contato" EXISTE EM DUAS PÁGINAS, E ISSO NÃO QUEBRA NADA ══
 
-   O que JÁ mudou: o link "/contato" logo abaixo deixou de ser 404.
+   Ele vem junto com este componente, então está na home e em /ambientes.
+   Repetir um id no MESMO documento seria erro; em documentos diferentes não é
+   — cada rota é um documento, e em nenhuma delas há dois.
 
-   ══ ESTE BLOCO AGORA EXISTE NUMA ROTA SÓ ══
+   As três âncoras continuam válidas porque todas têm BARRA: "/#contato" em
+   Nav 22 (item do menu), Nav 157 (botão-cápsula) e Footer 7. Elas apontam para
+   a raiz, e não para a rota em que quem clica está — o alvo é sempre o bloco
+   da home. O id de /ambientes é um segundo alvo que ninguém endereça.
 
-   Ele foi o fim de /ambientes também, e ali levava junto uma SEGUNDA cópia do
-   id="contato" — o mesmo id em duas páginas. /ambientes passou a fechar com o
-   <ChamadaMadeira />, e o id voltou a existir em um lugar só: aqui, na home.
-   É melhoria, não regressão, e é o que faz "o id vive na home" deixar de ser
-   aproximação e virar fato.
+   O que tornaria isso nocivo seria uma âncora "#contato" SEM barra: essa
+   resolveria dentro da página atual, e o destino passaria a depender da rota.
+   Não existe nenhuma assim, e não deve existir enquanto o id morar em dois
+   lugares.
 
-   As três âncoras não sentiram nada: são todas "/#contato", com a barra —
-   Nav 22, Nav 157 e Footer 7 — e apontam para a raiz, que é justamente onde
-   este bloco ficou.
+   ══ A MIGRAÇÃO DAS ÂNCORAS SEGUE ADIADA ══
 
-   ⚠ O <ChamadaMadeira /> NÃO SUBSTITUI ESTE COMPONENTE na home. Os dois são
-   blocos de madeira e dividem a mesma camada de fundo, mas este tem o
-   id="contato" e um <Link> para /contato, e aquele tem o botão de revelação.
-   Fundir os dois é uma decisão a tomar quando o formulário existir e o
-   id sair daqui — não antes.
+   Ela não foi esquecida, e o gatilho dela NÃO é a existência da rota /contato
+   — a rota já existe, em app/contato/page.tsx. O gatilho é o FORMULÁRIO.
+
+   O motivo: /contato ainda é mockup, e o botão dela é um <button disabled>,
+   porque não há para onde mandar ninguém. Apontar as três âncoras para lá
+   agora mandaria a conversão do site inteiro desembocar num controle inerte —
+   pior que o estado atual, em que ela chega a este bloco, que ao menos oferece
+   um caminho.
+
+   Quando o formulário existir: o id sai daqui, as três âncoras viram
+   "/contato", e o BotaoRevelar daquela rota recebe a prop `href`.
+
+   O <Link> para "/contato" logo abaixo continua sendo um dos caminhos até
+   aquela rota, e continua não sendo 404 — agora a partir de duas páginas.
 
    A lista de quem apontava para cá encolheu: o bloco comercial e a página da
    cozinha, que também citavam este id, não existem mais. */

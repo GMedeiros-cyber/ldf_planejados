@@ -5,24 +5,37 @@ import BotaoRevelar from "./BotaoRevelar";
 /* Chamada sobre madeira: logo, frase serifada, botão de revelação e — quando
    há o que dizer — uma linha de aviso embaixo dele.
 
-   NASCEU DENTRO DE app/contato/page.tsx e saiu de lá inteiro. Não foi copiado:
-   /contato passou a consumir este arquivo no mesmo commit em que /ambientes
-   passou a consumi-lo. Duas cópias do mesmo bloco divergem — esta base já
-   pagou por isso mais de uma vez, e a mais cara foi o AmbienteBloco, que foi
-   dois componentes irmãos de marcação idêntica até a razão da divisão sumir.
+   HOJE TEM UM CONSUMIDOR SÓ: /contato, de quem ele é a capa.
+
+   Nasceu dentro de app/contato/page.tsx e saiu de lá inteiro quando /ambientes
+   passou a fechar com o mesmo bloco. Depois o cliente viu aquele fecho no ar e
+   preferiu o <Fechamento /> de volta, então /ambientes deixou de consumi-lo —
+   e este arquivo perdeu um consumidor, não a razão de ser. A reversão está
+   registrada no topo de app/ambientes/page.tsx.
+
+   ⚠ A EXTRAÇÃO CONTINUA CERTA COM UM CONSUMIDOR SÓ, e este parágrafo existe
+   para a próxima sessão não "simplificar" o bloco de volta para dentro da
+   página. Ele é componente por ser um bloco com contrato próprio — cinco props
+   com regras escritas —, e não por ter dois chamadores. Colar isto de volta em
+   app/contato/page.tsx trocaria um arquivo legível por sessenta linhas de JSX
+   no meio de uma rota, e devolveria o trabalho de extrair no dia em que o
+   segundo consumidor voltasse.
 
    Componente de SERVIDOR. Nada aqui é cliente; o único cliente na árvore é o
-   <FundoMadeira />, que já era, e é o mesmo dos outros dois consumidores da
-   camada de madeira.
+   <FundoMadeira />, que já era, e é o mesmo que o <Fechamento /> usa.
 
    ══ O NÍVEL DO TÍTULO É PROP, E NÃO PODE DEIXAR DE SER ══
 
-   Em /contato este bloco é a manchete da rota, e o título tem de ser <h1>. Em
-   /ambientes a rota já tem o seu <h1> — "Cada ambiente tem a sua régua…" — e
-   um segundo <h1> quebraria a hierarquia de cabeçalhos: o leitor de tela
-   passaria a anunciar dois começos de documento, e a lista de títulos deixaria
-   de descrever a página. Daí `titulo`, com "h2" no padrão, que é o caso
-   comum.
+   Em /contato este bloco é a manchete da rota, e o título tem de ser <h1> —
+   por isso o único consumidor de hoje passa "h1", e o padrão "h2" fica sem
+   exercício.
+
+   O PADRÃO NÃO MUDA POR ISSO. Onde o bloco fechar uma página que já tem o seu
+   <h1>, um segundo <h1> quebraria a hierarquia de cabeçalhos: o leitor de tela
+   anunciaria dois começos de documento, e a lista de títulos deixaria de
+   descrever a página. Foi exatamente o caso enquanto ele fechava /ambientes, e
+   volta a ser no próximo consumidor que não for capa. "h2" é o caso comum, e o
+   padrão acompanha o caso comum — não o único chamador do momento.
 
    Não vira `<h${n}>` calculado nem `React.createElement` com string solta: a
    união literal "h1" | "h2" é o que faz o TypeScript recusar um "h7" ou um
@@ -31,7 +44,7 @@ import BotaoRevelar from "./BotaoRevelar";
    ══ A MADEIRA ══
 
    Quem declara os arquivos é a folha, em `.chamada`, e não este arquivo — ver
-   a seção 18 do globals.css, que traz também a medição que escolheu a textura
+   a seção 15 do globals.css, que traz também a medição que escolheu a textura
    quente em vez da fria da home. O <FundoMadeira /> é o mesmo componente do
    Fechamento, com o mesmo parallax; o que muda entre um e outro são duas
    variáveis CSS.
@@ -44,15 +57,21 @@ import BotaoRevelar from "./BotaoRevelar";
 
    ══ A MARCA É OPCIONAL, E O PADRÃO É NÃO TER ══
 
-   `marca` nasce FALSE porque o caso comum é o bloco fechando uma página que já
-   tem a marca duas vezes — no painel da navegação, no topo, e no rodapé, logo
-   abaixo. Uma terceira aparição no fecho é repetição, não assinatura: é o que
-   acontecia em /ambientes.
+   ⚠ NÃO APAGUE A PROP `marca`, E NÃO TROQUE O PADRÃO. Hoje o único consumidor
+   é /contato, que passa `marca` — então o padrão FALSE não tem quem o exerça,
+   e uma limpeza automática ou apressada diria que a prop "sempre é true" e a
+   removeria. É esperado e é temporário.
 
-   Onde o bloco é a CAPA da rota, ela volta. /contato passa `marca` porque ali
+   O padrão é FALSE porque o caso comum é o bloco FECHANDO uma página que já
+   tem a marca duas vezes — no painel da navegação, no topo, e no rodapé, logo
+   abaixo. Uma terceira aparição no fecho é repetição, não assinatura: foi
+   exatamente o que aconteceu enquanto ele fechava /ambientes, e é o que volta
+   a valer no próximo consumidor que não for capa.
+
+   Onde o bloco é a CAPA da rota, ela entra. /contato passa `marca` porque ali
    não há nada acima do bloco além da barra, e a página precisa se apresentar.
 
-   O padrão é o caso comum, e não o primeiro que existiu: se o padrão fosse
+   O padrão segue o caso comum, e não o único chamador do momento: se fosse
    `true`, toda página nova nasceria com a repetição e teria de lembrar de
    desligá-la. */
 
