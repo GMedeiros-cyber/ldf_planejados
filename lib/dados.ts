@@ -408,13 +408,35 @@ export const historia = {
   alt: "Marcenaria em produção, com chapas e bancada de trabalho.",
 } as const;
 
-/* PLACEHOLDER — marcas fictícias. Nenhuma dessas empresas existe.
-   TODO: substituir pelos clientes comerciais reais quando o cliente enviar
-   os nomes e autorizar o uso das marcas. */
-export const marcas = [
-  { nome: "Clínica Vértice", arquivo: "/marcas/vertice.svg" },
-  { nome: "Colégio Aurora", arquivo: "/marcas/aurora.svg" },
-  { nome: "Studio Lume", arquivo: "/marcas/lume.svg" },
-  { nome: "Grupo Pilar", arquivo: "/marcas/pilar.svg" },
-  { nome: "Traço Escritórios", arquivo: "/marcas/traco.svg" },
-] as const;
+/* --- Marcas atendidas ------------------------------------------------------
+   AS CINCO SÃO CLIENTES REAIS, e o uso das marcas está autorizado. Saiu daqui
+   o bloco PLACEHOLDER que dizia que as empresas não existiam — ele passou a
+   ser falso no momento em que estes nomes entraram.
+
+   DUAS ENTRAM SÓ COM O NOME, e é decisão de desenho, não descuido. A marca da
+   Tesla Soluções e a do Espaço Harmony são ilustração densa, de traço fino:
+   no símbolo pequeno da faixa elas viram borrão, e o que se lê é sujeira em
+   vez de marca. Aproximar, simplificar ou redesenhar marca de terceiro seria
+   pior do que não usar — vira uma marca que não é a deles, num lugar onde
+   estamos justamente afirmando que são clientes.
+
+   O tamanho do arquivo confirma o olho: as três que leem bem têm de 1,5 a
+   3,6 KB de traçado, e as duas que não leem têm 21 e 58 KB. É densidade a
+   mais do que 40px de altura conseguem mostrar.
+
+   Os SVG das duas continuam em public/marcas/, sem consumidor, esperando a
+   substituição.
+   TODO: pedir ao cliente a versão horizontal ou simplificada dessas duas. */
+export type Marca = {
+  readonly nome: string;
+  /* Opcional: só quem tem símbolo que lê em tamanho pequeno. Ver acima. */
+  readonly arquivo?: string;
+};
+
+export const marcas: readonly Marca[] = [
+  { nome: "Bradesco Prime", arquivo: "/marcas/bradesco-prime.svg" },
+  { nome: "Boali", arquivo: "/marcas/boali.svg" },
+  { nome: "Farmaciano", arquivo: "/marcas/farmaciano.svg" },
+  { nome: "Tesla Soluções" },
+  { nome: "Espaço Harmony" },
+];
