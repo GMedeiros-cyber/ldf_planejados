@@ -65,7 +65,7 @@ export default function CarrosselMarcas() {
 
     let vivo = true;
     let quadro = 0;
-    let imagens: HTMLImageElement[] = [];
+    let imagens: (HTMLImageElement | null)[] = [];
     let pecas: Peca[] = [];
     let deslocamento = 0;
     let ultimo = 0;
@@ -91,7 +91,15 @@ export default function CarrosselMarcas() {
 
     /* Símbolo e nome num canvas próprio, no tamanho final e já em resolução
        de tela. O laço depois só reposiciona esta peça pronta. */
-    const montarPeca = (img: HTMLImageElement, nome: string, dpr: number): Peca => {
+    /* `img` é NULO quando a marca entra só com o nome — ver lib/dados.ts. Nesse
+       caso o desenho começa em x = 0 e a peça não reserva o vão do símbolo.
+
+       A LARGURA TEM DE ACOMPANHAR. Se ela continuasse contando um símbolo que
+       não foi desenhado, a peça carregaria um buraco do tamanho do símbolo
+       mais o vão, e o laço do carrossel abriria um vazio a cada volta — a fila
+       é montada somando `largura + espaco` peça por peça, então uma medida
+       generosa vira espaço morto e não margem. */
+    const montarPeca = (img: HTMLImageElement | null, nome: string, dpr: number): Peca => {
       const m = medidas();
       const fonteNome = `${m.nome}px ${m.fonte}`;
 
@@ -100,9 +108,11 @@ export default function CarrosselMarcas() {
       medidor.font = fonteNome;
       const larguraTexto = medidor.measureText(nome).width;
 
-      const escala = m.simbolo / (img.naturalHeight || 44);
-      const larguraSimbolo = (img.naturalWidth || LARGURA_SIMBOLO) * escala;
-      const largura = larguraSimbolo + m.vao + larguraTexto;
+      const escala = img ? m.simbolo / (img.naturalHeight || 44) : 0;
+      const larguraSimbolo = img ? (img.naturalWidth || LARGURA_SIMBOLO) * escala : 0;
+      /* Sem símbolo não há vão a reservar: o nome é a peça inteira. */
+      const recuoNome = img ? larguraSimbolo + m.vao : 0;
+      const largura = recuoNome + larguraTexto;
 
       const peca = document.createElement("canvas");
       peca.width = Math.max(1, Math.ceil(largura * dpr));
@@ -111,12 +121,12 @@ export default function CarrosselMarcas() {
       if (!p) return { tela: peca, largura };
       p.scale(dpr, dpr);
 
-      p.drawImage(img, 0, (alturaCSS - m.simbolo) / 2, larguraSimbolo, m.simbolo);
+      if (img) p.drawImage(img, 0, (alturaCSS - m.simbolo) / 2, larguraSimbolo, m.simbolo);
 
       p.font = fonteNome;
       p.fillStyle = TINTA;
       p.textBaseline = "middle";
-      p.fillText(nome, larguraSimbolo + m.vao, alturaCSS / 2 + 1);
+      p.fillText(nome, recuoNome, alturaCSS / 2 + 1);
 
       return { tela: peca, largura };
     };
@@ -200,7 +210,11 @@ export default function CarrosselMarcas() {
       quadro = 0;
     };
 
-    const carregar = async (arquivo: string): Promise<HTMLImageElement> => {
+    /* Devolve null para marca sem símbolo, em vez de buscar arquivo que não
+       existe. A posição no array é preservada: o índice continua casando com
+       `marcas[i].nome` lá embaixo. */
+    const carregar = async (arquivo?: string): Promise<HTMLImageElement | null> => {
+      if (!arquivo) return null;
       const cru = await (await fetch(arquivo)).text();
       const vb = /viewBox="([^"]+)"/.exec(cru);
       const altura = vb ? Number(vb[1].trim().split(/\s+/)[3]) || 44 : 44;

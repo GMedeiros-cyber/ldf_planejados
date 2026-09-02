@@ -2179,9 +2179,24 @@ a { color: inherit; }
    da PÁGINA: o nome vinha desenhado dentro do SVG, e um SVG carregado como
    Image não enxerga as fontes do documento — sairia no fallback Georgia. É a
    mesma --font-texto que os nomes sempre usaram. */
+/* --simbolo subiu de 26px para 40px. A 26 as três marcas com símbolo ficavam
+   apertadas — desenho de logo tem detalhe interno, e abaixo de ~32px ele vira
+   mancha; a 40 elas leem.
+
+   CABE SEM MEXER EM MAIS NADA porque o símbolo é centrado na altura do CANVAS,
+   e não na do container: o JS lê `getComputedStyle(canvas).height`, que são
+   88px (a caixa tem 64px e o canvas transborda 12px de cada lado). Em 88px, um
+   símbolo de 40px deixa 24px de respiro em cima e embaixo, contra 31px quando
+   eram 26 — continua folgado.
+
+   O ALINHAMENTO ÓPTICO NÃO MUDA COM O TAMANHO, e isso é do desenho: o símbolo
+   é sempre centrado em `(altura - simbolo) / 2`, então o centro dele fica em
+   `altura / 2` seja qual for o valor. O nome usa textBaseline "middle" em
+   `altura / 2 + 1`; esse 1px de deslocamento é o ajuste que compensa a altura-x
+   ficar abaixo do centro geométrico da linha, e vale igual em 26 ou em 40. */
 .marcas__carrossel {
   --espaco: 56px;
-  --simbolo: 26px;
+  --simbolo: 40px;
   --nome: 15px;
   --vao: 14px;
   --fonte-nome: var(--font-texto);
@@ -2218,11 +2233,19 @@ a { color: inherit; }
 }
 
 /* Abaixo de 768px a faixa encolhe, mas continua carrossel: numa tela estreita
-   caberiam dois logos parados, e é o movimento que mostra os cinco. */
+   caberiam dois logos parados, e é o movimento que mostra os cinco.
+
+   --simbolo subiu de 20px para 30px, acompanhando o desktop. Ficar em 20
+   enquanto o desktop ia a 40 deixava a proporção entre símbolo e nome
+   diferente nas duas larguras: o nome só cai de 15 para 13px, então o símbolo
+   também tem de cair pouco. Aqui o canvas tem 72px (a caixa tem 48 e ele
+   transborda 12 de cada lado); 30px deixam 21px de respiro em cima e embaixo,
+   e o símbolo ocupa da linha 9 à 39 da caixa visível — sem encostar em
+   nenhuma borda. */
 @media (max-width: 767px) {
   .marcas__carrossel {
     --espaco: 40px;
-    --simbolo: 20px;
+    --simbolo: 30px;
     --nome: 13px;
     --vao: 10px;
     height: 48px;
