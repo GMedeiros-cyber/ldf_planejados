@@ -5,6 +5,7 @@ import AmbienteBloco from "@/components/AmbienteBloco";
 import TracoAmbientes from "@/components/TracoAmbientes";
 import ProjetoComercial from "@/components/ProjetoComercial";
 import ChamadaMadeira from "@/components/ChamadaMadeira";
+import FundoAuralis from "@/components/FundoAuralis";
 import { ambientes } from "@/lib/dados";
 
 export const metadata: Metadata = {
@@ -110,68 +111,122 @@ export default function PaginaAmbientes() {
       <Nav />
       <main>
         <section className="section wrap pagina-ambientes" aria-labelledby="t-amb">
-          {/* A cortina cobre só o cabeçalho e sobe quando ele entra na tela.
-              O gatilho é o `rise` daqui, que o Reveal do layout já observa —
-              nenhum IntersectionObserver novo. O CSS da seção 11a explica por
-              que o `rise` precisa ser neutralizado neste elemento.
+          {/* ══ O INVÓLUCRO DA ABERTURA ══
 
-              A FAIXA É DE PONTA A PONTA e o TEXTO NÃO. Quem escapa do gutter é
-              só o .cortina; o .cortina__cabeca devolve o gutter ao conteúdo.
-              Manchete correndo até o pixel da borda num monitor largo não se
-              lê — a linha fica longa demais para o olho voltar ao começo.
+              O que dissolve a fronteira com a seção seguinte é ESTE DIV, e não
+              o shader. O shader é uma camada DENTRO dele, e a variante é um
+              modificador de classe — `abertura--shader` hoje. Trocar para a
+              variante sem shader é apagar duas linhas: a classe modificadora e
+              o <FundoAuralis /> logo abaixo. O CSS da variante lisa já está
+              escrito na seção 11e da folha, comentado, com a instrução exata.
 
-              A CORTINA ANIMA EM TODA ENTRADA, e voltou a ser CSS puro. Por
-              uma rodada ela subiu uma vez por sessão, guardada em
-              sessionStorage por um componente cliente; a decisão foi revertida
-              de propósito. Animar na primeira visita e não animar nas
-              seguintes lê como defeito, não como memória — a inconsistência
-              custa mais que os ~600ms. O que mitiga a repetição é a animação
-              ser curta, e não ela sumir.
+              AS QUATRO DECLARAÇÕES DE EMPILHAMENTO ESTÃO NO CSS DESTE DIV, e
+              não na .pagina-ambientes: position: relative, isolation: isolate,
+              overflow: hidden e background. O .fundo-auralis é
+              `position: absolute; inset: 0; z-index: -1`, e filho de z-index
+              negativo pinta acima do fundo do CONTEXTO DE EMPILHAMENTO que o
+              contém — sem o `isolate` ele escapa para o contexto raiz, vai
+              parar atrás do fundo do body e SOME, sem erro nenhum no console.
+              É o mesmo quarteto que .historia e .fabrica-campo declaram na
+              home, e pelo mesmo motivo.
 
-              Esta rota voltou a ser 100% servidor: nenhum componente cliente
-              nasceu aqui. Ver a seção 11a da folha. */}
-          <div className="cortina rise">
-            <div className="cortina__faixas" aria-hidden="true">
-              <span className="cortina__faixa" />
-              <span className="cortina__faixa" />
-              <span className="cortina__faixa" />
-              <span className="cortina__faixa" />
-              <span className="cortina__faixa" />
+              A LISTA DE AMBIENTES FICA FORA DAQUI. O invólucro envolve só o
+              começo da página — a cortina e, dentro dela, o cabeçalho. O
+              traço que costura a lista nasce na .lista-ambientes, irmã deste
+              div, e portanto a dissolução nunca passa por cima dele. */}
+          <div className="abertura abertura--shader">
+            <FundoAuralis />
+
+            {/* A cortina cobre só o cabeçalho e sobe quando ele entra na
+                tela. O gatilho é o `rise` daqui, que o Reveal do layout já
+                observa — nenhum IntersectionObserver novo. O CSS da seção 11a
+                explica por que o `rise` precisa ser neutralizado neste
+                elemento.
+
+                A FAIXA É DE PONTA A PONTA e o TEXTO NÃO. Quem escapa do gutter
+                é só o .cortina; o .cortina__cabeca devolve o gutter ao
+                conteúdo. Manchete correndo até o pixel da borda num monitor
+                largo não se lê — a linha fica longa demais para o olho voltar
+                ao começo.
+
+                O FULL BLEED CONTINUA FECHANDO, e o invólucro é que garante
+                isso. A .cortina cancela `--gutter` de cada lado para chegar à
+                borda do documento, e antes ela cancelava o padding da
+                .pagina-ambientes. Agora ela está dentro da .abertura, então a
+                .abertura devolve o MESMO `--gutter` como padding depois de
+                escapar dele como margem: a caixa interna do invólucro é
+                idêntica à que a seção oferecia, e a conta da cortina fecha sem
+                mudar um número. Ver a seção 11e da folha.
+
+                A CORTINA ANIMA EM TODA ENTRADA, e é CSS puro. Por uma rodada
+                ela subiu uma vez por sessão, guardada em sessionStorage por um
+                componente cliente; a decisão foi revertida de propósito. Animar
+                na primeira visita e não animar nas seguintes lê como defeito,
+                não como memória — a inconsistência custa mais que os ~600ms. O
+                que mitiga a repetição é a animação ser curta, e não ela sumir.
+
+                CORREÇÃO DE UM COMENTÁRIO ANTIGO: dizia aqui que "esta rota
+                voltou a ser 100% servidor". Era falso antes do shader e
+                continua falso agora — o AmbienteBloco e o TracoAmbientes já
+                eram `"use client"`. O que a frase queria dizer é que a cortina
+                não precisou de componente cliente NOVO, e isso segue valendo.
+                Ver a seção 11a da folha. */}
+            <div className="cortina rise">
+              <div className="cortina__faixas" aria-hidden="true">
+                <span className="cortina__faixa" />
+                <span className="cortina__faixa" />
+                <span className="cortina__faixa" />
+                <span className="cortina__faixa" />
+                <span className="cortina__faixa" />
+              </div>
+
+              {/* NÃO É REDUNDANTE com o @media (scripting: none) do fim da folha.
+                  Aquela regra revela `.rise`; as faixas não são `.rise` — são
+                  spans cujo repouso é scaleY(1), e quem as move é `.cortina.in`,
+                  que sem JS nunca chega. Sem este <noscript> a abertura da rota
+                  seria uma tapadeira vermelha de borda a borda por cima do
+                  cabeçalho. Verificado no protocolo, com o script desligado: esta
+                  é a ÚNICA regra que casa com .cortina__faixas e a esconde.
+                  Também é o caminho que vale em navegador sem suporte a
+                  `scripting`, onde a media query nem é lida. */}
+              <noscript>
+                <style>{".cortina__faixas{display:none}"}</style>
+              </noscript>
+
+              {/* .display dá o degrau de TAMANHO; .manchete-serifada troca a
+                  família para a Instrument Serif e zera o eixo "wdth" que a
+                  .display pede — a serifada não é variável, e o eixo aplicado
+                  nela dá resultado que muda de navegador para navegador. O
+                  porquê completo está na seção 3 da folha.
+
+                  CORREÇÃO DE ROTA: por uma rodada esta manchete saiu em Archivo,
+                  porque `.display` não declara família e herda a do body. O
+                  :root sempre disse que a serifada é da manchete — era a home
+                  que estava certa, e esta página é que estava fora do sistema. */}
+              <div className="section__head cortina__cabeca rise">
+                <h1 className="display manchete-serifada" id="t-amb">
+                  Cada ambiente tem a sua régua, e é ela que decide o projeto.
+                </h1>
+                <p className="lede">
+                  Uma cozinha se resolve por circulação e altura de bancada. Um closet, por
+                  volumetria e iluminação interna. São projetos diferentes, e o site trata cada um no
+                  seu próprio capítulo.
+                </p>
+              </div>
             </div>
 
-            {/* NÃO É REDUNDANTE com o @media (scripting: none) do fim da folha.
-                Aquela regra revela `.rise`; as faixas não são `.rise` — são
-                spans cujo repouso é scaleY(1), e quem as move é `.cortina.in`,
-                que sem JS nunca chega. Sem este <noscript> a abertura da rota
-                seria uma tapadeira vermelha de borda a borda por cima do
-                cabeçalho. Verificado no protocolo, com o script desligado: esta
-                é a ÚNICA regra que casa com .cortina__faixas e a esconde.
-                Também é o caminho que vale em navegador sem suporte a
-                `scripting`, onde a media query nem é lida. */}
-            <noscript>
-              <style>{".cortina__faixas{display:none}"}</style>
-            </noscript>
+            {/* A DISSOLUÇÃO. Camada de acabamento, sempre a ÚLTIMA filha do
+                invólucro: o que estiver atrás dela — o shader na variante A, o
+                tom levantado na D — desce até --ground-deep e encontra a seção
+                seguinte sem linha nenhuma.
 
-            {/* .display dá o degrau de TAMANHO; .manchete-serifada troca a
-                família para a Instrument Serif e zera o eixo "wdth" que a
-                .display pede — a serifada não é variável, e o eixo aplicado
-                nela dá resultado que muda de navegador para navegador. O
-                porquê completo está na seção 3 da folha.
-
-                CORREÇÃO DE ROTA: por uma rodada esta manchete saiu em Archivo,
-                porque `.display` não declara família e herda a do body. O
-                :root sempre disse que a serifada é da manchete — era a home
-                que estava certa, e esta página é que estava fora do sistema. */}
-            <div className="section__head cortina__cabeca rise">
-              <h1 className="display manchete-serifada" id="t-amb">
-                Cada ambiente tem a sua régua, e é ela que decide o projeto.
-              </h1>
-              <p className="lede">
-                Uma cozinha se resolve por circulação e altura de bancada. Um closet, por
-                volumetria e iluminação interna. São projetos diferentes, e o site trata cada um no
-                seu próprio capítulo.
-              </p>
-            </div>
+                Ela é `z-index: -1`, como o shader, e é isso que torna
+                IMPOSSÍVEL que ela cubra o texto: filho de z-index negativo
+                pinta sempre abaixo do conteúdo em fluxo. Entre ela e o shader
+                quem decide é a ordem no DOM, e ela vem depois — dissolve o
+                shader sem alcançar o cabeçalho. Não é uma opacidade escolhida
+                com cuidado, é uma garantia estrutural. */}
+            <span className="abertura__dissolucao" aria-hidden="true" />
           </div>
 
           <div className="lista-ambientes">
