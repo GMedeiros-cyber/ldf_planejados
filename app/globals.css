@@ -14,6 +14,10 @@
   --ground-paper:  #EDEAE4;
 
   /* Tinta */
+  /* ⚠ EXISTE UMA CÓPIA LITERAL DESTE VALOR em public/assinatura-renan.svg.
+     Aquele SVG é carregado por <img>, onde currentColor não resolve contra a
+     página, então a cor está escrita à mão lá dentro. Mudou aqui, muda lá —
+     o arquivo tem um comentário explicando por quê. */
   --ink:           #EFEBE5;
   --ink-2:         #A8A099;
   --ink-3:         #8A827A;
@@ -1172,15 +1176,42 @@ a { color: inherit; }
   margin-bottom: var(--s4);
 }
 
-.historia__assinatura { margin-top: var(--s7); display: grid; gap: var(--s2); }
+/* O GAP DOBROU quando a firma virou imagem, e é compensação óptica, não
+   capricho. A caixa da imagem encosta na tinta dos dois lados; a do texto que
+   saía daqui tinha ~8,8px de folga abaixo da tinta (corpo 36,8px com
+   line-height 1, e "Renan" sem descendente). Somando a folga que a linha do
+   cargo tem acima da própria tinta, os 8px de gap rendiam ~26px de respiro
+   visual. Com a imagem os mesmos 8px rendiam 17,1px — medido em pixel, com um
+   cargo injetado.
 
-/* Cursiva: é uma firma, não um título. */
+   16px devolvem 25,1px, que é praticamente o que havia. HOJE ISSO NÃO APARECE:
+   `cargo` está vazio em lib/dados.ts, a segunda linha não renderiza e o grid
+   tem um filho só. Está aqui para o dia em que o cargo chegar não trazer junto
+   um aperto que ninguém vai saber de onde veio. */
+.historia__assinatura { margin-top: var(--s7); display: grid; gap: var(--s4); }
+
+/* A FIRMA É IMAGEM, e não mais texto em cursiva. Saíram font-family,
+   font-style, font-size, line-height e color: nenhuma delas faz nada num
+   <img>, e deixá-las ali sugeriria que ainda há texto para estilizar.
+
+   A cor agora está DENTRO do SVG, escrita à mão — ver o comentário no topo de
+   public/assinatura-renan.svg e a nota ao lado de --ink no :root.
+
+   ══ A LARGURA VEM DO PESO ÓPTICO, NÃO DA CAIXA ══
+
+   O traçado é 6,09:1, e a caixa da imagem encosta na tinta dos dois lados. A
+   do texto não: o corpo de 36,8px que saía daqui rendia ~26px de tinta, porque
+   entrelinha e altura de corpo sobram em volta das letras. Casar as duas
+   MEDIDAS DE CAIXA daria uma assinatura quase o dobro do peso do que estava
+   ali; o que se casa é a ALTURA DE TINTA.
+
+   Os valores abaixo foram medidos em pixel na página, contando as linhas com
+   tinta no lugar de confiar no clamp. Ver o commit para os números das duas
+   pontas. */
 .historia__firma {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.3rem);
-  line-height: 1;
-  color: var(--ink);
+  display: block;
+  width: clamp(150px, 16vw, 210px);
+  height: auto;
 }
 .historia__cargo {
   font-family: var(--font-texto);

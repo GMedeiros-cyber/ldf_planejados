@@ -401,8 +401,18 @@ export const historia = {
     "O projeto 3D vem antes do orçamento. Você aprova o móvel desenhado no seu ambiente — não um número solto numa planilha.",
     "Da assinatura à entrega são até 45 dias úteis, e a garantia das madeiras é de cinco anos. Prazo e garantia são nossos, não de um fornecedor distante.",
   ],
-  /* TODO: confirmar nome completo e cargo com o cliente. */
-  assinatura: { nome: "Renan", cargo: "" },
+  /* A ASSINATURA É UMA IMAGEM, e `nome` é o TEXTO ALTERNATIVO dela — não um
+     texto renderizado. Quem editar essa string está editando o que o leitor de
+     tela anuncia, e nada mais: na tela quem aparece é o manuscrito do SVG.
+
+     O nome completo veio da própria assinatura que o cliente enviou.
+     TODO: confirmar o CARGO com o cliente. Enquanto ele for "", a segunda
+     linha do bloco não renderiza — ver components/Historia.tsx. */
+  assinatura: {
+    nome: "Renan Muniz Gedra",
+    cargo: "",
+    svg: "/assinatura-renan.svg",
+  },
   /* MOCKUP — substituir por foto da fábrica da LDF. */
   img: "/historia/fabrica.webp",
   alt: "Marcenaria em produção, com chapas e bancada de trabalho.",
