@@ -4426,18 +4426,56 @@ main > .chamada:first-child {
   overflow: hidden;
 }
 
-/* ⚠ A CAIXA DA FOTO DA FACHADA, VAZIA E RESERVADA.
+/* ⚠ A CAIXA DA FOTO DA FACHADA, RESERVADA — E OCUPADA POR ORA PELA LOGO.
 
    `aspect-ratio` garante que o dia em que a foto entrar nada se mova: a caixa
    já tem a altura final, e o CLS continua zero. O TODO com o que pode e o que
    não pode entrar aqui está em components/CartaoEndereco.tsx.
 
    16/10 e não 4/3: é uma fachada, deitada, e a proporção mais larga evita que
-   o vazio ocupe meia coluna enquanto a foto não existe. */
+   o vazio ocupe meia coluna enquanto a foto não existe.
+
+   AS TRÊS DECLARAÇÕES DE BAIXO SÃO DO PROVISÓRIO. `display`, `place-items` e
+   `padding` existem só para centrar o <Logo /> com respiro enquanto a foto não
+   chega; saem junto com ele. O `aspect-ratio`, o fundo e a linha de baixo
+   FICAM — esses são da caixa, não do que está dentro dela. */
 .cartao__foto {
   aspect-ratio: 16 / 10;
   background: var(--ground-deep);
   border-block-end: 1px solid var(--edge);
+
+  display: grid;
+  place-items: center;
+  padding: var(--s5);
+}
+
+/* A MARCA NÃO ESTICA. Ela é uma marca, não uma fotografia: `object-fit: cover`
+   ou um `width: 100%` fariam dela o assunto do quadro, e o quadro não é dela.
+
+   ══ POR QUE ESTE É O ÚNICO CONSUMIDOR QUE NÃO MEDE POR ALTURA ══
+
+   .nav__marca, .chamada__marca e .fechamento__marca fixam `height` (34px e
+   56px) porque moram em linhas de altura estável. AQUI a caixa é fluida: a
+   largura vem da coluna e a altura sai do `aspect-ratio`, então altura fixa
+   daria respiro generoso no desktop e a marca colada nas bordas no celular.
+   Medir pela largura mantém a proporção do respiro em qualquer largura.
+
+   `min(58%, 220px)`: o teto impede que a marca cresça junto com a coluna larga
+   do desktop — 220px numa caixa de ~500px é a marca ocupando 44% —, e os 58%
+   seguram a proporção quando a caixa encolhe.
+
+   Contraste sobre `--ground-deep`, que é o fundo da caixa:
+     wordmark (currentColor = --ink)   16,75:1
+     chapa vermelha #df0100             3,92:1
+     "LdF" branco dentro da chapa       5,07:1
+   O wordmark é o único texto; a chapa é forma, e passa o 3:1 de elemento
+   gráfico com folga. */
+.cartao__marca {
+  display: block;
+  width: min(58%, 220px);
+  height: auto;
+  aspect-ratio: 413.29 / 250.65;
+  color: var(--ink);
 }
 
 .cartao__miolo {
@@ -4670,10 +4708,50 @@ main > .chamada:first-child {
   transform: scale(1.06);
 }
 
+/* ══ (e) O TEXTO DO HOVER ERA PRETO A 15%, E ERA ILEGÍVEL ══
+
+   A fonte escrevia `color: #00000025` aqui. Lá o rótulo era um enfeite que
+   devia sumir sob o mapa; aqui ele é o rótulo de uma ÂNCORA DE NAVEGAÇÃO, e
+   sumir não é opção. Preto a 15% de opacidade sobre a pílula branca dá 1,40:1.
+
+   Entra `--ground-deep`, tinta do sistema, e não #000 cru — a folha inteira
+   escreve escuro assim.
+
+   ══ A MEDIÇÃO, QUE NÃO É DEDUZÍVEL ══
+
+   No hover o papel do mapa é pintado POR CIMA da pílula (ver a ordem de
+   pintura no `.mapa__botao`), então o rótulo cai ora sobre o branco da pílula,
+   ora sobre areia, verde e azul da ilustração, que mudam ao longo do desenho.
+
+   Medido em Chrome headless, amostrando TODOS os pixels compostos dentro da
+   caixa do texto — não só os que os glifos tocam hoje —, com o estado assentado
+   e as transições zeradas:
+
+     1440px   pior caso 7,09:1     mais escuro rgb(118,167,102)
+      768px   pior caso 7,11:1     mais escuro rgb(119,167,103)
+      390px   pior caso 7,07:1     mais escuro rgb(116,167,103)
+
+   Zero pixels da caixa ficam abaixo de 4,5:1. O `:focus-visible` mede
+   IDÊNTICO nas três larguras — é o mesmo estado, e é o ponto do par.
+
+   O pior caso é sempre a mesma coisa: a vegetação sobre a areia. O piso
+   TEÓRICO da paleta — `--mapa-vegetacao` opaca ao máximo sobre `--mapa-terra`,
+   e ainda escurecida pelo `inset 0 10px 16px 3px #0004` do `.mapa__dobra::before`
+   — é rgb(89,139,83), que dá 4,95:1. Esse é o número que vale para qualquer
+   navegador: o feTurbulence desenha diferente fora do Chrome, mas não pode
+   inventar cor que não esteja na paleta de três paradas. Passa em todas.
+
+   É ESTE PISO que descarta `--ground-lift` como alternativa: sobre o mesmo
+   rgb(89,139,83) ele daria 4,32:1 e reprovaria. `--ground-deep` é a escolha
+   com margem, não a escolha por gosto.
+
+   NÃO MEXA NA ORDEM DAS CAMADAS para melhorar isto. Já quebrou uma vez nesta
+   rodada — botão em z-index 2 escondia o mapa —, e a medição diz que não
+   precisa. */
 .mapa__botao:hover,
 .mapa__botao:focus-visible {
   background: var(--white);
-  color: #00000025;
+  color: var(--ground-deep);
 }
 
 .mapa__botao:hover ~ .mapa__alfinete,
