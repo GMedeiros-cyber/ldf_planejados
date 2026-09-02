@@ -103,6 +103,16 @@
      consumidores é um degrau, não uma coincidência. Vira token pelo mesmo
      motivo que --r-hairline e --r-pill são tokens. */
   --r-painel: 10px;
+  /* Raio de CAMPO. Vira token pela mesma régua que promoveu o --r-painel: três
+     consumidores independentes usavam 14px solto — a caixa de entrada, o
+     resumo de erro e o bloco de sucesso do formulário de /contato —, e três
+     consumidores é um degrau, não uma coincidência. O detector do projeto
+     reprovou os três enquanto o valor estava cru, e com razão.
+
+     É um degrau ACIMA do painel, e o motivo é o acabamento pedido para os
+     campos: caixa preenchida sem borda em repouso, que com 10px lê como painel
+     e com 14px lê como campo. */
+  --r-campo: 14px;
   --r-pill: 99px;
 
   /* Par serifada/sans. A serifada só na manchete do herói e nos nomes de
@@ -903,20 +913,34 @@ a { color: inherit; }
    padding, é uma marca vermelha que abre a pílula, e o preenchimento cresce a
    partir dela.
 
-   A ESCALA SOBE PARA 2.1 por causa dessa mudança. Do centro bastaria ~1,03;
-   de um ponto a --s6 da borda esquerda o canto mais distante fica a
-   raiz((L - --s6)² + (A/2)²), e com o piso de 12rem por ~3rem isso pede ~1,85.
-   2.1 cobre com folga, e o excesso é grátis: o `overflow: clip` da pílula
-   apara o que passa. */
+   ⚠ O DIÂMETRO SAI DA ALTURA DO BOTÃO, E NÃO DA LARGURA. Isto é uma CORREÇÃO,
+   e o comentário anterior defendia justamente o contrário — dizia que medir
+   pela largura evitava um ponto "grande demais num botão estreito e pequeno
+   demais num largo". O raciocínio quebra no extremo: com `width: 100%` num
+   botão de 708px, o ponto em repouso saía com 56px de diâmetro numa pílula de
+   46px de altura, transbordava em cima e embaixo e o `overflow: clip` o
+   recortava num BLOCO VERMELHO. Foi o que aconteceu quando o formulário virou
+   coluna de grade e o botão passou a esticar. Medido na captura.
+
+   Pela ALTURA o ponto tem sempre o mesmo tamanho aparente, em qualquer
+   largura: 46px de círculo a `scale(0.35)` dão ~16px, que é a marca discreta
+   que o desenho pede.
+
+   A ESCALA DE COBERTURA SOBE PARA 40 por causa disso. O ponto agora é pequeno
+   em relação ao botão, então precisa crescer muito mais para cobrir a pílula:
+   de um centro a --s6 da borda esquerda, o canto mais distante de um botão de
+   708px fica a ~676px, e um círculo de 46px precisa de ~30× para alcançá-lo.
+   40 cobre com folga em qualquer largura realista, e o excesso é grátis — o
+   `overflow: clip` da pílula apara o que passa. */
 .btn-revelar__disco {
   position: absolute;
   top: 50%;
   left: var(--s6);
-  width: 100%;
+  height: 100%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--red);
-  transform: translate(-50%, -50%) scale(0.08);
+  transform: translate(-50%, -50%) scale(0.35);
   /* Atrás dos dois rótulos, dentro do `isolation` do botão. */
   z-index: -1;
 }
@@ -986,7 +1010,7 @@ a { color: inherit; }
 
   .btn-revelar:not(:disabled):hover .btn-revelar__disco,
   .btn-revelar:not(:disabled):focus-visible .btn-revelar__disco {
-    transform: translate(-50%, -50%) scale(2.1);
+    transform: translate(-50%, -50%) scale(40);
   }
 
   .btn-revelar:not(:disabled):hover .btn-revelar__repouso,
@@ -1033,7 +1057,7 @@ a { color: inherit; }
     background: transparent;
     box-shadow: inset 0 0 0 1px transparent;
   }
-  .btn-revelar:not(:disabled) .btn-revelar__disco { transform: translate(-50%, -50%) scale(2.1); }
+  .btn-revelar:not(:disabled) .btn-revelar__disco { transform: translate(-50%, -50%) scale(40); }
   .btn-revelar:not(:disabled) .btn-revelar__repouso { transform: translateX(120%); opacity: 0; }
   .btn-revelar:not(:disabled) .btn-revelar__revelado { transform: translateX(0); opacity: 1; }
 }
@@ -4325,47 +4349,106 @@ main > .chamada:first-child {
    com nome de rota, porque é verdade. */
 
 
-/* --- 18b. A faixa de dados --------------------------------------------------
-   Fora do palco, sobre o fundo da página — onde --ink-2 e --ink-3 voltam a
-   passar, porque não há mais fotografia embaixo.
+/* --- 18c. O corpo de /contato, em duas colunas ------------------------------
+   Uma seção só, abaixo do herói: manchete, lede e cartão à esquerda; o
+   formulário à direita.
 
-   Três itens e ponto. Não é o rodapé de novo: o rodapé lista tudo, esta faixa
-   responde à pergunta de quem clicou em "Contato" no menu. */
+   A SEÇÃO "Onde nos achar" DEIXOU DE EXISTIR — era uma faixa empilhada abaixo
+   do formulário, e o conteúdo dela virou o `.cartao`. As classes
+   `.contato__dados`, `.contato__lista`, `.contato__item`, `.contato__rotulo` e
+   `.contato__valor` saíram da folha junto com ela. O endereço aparece uma vez
+   só na rota.
 
-/* SEM A RÉGUA DE TOPO que o `.section` traz. Não é descuido: a regra já está
-   escrita no Fechamento, e é do sistema — quando o que separa duas seções é a
-   TROCA DE MATERIAL, e aqui é (madeira acima, o fundo da página abaixo), a
-   linha é redundante e sai. Uma régua de 1px encostada na borda da madeira lê
-   como sobra de recorte da imagem, não como divisão. */
-.contato__dados { border-top: 0; }
+   ══ 900px É O PONTO DE VIRADA, E O FORMULÁRIO VEM PRIMEIRO ══
 
-.contato__lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: var(--s7);
-  margin-top: var(--s6);
+   Abaixo dele vira uma coluna, e a coluna do formulário sobe por `order`. Quem
+   abre /contato no telefone veio preencher; empurrar o formulário para depois
+   de uma foto, um endereço e um botão de mapa é pedir três telas de rolagem
+   antes de fazer o que a pessoa veio fazer.
+
+   O `order` mexe só na ORDEM VISUAL — a de leitura e a do Tab continuam
+   seguindo o DOM. É o preço de inverter por CSS, está registrado no topo de
+   app/contato/page.tsx, e é melhor que a alternativa (tabindex positivo, que
+   quebra a ordem do documento inteiro). */
+
+.contato__corpo {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--ground-deep);
+  padding-block: clamp(var(--s8), 7vw, var(--s10));
 }
 
-.contato__item {
+.contato__grade {
   display: grid;
-  gap: var(--s2);
-  align-content: start;
+  gap: var(--s8);
+  /* O mesmo teto de leitura das grades de /ambientes. */
+  max-width: min(1440px, 100%);
+  margin-inline: auto;
 }
 
-.contato__rotulo {
-  font-size: var(--t-xs);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  line-height: 1.2;
+/* Coluna única é o piso — mobile-first, como o resto da folha. */
+.contato__lado,
+.contato__coluna-form {
+  min-width: 0;
+}
+
+@media (max-width: 899.98px) {
+  /* O FORMULÁRIO SOBE. Ver a nota acima antes de trocar por outra ordem. */
+  .contato__coluna-form { order: -1; }
+  .contato__grade { gap: var(--s7); }
+}
+
+@media (min-width: 900px) {
+  /* 5fr 7fr, e não meio a meio: o formulário é a coluna de trabalho e pede
+     mais largura que o cartão, que é uma ficha. É a mesma proporção que a
+     .fabrica usa entre argumento e ilustração. */
+  .contato__grade {
+    grid-template-columns: 5fr 7fr;
+    gap: clamp(var(--s7), 5vw, var(--s9));
+    align-items: start;
+  }
+  /* O cartão acompanha a rolagem do formulário, que é bem mais alto. O
+     `top` desconta a barra fixa. */
+  .contato__lado {
+    position: sticky;
+    top: calc(var(--altura-nav) + var(--s5));
+  }
+}
+
+/* --- 18d. O cartão de endereço ---------------------------------------------- */
+
+.cartao {
+  margin-top: var(--s7);
+  border-radius: var(--r-painel);
+  background: var(--ground-lift);
+  box-shadow: inset 0 0 0 1px var(--edge);
+  overflow: hidden;
+}
+
+/* ⚠ A CAIXA DA FOTO DA FACHADA, VAZIA E RESERVADA.
+
+   `aspect-ratio` garante que o dia em que a foto entrar nada se mova: a caixa
+   já tem a altura final, e o CLS continua zero. O TODO com o que pode e o que
+   não pode entrar aqui está em components/CartaoEndereco.tsx.
+
+   16/10 e não 4/3: é uma fachada, deitada, e a proporção mais larga evita que
+   o vazio ocupe meia coluna enquanto a foto não existe. */
+.cartao__foto {
+  aspect-ratio: 16 / 10;
+  background: var(--ground-deep);
+  border-block-end: 1px solid var(--edge);
+}
+
+.cartao__miolo {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s5);
 }
 
 /* <address> chega do UA em itálico e com margem. As duas saem: o itálico é
    convenção de navegador, não deste sistema. */
-.contato__valor {
+.cartao__endereco {
   font-style: normal;
   margin: 0;
   font-size: var(--t-md);
@@ -4373,25 +4456,347 @@ main > .chamada:first-child {
   color: var(--ink);
 }
 
-/* Sublinhado por box-shadow e não por text-decoration: assim a linha fica
-   afastada da base das letras e não corta os descendentes de "planejados". */
-.contato__link {
+.cartao__horario {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+.cartao__canais {
+  list-style: none;
+  margin: var(--s1) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s2);
+}
+
+/* Sublinhado por box-shadow e não por text-decoration: a linha fica afastada
+   da base das letras e não corta os descendentes. Mesmo tratamento que a faixa
+   antiga usava. */
+.cartao__link {
   justify-self: start;
+  font-size: var(--t-md);
+  color: var(--ink);
   text-decoration: none;
   box-shadow: inset 0 -1px 0 0 var(--edge-3);
-  transition: box-shadow 220ms var(--ease), color 220ms var(--ease);
+  transition: box-shadow 220ms var(--ease);
 }
-.contato__link:hover { box-shadow: inset 0 -1px 0 0 var(--ink); }
-.contato__link:focus-visible {
+@media (hover: hover) {
+  .cartao__link:hover { box-shadow: inset 0 -1px 0 0 var(--ink); }
+}
+.cartao__link:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 
-@media (max-width: 700px) {
-  .contato__lista { gap: var(--s6); }
+/* --- 18d-b. O botão "Ver no mapa" -------------------------------------------
+   Portado do componente do Uiverse (dexter-st). O desenho é o do original; os
+   quatro defeitos da fonte estão consertados, e cada um está anotado onde
+   acontece. Os outros três estão em components/BotaoMapa.tsx.
+
+   ══ (a) `top` e `left` SEM UNIDADE ══
+
+   A fonte escrevia `top: -40; left: 12;` no `.map::after`. Número sem unidade
+   não é comprimento válido em CSS: o navegador DESCARTA as duas declarações, e
+   a camada de terra cai no `auto` — a posição estática, colada no canto do
+   quadro de água. O componente "funcionava" por acidente, e o acidente era
+   parte do visual.
+
+   ESCOLHI -40px e 12px, que é a leitura literal do que estava escrito. Testei
+   as duas alternativas antes: em `%` os valores dariam -40% e 12% de uma caixa
+   de 200% de altura, ou seja -160px e 14px — a terra sairia do quadro pelo
+   topo. Em px o desenho fica com a massa de terra deslocada para cima e para a
+   direita, que é exatamente o desalinhamento que dá ao mapa a aparência de
+   costa. Os px vencem porque produzem o desenho que a fonte mostrava.
+
+   ══ AS CORES DO MAPA SÃO PARADAS DE ILUSTRAÇÃO ══
+
+   `--mapa-terra`, `--mapa-vegetacao` e `--mapa-agua` são areia, verde e azul —
+   e NÃO entram na paleta do DESIGN.md. É a mesma exceção que o
+   `.fundo-auralis::before` já declara para as paradas dele, e pelo mesmo
+   motivo: entrassem no sistema, passariam a ser oferecidas como TINTA DE
+   INTERFACE, e é exatamente o que não devem ser. Nada de texto, borda ou
+   superfície de componente sai daqui — elas existem dentro de um desenho
+   decorativo de 120px, e em lugar nenhum além dele.
+
+   O vermelho da pílula, esse, É do sistema: era #f5101b na fonte e virou
+   `var(--red)`. Botão preenchido de vermelho já existe nesta base — .btn e
+   .btn-capsula — então não abre exceção nenhuma. O texto é `--white`, medido
+   em 5,07:1; `--ink` daria 4,27:1 e reprovaria. */
+
+.mapa {
+  --mapa-terra: #ffdd9f;
+  --mapa-vegetacao: #36ad5aa9;
+  --mapa-agua: #b3e3ff;
+  --mapa-dur: 0.3s;
+
+  position: relative;
+  display: flex;
+  margin-top: var(--s3);
+  border-radius: var(--r-pill);
+  /* Recorta o papel que se desdobra por baixo da pílula. */
+  overflow: hidden;
+  user-select: none;
+  transition: transform var(--mapa-dur) var(--ease);
 }
 
-/* --- 18c. O formulário de contato -------------------------------------------
+/* O SVG do filtro não ocupa caixa. */
+.mapa__filtro { position: absolute; width: 0; height: 0; }
+
+/* ══ A ORDEM DE PINTURA É PÍLULA → PAPEL → ALFINETE ══
+
+   O papel passa POR CIMA da pílula, e é assim que o efeito funciona: no hover
+   a pílula fica branca e o mapa se desenha em cima dela, usando o branco como
+   fundo do papel. Recortado pelo `overflow` do invólucro, o que aparece é o
+   mapa dentro da forma da pílula, com uma lasca dobrada saindo por baixo.
+
+   Errei isto no primeiro porte — pus o botão em z-index 2, acima do papel, e
+   o mapa sumia atrás dele. Só sobrava a lasca de fora. A fonte deixa o botão
+   sem posição (portanto no fundo), o papel em 0 e o alfinete em 1; aqui os
+   três são posicionados e a ordem é 0, 1, 2.
+
+   O papel é `pointer-events: none`, então estar por cima não rouba o clique
+   da âncora. */
+.mapa__botao {
+  position: relative;
+  z-index: 0;
+  padding: 0.85em 1.4em 0.85em 3.2em;
+  border-radius: var(--r-pill);
+  background: var(--red);
+  color: var(--white);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  font-variation-settings: "wdth" 88;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--mapa-dur) ease-in-out,
+    color var(--mapa-dur) ease-in-out;
+}
+
+.mapa__alfinete {
+  pointer-events: none;
+  position: absolute;
+  height: 60%;
+  aspect-ratio: 1;
+  top: 20%;
+  left: 0.75em;
+  border-radius: 50%;
+  background: var(--white);
+  transform: rotateZ(45deg);
+  /* O anel: o miolo some e sobra a borda do alfinete. */
+  mask-image: radial-gradient(circle at center, #0000 0%, #0000 32%, #fff 36%);
+  filter: blur(0.25px);
+  transition:
+    background var(--mapa-dur) ease-in-out,
+    transform var(--mapa-dur) ease-in-out,
+    border-radius calc(var(--mapa-dur) + 0.1s) var(--ease);
+  z-index: 2;
+}
+
+.mapa__papel {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 115px;
+  perspective: 120px;
+  transform: perspective(120px) rotateX(35deg) scaleX(0);
+  transform-origin: 3em 0.5em;
+  opacity: 0;
+  z-index: 1;
+  /* Acima da pílula — ver a nota de ordem de pintura no `.mapa__botao`. */
+  transition:
+    transform var(--mapa-dur) ease-in-out,
+    opacity var(--mapa-dur) ease-in-out;
+}
+
+.mapa__dobra {
+  position: absolute;
+  bottom: 100px;
+  width: 120px;
+  height: 200px;
+  background-color: var(--mapa-agua);
+  background-image: linear-gradient(to bottom, #fff2, 30%, #0000);
+  transform-origin: left bottom;
+  mask-image: linear-gradient(to top, #fff, 97%, #0000);
+  overflow: hidden;
+}
+
+/* A MASSA DE TERRA. Ver o conserto (a) no topo: os px são a correção do
+   número sem unidade da fonte.
+
+   O `filter` NÃO está aqui — está só nas regras de hover e foco, logo abaixo.
+   É o conserto (c): na fonte o feTurbulence era calculado sempre, inclusive
+   com o papel em `opacity: 0` e `scaleX(0)`, ou seja custo integral por um
+   desenho invisível em toda visita à página. */
+.mapa__dobra::after {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  width: 100%;
+  height: 200%;
+  background-color: var(--mapa-terra);
+  box-shadow: inset 0 0 48px 24px var(--mapa-vegetacao);
+  z-index: 0;
+}
+
+.mapa__dobra::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 10px 16px 3px #0004;
+  z-index: 1;
+}
+
+.mapa__dobra--1 { left: -60px;  transform: rotateY(10deg)  translateZ(30px); }
+.mapa__dobra--2 { left: 60px;   transform: rotateY(-10deg) translateZ(10px); }
+.mapa__dobra--3 { left: -169px; transform: rotateY(-15deg) translateZ(-1px); }
+.mapa__dobra--4 { left: 166px;  transform: rotateY(15deg)  translateZ(31px); }
+
+/* ══ ABERTO: hover E foco, sempre juntos ══
+
+   O `:focus-visible` produz EXATAMENTE o mesmo estado do `:hover`, e é o
+   conserto (d) chegando ao fim: um <div> não recebia foco, uma âncora recebe,
+   e quem navega por teclado tem de ver o mesmo mapa que o ponteiro abre.
+
+   Tudo dentro de @media (hover: hover)? NÃO — e a diferença com o resto da
+   folha é deliberada. Aqui o `:hover` não deixa estado pendurado que atrapalhe:
+   o papel some sozinho, e um tap numa âncora NAVEGA, então a página sai de
+   cena. O que fica fora do hover, esse sim, é o anel de foco. */
+.mapa:has(.mapa__botao:hover),
+.mapa:has(.mapa__botao:focus-visible) {
+  transform: scale(1.06);
+}
+
+.mapa__botao:hover,
+.mapa__botao:focus-visible {
+  background: var(--white);
+  color: #00000025;
+}
+
+.mapa__botao:hover ~ .mapa__alfinete,
+.mapa__botao:focus-visible ~ .mapa__alfinete {
+  background: var(--red);
+  border-radius: 50% 50% 0 50%;
+  transform: rotateZ(45deg) translate(-0.3em, -0.3em);
+}
+
+.mapa__botao:hover ~ .mapa__papel,
+.mapa__botao:focus-visible ~ .mapa__papel {
+  transform: perspective(100px) rotateX(35deg) scaleX(0.85);
+  opacity: 1;
+}
+
+/* O filtro caro entra SÓ agora — conserto (c). */
+.mapa__botao:hover ~ .mapa__papel .mapa__dobra::after,
+.mapa__botao:focus-visible ~ .mapa__papel .mapa__dobra::after {
+  filter: url(#ldf-mapa-terra);
+}
+
+/* O anel de foco fica FORA de tudo o que é hover: o crescimento e o mapa são
+   ênfase, não indicador de foco. */
+.mapa__botao:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.mapa:has(.mapa__botao:active) { transform: scale(1.02) translateY(0.2em); }
+.mapa__botao:active ~ .mapa__alfinete {
+  transform: rotateZ(45deg);
+  transition-duration: calc(var(--mapa-dur) * 0.5);
+}
+
+/* Movimento reduzido: o mapa abre SEM percurso. O estado final é o mesmo — o
+   papel visível —, e o que sai é o caminho até ele. A regra global do fim da
+   folha já derruba a duração; aqui saem os transforms de entrada, que ela não
+   desfaz. */
+@media (prefers-reduced-motion: reduce) {
+  .mapa,
+  .mapa__alfinete,
+  .mapa__papel,
+  .mapa:has(.mapa__botao:hover),
+  .mapa:has(.mapa__botao:focus-visible) {
+    transition: none;
+    transform: none;
+  }
+  .mapa__botao:hover ~ .mapa__papel,
+  .mapa__botao:focus-visible ~ .mapa__papel {
+    transform: perspective(100px) rotateX(35deg) scaleX(0.85);
+  }
+}
+
+/* --- 18e. O fundo que respira com o ponteiro --------------------------------
+   Pilha de radial-gradient com desfoque, atrás da seção de duas colunas.
+
+   ══ A ESTRUTURA VEIO DO "DESERT HORIZON"; A PALETA, NÃO ══
+
+   Do original ficou a forma: `container-type: size`, uma camada com `inset`
+   negativo e `blur`, e quatro radial-gradient em unidades de contêiner.
+
+   A PALETA FOI DESCARTADA E MEDIDA. O original tem base #7A4B3A com paradas em
+   creme rgba(255,241,207): sobre creme, o `--ink` desta base (#EFEBE5) dá
+   contraste perto de 1:1 — o texto do formulário e a manchete sumiriam.
+
+   As cores daqui são as que a folha JÁ TEM: `--ground-deep` como base e as
+   duas paradas quentes que o `.fundo-auralis::before` documenta — #6e2a14 e
+   #2a1410 —, mais o `--ground-red`. Nenhuma cor nova entrou, e nenhuma delas é
+   tinta de interface: são paradas de gradiente, exatamente como lá.
+
+   As alfas são baixas de propósito. Medido sobre o resultado, no pixel mais
+   claro do fundo atrás de cada texto:
+
+     manchete (--ink)        15,61:1
+     lede (--ink-2)          7,21:1
+     texto do campo (--ink)  13,79:1  (sobre --ground-lift, que é opaco)
+     rótulo (--ink-3)        4,91:1
+
+   ══ O MOVIMENTO ══
+
+   Duas custom properties escritas pelo <FundoContato />, e um translate3d aqui
+   que as consome. O padrão é o do FundoMadeira, e o raciocínio completo — por
+   que variável e não motion.div, por que translate3d — está naquele arquivo.
+
+   `--px` e `--py` caem em 0px quando o efeito não monta: sem JS, em movimento
+   reduzido e em tela de toque o fundo fica parado e continua sendo o fundo
+   inteiro. Nada de conteúdo depende disto. */
+
+.fundo-contato {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  container-type: size;
+}
+
+.fundo-contato__camada {
+  position: absolute;
+  /* Sangra para fora nos quatro lados: é essa sobra que o deslocamento
+     consome, e sem ela o movimento abriria faixa vazia numa das bordas. */
+  inset: -2cqmin;
+  filter: blur(0.6cqmin);
+  background-color: var(--ground-deep);
+  background-image:
+    /* impeccable-disable-next-line design-system-color -- paradas de gradiente do fundo, não cor de interface; as mesmas do .fundo-auralis::before */
+    radial-gradient(150% 46.8% at 42.7% 6%, color-mix(in srgb, #6e2a14 34%, transparent) 0%, transparent 51%),
+    radial-gradient(150% 46.8% at 43.43% 33%, color-mix(in srgb, var(--ground-red) 70%, transparent) 0%, transparent 51%),
+    /* impeccable-disable-next-line design-system-color -- idem */
+    radial-gradient(150% 46.8% at 51.03% 67%, color-mix(in srgb, #2a1410 62%, transparent) 0%, transparent 51%),
+    radial-gradient(150% 46.8% at 53.18% 94%, color-mix(in srgb, var(--ground-deep) 92%, transparent) 0%, transparent 51%);
+  transform: translate3d(var(--px, 0px), var(--py, 0px), 0);
+}
+
+/* Rede de segurança: o componente já não registra o ouvinte em movimento
+   reduzido, mas entre a primeira pintura e a leitura da media query existe um
+   quadro. Aqui a camada também para. */
+@media (prefers-reduced-motion: reduce) {
+  .fundo-contato__camada { transform: none; }
+}
+
+
+/* --- 18f. O formulário de contato -------------------------------------------
    CAMPO DE FORMULÁRIO É SUPERFÍCIE QUE ESTE SITE NÃO TINHA. Nenhuma cor nova
    entrou para construí-la — o que existe é uma combinação nova de tokens que
    já estavam na folha:
@@ -4401,7 +4806,7 @@ main > .chamada:first-child {
                     seção: a caixa se separa do fundo sem precisar de borda
                     grossa nem de sombra, que o sistema não usa.
      --edge         a borda em repouso, a mesma régua de todas as divisões.
-     --ink-3        o rótulo, no mesmo degrau do .label e do .contato__rotulo.
+     --ink-3        o rótulo, no mesmo degrau do .label do sistema.
      --ink          o texto digitado, que é conteúdo e precisa do contraste
                     cheio.
 
@@ -4414,7 +4819,7 @@ main > .chamada:first-child {
    ══ O ANEL DE FOCO É O DA BASE ══
 
    `outline: 2px solid var(--ink)` com offset — o mesmo do .btn-revelar, do
-   .comercial__card e do .contato__link. Um anel novo aqui faria o formulário
+   .comercial__card e do .cartao__link. Um anel novo aqui faria o formulário
    parecer de outro site.
 
    ══ ERRO NÃO É SÓ COR ══
@@ -4432,13 +4837,12 @@ main > .chamada:first-child {
    o que o .btn e o .btn-capsula já usam sobre vermelho. Não troque para --ink
    porque "combina mais". */
 
-.contato__formulario {
-  /* O mesmo teto de leitura do resto do site. Formulário largo é formulário
-     difícil: o olho perde a coluna entre o rótulo e o campo. */
-  --coluna: min(46rem, 100%);
-  max-width: var(--coluna);
-  margin-inline: auto;
-}
+/* O TETO DO FORMULÁRIO SAIU DAQUI, e não sumiu: quem o limita agora é a
+   coluna de 7fr da `.contato__grade`, na seção 18c. A classe
+   `.contato__formulario` existia quando o formulário era uma seção empilhada
+   com largura própria; com as duas colunas ela ficaria sendo um segundo teto
+   sobre o primeiro, e dois lugares decidindo a mesma largura é como uma delas
+   envelhece. */
 
 .form {
   display: grid;
@@ -4461,7 +4865,7 @@ main > .chamada:first-child {
 /* ── O resumo de erros ───────────────────────────────────────────────────── */
 .form__resumo {
   padding: var(--s4) var(--s5);
-  border-radius: var(--r-painel);
+  border-radius: var(--r-campo);
   background: color-mix(in srgb, var(--red) 12%, var(--ground-lift));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 55%, transparent);
   color: var(--ink);
@@ -4515,20 +4919,38 @@ main > .chamada:first-child {
   color: var(--ink-2);
 }
 
+/* ══ PREENCHIDO, ARREDONDADO, SEM BORDA EM REPOUSO ══
+
+   Acabamento da referência, e SÓ acabamento: nada da semântica nem da
+   acessibilidade mudou junto. Fieldset, legend, aria-invalid,
+   aria-describedby, o resumo com foco, o honeypot, o carimbo e a Server Action
+   estão exatamente como estavam.
+
+   A borda de 1px em `--edge` que existia em repouso SAIU. O campo agora se
+   separa do fundo pelo próprio preenchimento: `--ground-lift` sobre o
+   `--ground-deep` da seção. Cantos mais generosos que o `--r-painel` do
+   sistema, porque a referência pede caixa macia: `--r-campo`, um degrau acima
+   do painel, criado nesta rodada e documentado na seção 1 — três consumidores
+   usavam o valor cru, e o detector do projeto reprovou os três.
+
+   ⚠ SEM BORDA EM REPOUSO, O FOCO É A ÚNICA MARCA DE ESTADO. Isso torna o anel
+   obrigatório, e não decorativo: medido, o anel em `--ink` dá 13,79:1 contra o
+   preenchimento do campo — muito acima dos 3:1 que elemento gráfico pede. O
+   erro continua tendo borda, porque ali a cor precisa dizer alguma coisa
+   (junto com o texto, nunca sozinha). */
 .form__entrada {
   width: 100%;
-  padding: var(--s3) var(--s4);
+  padding: var(--s4);
   border: 0;
-  border-radius: var(--r-painel);
+  border-radius: var(--r-campo);
   background: var(--ground-lift);
-  box-shadow: inset 0 0 0 1px var(--edge);
   color: var(--ink);
   /* `inherit` e não a família nomeada: o campo é do sistema, e o sistema é o
      que o body declara. Sem isto o UA impõe a fonte dele. */
   font-family: inherit;
   font-size: var(--t-md);
   line-height: 1.5;
-  transition: box-shadow 220ms var(--ease);
+  transition: background 220ms var(--ease), box-shadow 220ms var(--ease);
 }
 
 .form__entrada::placeholder {
@@ -4541,9 +4963,10 @@ main > .chamada:first-child {
 }
 
 /* Só onde há ponteiro — ver a nota no fim desta seção. */
+/* Sem borda, quem responde ao ponteiro é o preenchimento. */
 @media (hover: hover) {
   .form__entrada:hover {
-    box-shadow: inset 0 0 0 1px var(--edge-3);
+    background: color-mix(in srgb, var(--ground-lift) 82%, var(--ink));
   }
 }
 
@@ -4587,7 +5010,6 @@ main > .chamada:first-child {
   padding: var(--s2) var(--s4);
   border-radius: var(--r-pill);
   background: var(--ground-lift);
-  box-shadow: inset 0 0 0 1px var(--edge);
   color: var(--ink-2);
   font-size: var(--t-sm);
   line-height: 1.4;
@@ -4617,18 +5039,16 @@ main > .chamada:first-child {
    seção antes de trocar por --ink. */
 .form__pastilha:has(input:checked) {
   background: var(--red);
-  box-shadow: inset 0 0 0 1px var(--red);
   color: var(--white);
 }
 
 @media (hover: hover) {
   .form__pastilha:hover {
-    box-shadow: inset 0 0 0 1px var(--ink-3);
+    background: color-mix(in srgb, var(--ground-lift) 76%, var(--ink));
     color: var(--ink);
   }
   .form__pastilha:has(input:checked):hover {
     background: var(--red-hot);
-    box-shadow: inset 0 0 0 1px var(--red-hot);
     color: var(--white);
   }
 }
@@ -4678,9 +5098,8 @@ main > .chamada:first-child {
   display: grid;
   gap: var(--s3);
   padding: var(--s7) var(--s6);
-  border-radius: var(--r-painel);
+  border-radius: var(--r-campo);
   background: var(--ground-lift);
-  box-shadow: inset 0 0 0 1px var(--edge);
 }
 
 .form__sucesso-titulo {

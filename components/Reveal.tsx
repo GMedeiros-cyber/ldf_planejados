@@ -26,8 +26,11 @@ import { usePathname } from "next/navigation";
 
    `[rota]` é o que conserta: a cada pathname novo o cleanup desconecta os
    observadores da página anterior e o efeito revarre a nova. Navegação só de
-   hash ("/#contato") não muda o pathname e não revarre — certo, porque o DOM
+   hash ("/#fabrica") não muda o pathname e não revarre — certo, porque o DOM
    também não muda.
+
+   O exemplo era "/#contato" até o item de menu virar a rota "/contato". Hoje
+   as únicas âncoras do site são "/#fabrica" e "/#processo", no rodapé.
 
    Se um dia este componente sair do layout e passar a viver dentro da página,
    ele volta a remontar sozinho e a dependência deixa de ser necessária. Até
