@@ -19,7 +19,7 @@ import Logo from "./Logo";
 const links = [
   { href: "/", texto: "Home" },
   { href: "/ambientes", texto: "Ambientes" },
-  { href: "/#contato", texto: "Contato" },
+  { href: "/contato", texto: "Contato" },
 ];
 
 export default function Nav() {
@@ -88,8 +88,19 @@ export default function Nav() {
      observador rodava a cada rolagem para decidir uma coisa que só muda na
      navegação: saiu inteiro, e com ele um trabalho por quadro.
 
-     Uma âncora nunca marca rota: "/#contato" é um salto dentro da página, e
-     não um destino próprio — em "/" quem apaga é a Home.
+     ══ "CONTATO" VIROU ROTA, E AGORA MARCA ══
+
+     Por três rodadas o item apontou para "/#contato" — um salto dentro da
+     home — e a linha `href.includes("#")` abaixo o mantinha sempre apagado,
+     porque âncora não é destino próprio. A condição que adiava a migração era
+     a existência do formulário, e ele existe: o item passou a apontar para
+     "/contato" e agora ACENDE lá, e só lá.
+
+     A GUARDA DO "#" FICA, e ficou sem consumidor de propósito. Nenhum dos três
+     links tem hash hoje; ela é a regra, não o remendo para um caso atual. O
+     dia em que alguém puser uma âncora na lista, o comportamento certo já está
+     escrito — e apagar a linha agora só faria esse alguém descobrir o problema
+     pela tela.
 
      O prefixo com barra é o que separa uma subpágina do vizinho de nome
      parecido: sob "/ambientes", um futuro "/ambientes/closet" casa e um
@@ -154,7 +165,7 @@ export default function Nav() {
             ))}
           </nav>
 
-          <Link className="btn-capsula" href="/#contato">
+          <Link className="btn-capsula" href="/contato">
             <span className="btn-capsula__texto">
               <span className="btn__longo">Quero meu projeto</span>
               <span className="btn__curto">Projeto 3D</span>

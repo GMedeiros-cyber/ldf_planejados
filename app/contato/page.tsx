@@ -3,6 +3,8 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ChamadaMadeira from "@/components/ChamadaMadeira";
 import FormularioContato from "@/components/FormularioContato";
+import CartaoEndereco from "@/components/CartaoEndereco";
+import FundoContato from "@/components/FundoContato";
 import { contato, whatsappUrl } from "@/lib/dados";
 
 export const metadata: Metadata = {
@@ -26,29 +28,48 @@ export const metadata: Metadata = {
    O <BotaoRevelar> não ficou órfão: virou o botão de ENVIAR do formulário,
    com o novo `tipo="submit"`. É o lugar certo para ele.
 
-   ══ AS ÂNCORAS "/#contato" AINDA NÃO MIGRARAM, E AGORA PODEM ══
+══ AS ÂNCORAS MIGRARAM ══
 
-   O Nav (linhas 22 e 157) e o Footer (linha 7) continuam apontando para o
-   id="contato" do <Fechamento />, na home. O gatilho da migração sempre foi o
-   FORMULÁRIO, e ele acabou de chegar — então a condição está satisfeita e a
-   troca virou trabalho de uma próxima rodada, não mais uma espera.
+   O gatilho estava escrito há três rodadas: a migração aconteceria "quando o
+   formulário existir". Ele existe, e os três links do site passaram a apontar
+   para esta rota:
 
-   ⚠ NÃO FOI FEITA AQUI de propósito: mexer nas três âncoras muda a conversão
-   do site inteiro, e isso merece a sua própria rodada e a sua própria
-   verificação. O que falta está escrito em components/Fechamento.tsx.
+     Nav 22   item "Contato" do menu
+     Nav 157  a cápsula "Quero meu projeto"
+     Footer 7 o item "Contato" do institucional
 
-   O link "/contato" que o <Fechamento /> já tinha continua valendo, e agora
-   leva a uma página que faz alguma coisa.
+   Com isso o `id="contato"` do <Fechamento /> ficou sem ninguém apontando
+   para ele e foi REMOVIDO — o porquê está naquele arquivo. Não existe mais
+   nenhuma âncora "#contato" no projeto.
 
-   ══ A FAIXA "ONDE NOS ACHAR" FICA ══
+   O item "Contato" do menu agora ACENDE aqui, e só aqui: a função `ehAtual`
+   do Nav ignorava qualquer href com "#", e sem o hash ela cai na comparação
+   de rota.
 
-   Ela não é enfeite nem repetição do rodapé: quem clica em "Contato" no menu
-   muitas vezes quer o endereço da fábrica, não um formulário. São TRÊS itens,
-   e não o rodapé inteiro — endereço, e-mail e WhatsApp, todos vindos de
-   `contato` em lib/dados.ts. Nada é digitado aqui.
+══ A ROTA É DE DUAS COLUNAS, E A FAIXA VIROU CARTÃO ══
 
-   Ela também é a SAÍDA quando o envio falha: a mensagem de erro do formulário
-   manda chamar no WhatsApp, e o número está logo abaixo dela.
+   Abaixo do herói existe UMA seção, em duas colunas:
+
+     esquerda  manchete, lede e o <CartaoEndereco /> — a foto reservada da
+               fachada, o endereço, os dois canais e o botão de mapa.
+     direita   o formulário, sem uma linha alterada.
+
+   A seção "Onde nos achar", que era uma faixa empilhada abaixo do formulário,
+   DEIXOU DE EXISTIR. O conteúdo dela é o cartão agora, e o endereço aparece
+   uma vez só na rota — antes ele corria o risco de ser digitado em dois
+   lugares e divergir.
+
+   ABAIXO DE 900px VIRA UMA COLUNA, E O FORMULÁRIO VEM PRIMEIRO. A ordem no
+   DOM é esquerda-depois-direita, que é a de leitura no desktop; no celular o
+   CSS inverte com `order`. Quem abre /contato no telefone veio preencher, e
+   empurrar o formulário para depois de uma foto, um endereço e um botão de
+   mapa é pedir que role três telas antes de fazer o que veio fazer.
+
+   ⚠ A INVERSÃO É SÓ VISUAL. A ordem do Tab e a do leitor de tela seguem o DOM,
+   então no celular o teclado ainda passa pelo cartão antes do formulário. É o
+   preço de inverter por CSS, e é o certo: `order` não deve mexer na ordem de
+   leitura. Se um dia isso incomodar, o conserto é trocar a ordem no DOM e
+   inverter no desktop, não pôr tabindex.
 
    ══ O PALCO DE MADEIRA SAIU DAQUI, E CONTINUA FORA ══
 
@@ -96,62 +117,33 @@ export default function PaginaContato() {
           frase="Conta o que você quer fazer."
         />
 
-        <section className="section wrap contato__formulario" aria-labelledby="t-form">
-          <div className="section__head">
-            <h2 className="h2 manchete-serifada" id="t-form">
-              Manda o seu pedido.
-            </h2>
-            <p className="lede">
-              Seis campos. A gente responde em até um dia útil com as próximas perguntas — ou
-              já com uma data para medir.
-            </p>
+        <section className="contato__corpo" aria-labelledby="t-form">
+          <FundoContato />
+
+          <div className="contato__grade wrap">
+            {/* COLUNA ESQUERDA — no DOM primeiro, na tela à esquerda, e no
+                celular DEPOIS do formulário (ver a nota no topo). */}
+            <div className="contato__lado">
+              <div className="section__head">
+                <h2 className="h2 manchete-serifada" id="t-form">
+                  Manda o seu pedido.
+                </h2>
+                <p className="lede">
+                  Seis campos. A gente responde em até um dia útil com as próximas perguntas —
+                  ou já com uma data para medir.
+                </p>
+              </div>
+
+              <CartaoEndereco />
+            </div>
+
+            {/* COLUNA DIREITA — o formulário, sem uma linha alterada. */}
+            <div className="contato__coluna-form">
+              <FormularioContato />
+            </div>
           </div>
-
-          <FormularioContato />
         </section>
 
-        {/* FORA do palco de madeira, como faixa irmã. Dentro dele os dados
-            competiriam com o pedido; aqui embaixo eles são o que sobra quando
-            o pedido não é o que se quer. */}
-        <section className="section wrap contato__dados" aria-labelledby="t-dados">
-          <h2 className="label" id="t-dados">
-            Onde nos achar
-          </h2>
-
-          <ul className="contato__lista">
-            <li className="contato__item">
-              <span className="contato__rotulo">Fábrica e loja</span>
-              {/* Endereço não é link: não há mapa nesta rota, e um <a> que não
-                  leva a lugar nenhum é pior que texto. */}
-              <address className="contato__valor">
-                {contato.endereco.rua}
-                <br />
-                {contato.endereco.bairro}
-                <br />
-                {contato.endereco.cep}
-              </address>
-            </li>
-
-            <li className="contato__item">
-              <span className="contato__rotulo">E-mail</span>
-              <a className="contato__valor contato__link" href={`mailto:${contato.email}`}>
-                {contato.email}
-              </a>
-            </li>
-
-            <li className="contato__item">
-              <span className="contato__rotulo">WhatsApp</span>
-              <a
-                className="contato__valor contato__link"
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener"
-              >
-                {contato.whatsappExibicao}
-              </a>
-            </li>
-          </ul>
-        </section>
       </main>
       <Footer />
     </>

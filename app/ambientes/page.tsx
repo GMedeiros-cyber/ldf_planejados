@@ -72,22 +72,17 @@ export const metadata: Metadata = {
    O <ChamadaMadeira /> NÃO FOI APAGADO. Perdeu um consumidor, não a razão de
    ser: continua sendo a capa de /contato, com a prop `marca` ligada.
 
-   ══ O id="contato" VOLTA A EXISTIR EM DUAS PÁGINAS ══
+══ O <Fechamento /> NÃO TRAZ MAIS id NENHUM ══
 
-   Ele vem de carona no <Fechamento />, e agora está na home e aqui. Repetir um
-   id no MESMO documento seria erro; em documentos diferentes não é — cada rota
-   é um documento, e em nenhuma delas há dois.
+   Ele trazia `id="contato"` de carona, e por duas rodadas esta rota teve uma
+   segunda cópia desse id. Não tem mais: as três âncoras do site migraram de
+   "/#contato" para a rota "/contato" quando o formulário nasceu, o id ficou
+   sem link de entrada e saiu do componente — das duas páginas de uma vez,
+   porque é o mesmo arquivo.
 
-   E NENHUMA ÂNCORA QUEBRA. Conferido por grep antes da troca: Nav linha 22
-   (item do menu), Nav linha 157 (botão-cápsula) e Footer linha 7 são as três
-   ocorrências de "/#contato" no código, todas COM A BARRA — apontam para a
-   raiz, e não para a rota em que quem clica está. Sair de /ambientes pelo
-   "Contato" do menu leva à home e desce até o bloco de lá, como sempre levou.
-
-   O id daqui é um segundo alvo inofensivo. O que o tornaria nocivo seria
-   alguém escrever uma âncora "#contato" SEM barra: essa resolveria dentro da
-   página atual, e o destino passaria a depender da rota. Não existe nenhuma
-   assim hoje, e não deve existir enquanto o id morar em dois lugares.
+   Nada aqui dependia dele. O registro fica para quem procurar o id no
+   histórico e quiser saber por que sumiu; o porquê completo está em
+   components/Fechamento.tsx.
 
    ══ O QUE MUDA NO PESO ══
 

@@ -32,45 +32,35 @@ import FundoMadeira from "./FundoMadeira";
    para /contato, e aquele traz o botão de revelação. Fundir os dois é decisão
    a tomar quando o formulário existir e o id sair daqui — não antes.
 
-   ══ O id="contato" EXISTE EM DUAS PÁGINAS, E ISSO NÃO QUEBRA NADA ══
+══ O id="contato" SAIU, E A MIGRAÇÃO ACONTECEU ══
 
-   Ele vem junto com este componente, então está na home e em /ambientes.
-   Repetir um id no MESMO documento seria erro; em documentos diferentes não é
-   — cada rota é um documento, e em nenhuma delas há dois.
+   Este bloco teve `id="contato"` desde sempre, e era o alvo das três âncoras
+   "/#contato" do site — Nav 22, Nav 157 e Footer 7. O id NÃO EXISTE MAIS, em
+   nenhuma das duas páginas onde este componente aparece.
 
-   As três âncoras continuam válidas porque todas têm BARRA: "/#contato" em
-   Nav 22 (item do menu), Nav 157 (botão-cápsula) e Footer 7. Elas apontam para
-   a raiz, e não para a rota em que quem clica está — o alvo é sempre o bloco
-   da home. O id de /ambientes é um segundo alvo que ninguém endereça.
+   O motivo é que ele ficou sem ninguém apontando para ele. A migração estava
+   adiada com um gatilho escrito: aconteceria "quando o formulário existir". O
+   formulário existe, em app/contato, então os três links passaram a apontar
+   para a rota "/contato" e o id virou um alvo que nada endereça.
 
-   O que tornaria isso nocivo seria uma âncora "#contato" SEM barra: essa
-   resolveria dentro da página atual, e o destino passaria a depender da rota.
-   Não existe nenhuma assim, e não deve existir enquanto o id morar em dois
-   lugares.
+   ID SEM LINK DE ENTRADA É LIXO QUE PARECE CONTRATO. Quem o encontrasse
+   depois teria de descobrir sozinho se algo ainda depende dele — e a resposta
+   estaria espalhada por três arquivos. Sai agora, junto com a migração que o
+   aposentou, que é o único momento em que a remoção é obviamente segura.
 
-   ══ A MIGRAÇÃO DAS ÂNCORAS SEGUE ADIADA ══
+   O <Link> para "/contato" logo abaixo continua, e agora é o QUARTO caminho
+   até a rota, ao lado dos três do menu e do rodapé. Ele não dependia do id e
+   não muda.
 
-   Ela não foi esquecida, e o gatilho dela NÃO é a existência da rota /contato
-   — a rota já existe, em app/contato/page.tsx. O gatilho é o FORMULÁRIO.
-
-   O motivo: /contato ainda é mockup, e o botão dela é um <button disabled>,
-   porque não há para onde mandar ninguém. Apontar as três âncoras para lá
-   agora mandaria a conversão do site inteiro desembocar num controle inerte —
-   pior que o estado atual, em que ela chega a este bloco, que ao menos oferece
-   um caminho.
-
-   Quando o formulário existir: o id sai daqui, as três âncoras viram
-   "/contato", e o BotaoRevelar daquela rota recebe a prop `href`.
-
-   O <Link> para "/contato" logo abaixo continua sendo um dos caminhos até
-   aquela rota, e continua não sendo 404 — agora a partir de duas páginas.
+   ⚠ SE UMA ÂNCORA "#contato" VOLTAR A APARECER em algum lugar, ela não vai
+   resolver — não há mais o que casar. O certo é apontar para "/contato".
 
    A lista de quem apontava para cá encolheu: o bloco comercial e a página da
    cozinha, que também citavam este id, não existem mais. */
 
 export default function Fechamento() {
   return (
-    <section className="fechamento" id="contato" aria-labelledby="t-cta">
+    <section className="fechamento" aria-labelledby="t-cta">
       <FundoMadeira />
 
       <div className="fechamento__conteudo wrap">

@@ -585,3 +585,20 @@ export const consentimento = {
   texto:
     "Autorizo a LDF Planejados a usar meu nome, telefone e e-mail para responder a este pedido e para contato comercial sobre o projeto.",
 } as const;
+
+/* --- Mapa da fábrica -------------------------------------------------------
+   URL de BUSCA do Google Maps, montada a partir do endereço acima. Nada de
+   coordenada escrita à mão: latitude e longitude digitadas envelhecem sem
+   avisar, e ninguém confere. Aqui o endereço é a fonte, e mudar `contato.
+   endereco` muda o destino do mapa junto.
+
+   `/maps/search/?api=1&query=` é a URL universal documentada pelo Google. Em
+   celular ela é interceptada pelo app nativo nos dois sistemas; no desktop
+   abre o mapa no navegador. Waze e Apple Maps ficam de fora por ora — cada um
+   pediria outro esquema e outro botão, e um botão só é o que a página precisa.
+
+   O `encodeURIComponent` é obrigatório: o endereço tem vírgulas, espaços e
+   acentos, e sem ele a query quebra no primeiro "Jardim Cocaia". */
+export const mapaUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  `${contato.endereco.rua}, ${contato.endereco.bairro}, ${contato.endereco.cep}`,
+)}`;
