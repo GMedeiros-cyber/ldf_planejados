@@ -1827,9 +1827,150 @@ a { color: inherit; }
    .chamada não entra — ela é coberta de ponta a ponta pela textura de madeira
    e pelo véu, e o fundo dela nunca aparece. */
 .pagina-ambientes {
+  /* O padding de topo da rota vira TOKEN porque ganhou um segundo leitor: a
+     margem negativa do .abertura, na seção 11e, sobe exatamente por ele para
+     levar o shader até y=0. Escrito em dois lugares, o dia em que um mudasse
+     abriria uma folga ou uma sobreposição que ninguém ligaria à causa. */
+  --topo-rota: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
+
   background: var(--ground-deep);
   border-top: 0;
-  padding-block-start: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
+  padding-block-start: var(--topo-rota);
+}
+
+/* --- 11e. A abertura de /ambientes ------------------------------------------
+   Invólucro do começo da rota: envolve a cortina e, dentro dela, o cabeçalho.
+   A lista de ambientes fica FORA — e é por isso que o traço que a costura
+   nunca é alcançado pela dissolução.
+
+   ══ QUEM DISSOLVE A FRONTEIRA É O INVÓLUCRO, NÃO O SHADER ══
+
+   Esta é a decisão estrutural da seção, e vale a pena separar bem as duas
+   coisas: `.abertura` cria a superfície e a apaga na base; o shader é uma
+   camada DENTRO dela. Trocar de variante não mexe em nada disto.
+
+     VARIANTE A (vigente) — com shader
+       JSX:  <div className="abertura abertura--shader">
+               <FundoAuralis />
+       CSS:  o bloco `.abertura--shader` abaixo, ativo.
+
+     VARIANTE D — só o degradê, sem shader
+       JSX:  <div className="abertura abertura--liso">     ← troca a classe
+             e APAGA a linha <FundoAuralis /> (e o import dela).
+       CSS:  descomente o bloco `.abertura--liso` abaixo. O
+             `.abertura--shader` pode ficar onde está: sem a classe no JSX ele
+             não casa com nada, e a volta atrás é descomentar de novo.
+
+   São DUAS LINHAS no JSX e um bloco a descomentar aqui. Não há terceira coisa
+   a lembrar: a dissolução, o full bleed, o empilhamento e o fundo são do
+   `.abertura`, e valem igual nas duas.
+
+   ══ AS QUATRO DECLARAÇÕES DE EMPILHAMENTO ══
+
+   `position: relative`, `isolation: isolate`, `overflow: hidden` e
+   `background` andam juntas, e nenhuma é enfeite. É o mesmo quarteto de
+   `.historia` e `.fabrica-campo`, na home, e pelo mesmo motivo:
+
+     relative   dá a caixa contra a qual as camadas absolutas se posicionam.
+     isolate    é a que não pode faltar. O `.fundo-auralis` é `z-index: -1`, e
+                filho de z-index negativo pinta acima do fundo do CONTEXTO DE
+                EMPILHAMENTO que o contém. Sem um contexto aqui, o contexto é a
+                raiz — o shader vai para trás do fundo do body e SOME, sem erro
+                no console e sem nada no inspetor que denuncie a causa.
+     overflow   recorta o canvas, que o ResizeObserver dimensiona pela caixa.
+     background é o piso: `--ground-deep`, o mesmo da .pagina-ambientes, para
+                que a base da dissolução chegue exatamente na cor da seção que
+                vem depois. Se este valor divergir daquele, a fronteira volta.
+
+   A .pagina-ambientes NÃO recebe nada disso. Ela tem só o background, e é o
+   certo: pendurar o shader nela faria a camada cobrir a lista inteira.
+
+   ══ O FULL BLEED, NOS DOIS EIXOS ══
+
+   HORIZONTAL: a `.cortina` cancela `--gutter` de cada lado para alcançar a
+   borda do documento, e antes ela cancelava o padding da `.pagina-ambientes`.
+   Agora existe um div no meio, então o invólucro ESCAPA do gutter como margem
+   e o DEVOLVE como padding. A caixa interna fica idêntica à que a seção
+   oferecia, e a conta da cortina fecha sem trocar um número — os dois lados
+   continuam usando o mesmo token. Nada de `vw` aqui, pela mesma razão que a
+   seção 11a explica: `scrollbar-gutter: stable` deixa o body permanentemente
+   mais estreito que 100vw.
+
+   VERTICAL: `--topo-rota` é o padding de topo da rota, e mora na
+   `.pagina-ambientes` para haver UM lugar só onde ele é escrito. O invólucro
+   sobe por ele como margem negativa e o devolve como padding, então o shader
+   começa em y=0, por trás do painel da navegação, em vez de nascer numa faixa
+   flutuante 170px abaixo do topo. O conteúdo não se move: a soma é zero.
+
+   ══ A DISSOLUÇÃO NÃO PODE COBRIR O TEXTO, E ISSO É ESTRUTURAL ══
+
+   `.abertura__dissolucao` é `z-index: -1`, igual ao shader. Filho de z-index
+   negativo pinta SEMPRE abaixo do conteúdo em fluxo — não há valor de opacity
+   nem altura que a faça alcançar o h1 ou a lede. Entre ela e o shader quem
+   decide é a ordem no DOM, e ela é a última filha do invólucro: dissolve o que
+   está atrás e para aí.
+
+   A alternativa seria z-index positivo com a altura calibrada para não chegar
+   ao texto — que funciona até alguém escrever uma manchete de três linhas. */
+
+.abertura {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--ground-deep);
+
+  /* Escapa do gutter e o devolve — ver o bloco acima. */
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+
+  /* Idem no eixo vertical: sobe até o topo do documento e devolve o espaço. */
+  margin-block-start: calc(var(--topo-rota) * -1);
+  padding-block-start: var(--topo-rota);
+
+  /* Respiro entre o fim do cabeçalho e o começo da dissolução. Sem ele a
+     manchete encostaria na faixa que apaga o fundo. */
+  padding-block-end: clamp(var(--s8), 8vw, var(--s10));
+}
+
+/* VARIANTE A — o shader. A camada é o <FundoAuralis />, que se posiciona
+   sozinho contra este invólucro; o que a classe faz é só declarar que ele
+   existe aqui. Ela EXISTE como seletor para o próximo leitor entender que a
+   variante é uma escolha, e não o único jeito. */
+.abertura--shader {
+  /* Nada a declarar hoje: o <FundoAuralis /> traz o próprio posicionamento, e
+     o fundo de piso já está no `.abertura`. A classe é o interruptor. */
+}
+
+/* VARIANTE D — SÓ O DEGRADÊ, SEM SHADER. DESCOMENTE ESTE BLOCO para trocar.
+   Um tom levantado no alto descendo até --ground-deep, sem vermelho novo:
+   `--ground-lift` é o tom de superfície que a folha já tem, e o degradê é
+   radial para o clarão nascer no canto de cima e não como uma faixa reta.
+
+   Testado no navegador antes de ser comentado: com a classe trocada e este
+   bloco ativo, a abertura continua com relevo e a fronteira continua
+   indetectável.
+
+.abertura--liso {
+  background:
+    radial-gradient(120% 90% at 50% 0%,
+      color-mix(in srgb, var(--ground-lift) 100%, transparent) 0%,
+      color-mix(in srgb, var(--ground-lift) 55%, transparent) 42%,
+      transparent 78%),
+    var(--ground-deep);
+}
+*/
+
+/* O terço de baixo, apagando o que houver atrás. `inset-inline: 0` e não
+   `left/right`: o invólucro tem padding lateral, e a camada precisa cobrir a
+   caixa de padding inteira, borda a borda. */
+.abertura__dissolucao {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 34%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 0%, var(--ground-deep) 100%);
 }
 
 /* --- 11a. Cortina do cabeçalho ----------------------------------------------
