@@ -4391,6 +4391,333 @@ main > .chamada:first-child {
   .contato__lista { gap: var(--s6); }
 }
 
+/* --- 18c. O formulário de contato -------------------------------------------
+   CAMPO DE FORMULÁRIO É SUPERFÍCIE QUE ESTE SITE NÃO TINHA. Nenhuma cor nova
+   entrou para construí-la — o que existe é uma combinação nova de tokens que
+   já estavam na folha:
+
+     --ground-lift  o fundo da caixa. É o mesmo tom do quadro de foto enquanto
+                    ela não chegou, e um degrau acima do --ground-deep da
+                    seção: a caixa se separa do fundo sem precisar de borda
+                    grossa nem de sombra, que o sistema não usa.
+     --edge         a borda em repouso, a mesma régua de todas as divisões.
+     --ink-3        o rótulo, no mesmo degrau do .label e do .contato__rotulo.
+     --ink          o texto digitado, que é conteúdo e precisa do contraste
+                    cheio.
+
+   Contraste medido sobre --ground-lift (#1C1A18):
+     --ink    13,89:1   texto digitado
+     --ink-2   6,40:1   texto de ajuda
+     --ink-3   4,36:1   rótulo
+   E o --ink-3 sobre --ground-deep, que é onde ele de fato aparece: 5,26:1.
+
+   ══ O ANEL DE FOCO É O DA BASE ══
+
+   `outline: 2px solid var(--ink)` com offset — o mesmo do .btn-revelar, do
+   .comercial__card e do .contato__link. Um anel novo aqui faria o formulário
+   parecer de outro site.
+
+   ══ ERRO NÃO É SÓ COR ══
+
+   Cada campo com erro ganha TRÊS coisas ao mesmo tempo: a borda em --red, o
+   `aria-invalid` no elemento e um parágrafo de texto embaixo, ligado por
+   aria-describedby. Quem não distingue vermelho de cinza lê a frase; quem usa
+   leitor de tela ouve o campo se anunciar como inválido e em seguida o motivo.
+   Borda vermelha sozinha comunica para uma pessoa só.
+
+   ══ PASTILHAS: --white SOBRE --red, E NÃO --ink ══
+
+   Medido em rodada anterior e vale de novo: --ink sobre --red dá 4,27:1 e
+   REPROVA nos 4,5:1 de texto normal em AA; --white dá 5,07:1 e passa. É também
+   o que o .btn e o .btn-capsula já usam sobre vermelho. Não troque para --ink
+   porque "combina mais". */
+
+.contato__formulario {
+  /* O mesmo teto de leitura do resto do site. Formulário largo é formulário
+     difícil: o olho perde a coluna entre o rótulo e o campo. */
+  --coluna: min(46rem, 100%);
+  max-width: var(--coluna);
+  margin-inline: auto;
+}
+
+.form {
+  display: grid;
+  gap: var(--s6);
+}
+
+/* ── O honeypot ──────────────────────────────────────────────────────────────
+   FORA DA TELA, e não `display: none`. A diferença importa: um robô decente
+   ignora campo escondido por display/visibility, mas preenche o que está no
+   fluxo. Aqui ele está no fluxo, a 9999px de distância, e nenhuma pessoa
+   chega — o aria-hidden tira do leitor de tela e o tabIndex -1 tira do Tab. */
+.form__isca {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ── O resumo de erros ───────────────────────────────────────────────────── */
+.form__resumo {
+  padding: var(--s4) var(--s5);
+  border-radius: var(--r-painel);
+  background: color-mix(in srgb, var(--red) 12%, var(--ground-lift));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 55%, transparent);
+  color: var(--ink);
+  font-size: var(--t-md);
+  line-height: 1.5;
+}
+/* Recebe foco por script no envio falho, e não pela ordem do Tab. Sem o anel,
+   quem enxerga não veria para onde o foco foi. */
+.form__resumo:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* ── Campo simples ───────────────────────────────────────────────────────── */
+.form__campo,
+.form__grupo {
+  display: grid;
+  gap: var(--s2);
+}
+
+/* <fieldset> chega do UA com borda, padding e margin próprios. Os três saem:
+   o agrupamento aqui é semântico, e quem desenha é o espaçamento. */
+.form__grupo {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+/* Vale para <label> e para <legend>. O `float: none` e o `padding: 0` são para
+   o <legend>, que o UA trata de um jeito próprio dentro do fieldset. */
+.form__rotulo {
+  display: block;
+  float: none;
+  padding: 0;
+  font-size: var(--t-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1.2;
+}
+
+.form__opcional {
+  letter-spacing: 0.16em;
+  color: var(--ink-3);
+}
+
+.form__ajuda {
+  margin: 0;
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+
+.form__entrada {
+  width: 100%;
+  padding: var(--s3) var(--s4);
+  border: 0;
+  border-radius: var(--r-painel);
+  background: var(--ground-lift);
+  box-shadow: inset 0 0 0 1px var(--edge);
+  color: var(--ink);
+  /* `inherit` e não a família nomeada: o campo é do sistema, e o sistema é o
+     que o body declara. Sem isto o UA impõe a fonte dele. */
+  font-family: inherit;
+  font-size: var(--t-md);
+  line-height: 1.5;
+  transition: box-shadow 220ms var(--ease);
+}
+
+.form__entrada::placeholder {
+  color: var(--ink-3);
+}
+
+.form__entrada:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Só onde há ponteiro — ver a nota no fim desta seção. */
+@media (hover: hover) {
+  .form__entrada:hover {
+    box-shadow: inset 0 0 0 1px var(--edge-3);
+  }
+}
+
+/* `vertical` e não `both`: redimensionar na horizontal quebra a coluna de
+   leitura e deixa a caixa maior que o formulário. */
+.form__area {
+  resize: vertical;
+  min-height: 7rem;
+}
+
+/* Erro: a borda muda, e o texto abaixo é que carrega a informação. */
+.form__entrada[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 1px var(--red);
+}
+
+.form__erro {
+  margin: 0;
+  font-size: var(--t-sm);
+  line-height: 1.45;
+  color: var(--red-bright);
+}
+
+/* ── Pastilhas ───────────────────────────────────────────────────────────── */
+.form__pastilhas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s1);
+}
+
+/* O <input> real fica embaixo da pastilha, e NÃO sai da árvore: `opacity: 0`
+   sobre a própria caixa, com o tamanho dela. Com `display: none` ou
+   `visibility: hidden` o controle sai do foco e do leitor de tela, e a
+   pastilha viraria um <span> bonito que ninguém consegue marcar pelo teclado.
+   Assim o Tab entra no grupo, as setas navegam entre os rádios e a barra de
+   espaço marca — comportamento nativo, de graça. */
+.form__pastilha {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--s2) var(--s4);
+  border-radius: var(--r-pill);
+  background: var(--ground-lift);
+  box-shadow: inset 0 0 0 1px var(--edge);
+  color: var(--ink-2);
+  font-size: var(--t-sm);
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 220ms var(--ease), color 220ms var(--ease), box-shadow 220ms var(--ease);
+}
+
+.form__pastilha input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* O anel de foco vai na PASTILHA, não no input invisível — o input tem
+   opacidade zero e o anel dele seria um retângulo fantasma. `:focus-visible`
+   no filho, estilo no pai, via :has(). */
+.form__pastilha:has(input:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* MARCADA: --red com --white por cima. Ver a nota de contraste no topo desta
+   seção antes de trocar por --ink. */
+.form__pastilha:has(input:checked) {
+  background: var(--red);
+  box-shadow: inset 0 0 0 1px var(--red);
+  color: var(--white);
+}
+
+@media (hover: hover) {
+  .form__pastilha:hover {
+    box-shadow: inset 0 0 0 1px var(--ink-3);
+    color: var(--ink);
+  }
+  .form__pastilha:has(input:checked):hover {
+    background: var(--red-hot);
+    box-shadow: inset 0 0 0 1px var(--red-hot);
+    color: var(--white);
+  }
+}
+
+/* ── Consentimento ───────────────────────────────────────────────────────── */
+.form__consentimento {
+  display: grid;
+  gap: var(--s2);
+}
+
+/* A caixa NÃO é escondida aqui: ela é o controle, tem de ser vista e clicada.
+   `align-items: start` porque o texto é longo e quebra em várias linhas — com
+   `center` a caixa flutuaria no meio do parágrafo. */
+.form__aceite {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--s3);
+  align-items: start;
+  font-size: var(--t-sm);
+  line-height: 1.5;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.form__aceite input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0;
+  /* Alinha a caixa com a primeira linha do texto, não com o topo da caixa. */
+  margin-block-start: 0.15rem;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+.form__aceite input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.form__aceite input[aria-invalid="true"] {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+/* ── Sucesso ─────────────────────────────────────────────────────────────── */
+.form__sucesso {
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s7) var(--s6);
+  border-radius: var(--r-painel);
+  background: var(--ground-lift);
+  box-shadow: inset 0 0 0 1px var(--edge);
+}
+
+.form__sucesso-titulo {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: normal;
+  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+
+.form__sucesso-texto {
+  margin: 0;
+  font-family: var(--font-texto);
+  font-size: var(--t-lg);
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 46ch;
+}
+
+/* ══ TODO O :hover DESTA SEÇÃO ESTÁ EM @media (hover: hover) ══
+
+   Não é zelo excessivo: o `.btn` da seção 7 NÃO faz isso, e o diagnóstico está
+   registrado — depois de um tap em tela de toque o botão fica com o hover
+   grudado, fundo invertido, sem gesto que desfaça. Foi medido na home e em
+   /ambientes. Um componente novo não repete um defeito já conhecido.
+
+   ══ MOVIMENTO REDUZIDO ══
+
+   As transições daqui são de cor e de sombra, não de posição — não há percurso
+   a cortar, e o estado final é o mesmo. Mesmo assim elas somem, porque a regra
+   global do fim da folha derruba `transition-duration` para 1ms; nada a
+   declarar aqui. O que precisaria de regra própria seria transform ou filter,
+   e esta seção não usa nenhum dos dois. */
+
 /* --- 19. Revelação ------------------------------------------------------- */
 
 .rise { opacity: 0; transform: translateY(18px); }

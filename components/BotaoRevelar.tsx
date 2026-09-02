@@ -62,20 +62,50 @@ import { Seta } from "./Icones";
 
    interno  →  <Link>, com o pré-carregamento que ele traz.
 
-   sem href →  <button disabled>.
+   sem href →  <button type="button" disabled>.
 
    A distinção é por PROTOCOLO, e não por "começa com /": um href futuro como
    "mailto:" ou "tel:" também não é rota interna, e cairia no <Link> se o teste
-   fosse pela barra. */
+   fosse pela barra.
+
+   ══ O QUARTO CAMINHO: `tipo="submit"` ══
+
+   Este componente ficou sem consumidor quando o botão do herói de /contato
+   saiu — o formulário passou a estar logo abaixo, e o botão virava um clique a
+   mais para chegar onde a pessoa já ia. Ele NÃO morreu: virou o botão de
+   enviar do formulário, que é o lugar certo para ele. É o único botão de ação
+   forte do site que não é um link.
+
+   Com `tipo="submit"` sai um <button type="submit">, com o mesmo visual e as
+   mesmas proteções da folha — o @media (hover: hover) contra o hover grudado
+   depois de um tap, e o movimento reduzido que entrega o estado final sem
+   percurso. Nada de CSS novo.
+
+   `pendente` DESABILITA SEM TROCAR DE COMPONENTE. Enquanto o envio corre, o
+   botão continua sendo este mesmo elemento — só muda o rótulo e o `disabled`.
+   Renderizar outra coisa no lugar remontaria o botão no meio do clique, e o
+   tamanho dele saltaria debaixo do dedo.
+
+   E O TAMANHO NÃO MUDA COM O RÓTULO. Medido no formulário: 592×46 com "Enviar
+   pedido" e 592×46 com "Enviando…". Quem segura não é o `min-width` da folha
+   (192px, que é só o piso) — é o `.form` ser `display: grid`, o que estica o
+   botão à largura da coluna. Num consumidor futuro que não estique, o piso de
+   12rem passa a valer, e os dois rótulos cabem dentro dele. */
 
 type Props = {
   rotulo: string;
   /* Ausente enquanto não há destino. Ver o bloco acima. */
   href?: string;
+  /* "submit" faz dele o botão de envio de um <form>. Sem isto, e sem href, ele
+     é um botão inerte e desabilitado. */
+  tipo?: "submit";
+  /* Só com `tipo="submit"`: desabilita durante o envio, sem trocar o
+     elemento. */
+  pendente?: boolean;
   className?: string;
 };
 
-export default function BotaoRevelar({ rotulo, href, className }: Props) {
+export default function BotaoRevelar({ rotulo, href, tipo, pendente = false, className }: Props) {
   const classe = `btn-revelar${className ? ` ${className}` : ""}`;
 
   const miolo = (
@@ -92,6 +122,14 @@ export default function BotaoRevelar({ rotulo, href, className }: Props) {
       </span>
     </>
   );
+
+  if (tipo === "submit") {
+    return (
+      <button className={classe} type="submit" disabled={pendente}>
+        {miolo}
+      </button>
+    );
+  }
 
   if (href) {
     /* Qualquer coisa com esquema (http:, https:, mailto:, tel:) ou começando

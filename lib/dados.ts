@@ -533,3 +533,55 @@ export const projetoComercial = {
    página é a grade. */
 export const COMERCIAL_LARGURA = 900;
 export const COMERCIAL_ALTURA = 1200;
+
+/* --- Formulário de contato -------------------------------------------------
+   As opções dos dois grupos de escolha vivem AQUI, e não no JSX, pelo mesmo
+   motivo que todo o resto deste arquivo: um lugar só para editar. A action do
+   servidor também lê daqui, e é isso que faz a validação e a interface nunca
+   discordarem sobre o que é uma opção válida. */
+
+/* O vocabulário é o MESMO da lista de ambientes do site — derivado dela, e não
+   redigitado. Se um ambiente entrar, sair ou for renomeado em `ambientes`, o
+   formulário acompanha sozinho.
+
+   "Comercial" entra à parte porque não é um ambiente da lista residencial: é a
+   seção comercial de /ambientes, que tem obra entregue mas não tem verbete em
+   `ambientes`. Está no fim, depois dos quatro, e é a única string escrita à
+   mão neste grupo. */
+export const opcoesAmbiente = [
+  ...ambientes.map((a) => a.nome),
+  "Comercial",
+] as const;
+
+/* Escolha única. Estes quatro estágios cobrem o funil inteiro que a LDF
+   atende, e a ordem é cronológica — de quem ainda não tem parede a quem já tem
+   móvel e quer trocar. */
+export const opcoesEstagio = [
+  "Na planta",
+  "Em obra",
+  "Pronto para medir",
+  "Trocando móveis",
+] as const;
+
+/* --- Consentimento (LGPD) --------------------------------------------------
+   ⚠ TODO — A PÁGINA DE POLÍTICA DE PRIVACIDADE AINDA NÃO EXISTE, e o texto
+   abaixo NÃO tem link de propósito. Link para rota inexistente é pior que link
+   ausente: dá 404 no exato momento em que a pessoa foi conferir o que está
+   aceitando.
+
+   PUBLICAR O FORMULÁRIO ANTES DA POLÍTICA É RISCO ASSUMIDO PELO CLIENTE, NÃO
+   DESCUIDO NOSSO. A decisão foi tomada com ele: o formulário vem primeiro, a
+   política na rodada seguinte.
+
+   Quando /politica-de-privacidade nascer, DOIS lugares precisam do link:
+     1. este texto, que passa a citá-la;
+     2. o rodapé — components/Footer.tsx já tem o item "Política de
+        privacidade" apontando para lugar nenhum.
+
+   O TEXTO É ESPECÍFICO DE PROPÓSITO. "Concordo com o tratamento dos meus
+   dados" não é consentimento informado: não diz quais dados, para quê, nem
+   por quem. Este diz os três. */
+export const consentimento = {
+  texto:
+    "Autorizo a LDF Planejados a usar meu nome, telefone e e-mail para responder a este pedido e para contato comercial sobre o projeto.",
+} as const;
