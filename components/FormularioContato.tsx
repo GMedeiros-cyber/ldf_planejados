@@ -88,7 +88,7 @@ export default function FormularioContato() {
   if (estado.estado === "sucesso") {
     return (
       <div className="form__sucesso" role="status" aria-live="polite">
-        <p className="form__sucesso-titulo">Pedido recebido.</p>
+        <p className="form__sucesso-titulo">Projeto recebido!</p>
         <p className="form__sucesso-texto">
           A gente responde em até um dia útil. Se for urgente, chama no WhatsApp — o número
           está logo abaixo.
@@ -312,7 +312,7 @@ export default function FormularioContato() {
       <BotaoRevelar
         tipo="submit"
         pendente={pendente}
-        rotulo={pendente ? NOME_DO_ESTADO_ENVIANDO : "Enviar pedido"}
+        rotulo={pendente ? NOME_DO_ESTADO_ENVIANDO : "Enviar projeto"}
       />
     </form>
   );

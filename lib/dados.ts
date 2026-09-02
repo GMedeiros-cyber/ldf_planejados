@@ -45,8 +45,8 @@ export const creditos = {
 
 export const numeros = [
   { alvo: 1200, prefixo: "+", sufixo: "", rotulo: "Projetos entregues e montados" },
-  { alvo: 15,   prefixo: "+", sufixo: "", rotulo: "Anos de história" },
-  { alvo: 5,    prefixo: "",  sufixo: "", rotulo: "Anos de garantia" },
+  { alvo: 15, prefixo: "+", sufixo: "", rotulo: "Anos de história" },
+  { alvo: 5, prefixo: "", sufixo: "", rotulo: "Anos de garantia" },
 ] as const;
 
 /* --- Acabamentos -----------------------------------------------------------
@@ -76,8 +76,18 @@ export const acabamentoInicial: ChaveAcabamento = "nogueira";
 
 /* Quatro ambientes, não oito. Closet, home office, área gourmet e lavanderia
    continuam sendo executados pela LDF — só não têm foto própria à altura, e
-   por isso são citados dentro do ambiente vizinho em vez de ganharem um bloco
-   com imagem aproximada.
+   por isso não ganham bloco com imagem aproximada.
+
+   ⚠ ONDE ELES SÃO CITADOS MUDOU. Os textos do cliente que entraram em
+   `texto` são sobre o ambiente principal, e os quatro secundários saíram do
+   corpo: a lavanderia não é mais nomeada dentro da Cozinha, o closet saiu do
+   Dormitório e a área gourmet saiu da Sala. O home office é o único que
+   sobreviveu no corpo, como "o seu escritório", no Dormitório.
+
+   QUEM OS NOMEIA AGORA É O `subline`, que segue trazendo LAVANDERIA, CLOSET,
+   BANCADA DE TRABALHO e ÁREA GOURMET em caixa-alta acima de cada bloco. Se um
+   dia o subline sair ou for reescrito, três dos quatro somem do site inteiro —
+   e aí a decisão de não lhes dar bloco próprio precisa ser refeita.
 
    O BANHEIRO ESTÁ AQUI COM `fotos: []` DE PROPÓSITO. A única foto existente é
    print de story e, reenquadrada em 4:3, vira um close de duas gavetas. A
@@ -108,7 +118,7 @@ export const ambientes = [
     meta: "Torre quente, gaveteiro, coifa e despensa",
     subline: "TORRE QUENTE · GAVETEIRO · DESPENSA · LAVANDERIA",
     texto:
-      "A cozinha se resolve por circulação e altura de bancada, não por metro linear de armário. Torre quente na altura de tirar a assadeira sem se abaixar, gaveta funda para panela, despensa em coluna quando o espaço permite — e quando não permite, o projeto diz isso em vez de vender o módulo. A lavanderia entra no mesmo desenho: torre de máquinas, tanque e armário alto.",
+      "O coração da casa bate na correria da manhã e no café fresco. Pensar nessa marcenaria vai muito além da estética e exige engenharia de rotina. Um projeto inteligente abraça o seu estilo de vida e otimiza a circulação sem gambiarras. Nós começamos o desenho entendendo os seus hábitos reais. Com base nisso, nossa fábrica entrega uma cozinha onde a beleza e a usabilidade caminham lado a lado.",
     fotos: [
       "/ambientes/cozinha-01.webp",
       "/ambientes/cozinha-02.webp",
@@ -120,7 +130,7 @@ export const ambientes = [
     meta: "Guarda-roupa, cabeceira e criado suspenso",
     subline: "GUARDA-ROUPA · CLOSET · BANCADA DE TRABALHO",
     texto:
-      "Guarda-roupa, cabeceira e criado suspenso definem o quarto. O closet é o mesmo projeto sem porta: módulos abertos, gaveteiro e sapateira, com volumetria e iluminação interna resolvidas junto. Quando o quarto também é escritório, a bancada e o painel com passagem de cabos entram no desenho — não como móvel avulso encostado na parede depois.",
+      "O quarto deixou de ser apenas um lugar de repouso. Ele é o seu refúgio e muitas vezes o seu escritório. Tentar resolver essas funções com móveis soltos em espaços menores gera apenas aperto. A marcenaria planejada resolve o problema integrando tudo de forma harmônica. Guarda-roupas e mesas nascem desenhados para a geometria exata do ambiente. Criamos dormitórios que respiram espaço livre e entregam conforto para você recarregar as energias.",
     fotos: [
       "/ambientes/dormitorio-01.webp",
       "/ambientes/dormitorio-02.webp",
@@ -132,7 +142,7 @@ export const ambientes = [
     meta: "Painel de TV, rack e estante",
     subline: "PAINEL DE TV · ESTANTE · ÁREA GOURMET",
     texto:
-      "Painel, rack e estante são um bloco só, e quem decide o resultado é o que fica escondido: profundidade para o equipamento, ventilação e por onde os cabos passam. A área gourmet segue a mesma lógica na varanda — churrasqueira, adega e bancada de apoio dimensionadas pela circulação e pelo calor, não pelo espaço que sobrou.",
+      "Os espaços de convivência são as áreas mais versáteis da casa reunindo descanso e lazer. Tratar esses ambientes múltiplos apenas como decoração ignora a necessidade de acomodar equipamentos e esconder fios soltos. Um projeto planejado trabalha nos bastidores para a beleza brilhar de forma contínua. Painéis, bancadas e estantes são calculados milimetricamente para desobstruir a passagem e integrar toda a rotina. Nós desenhamos o seu living unindo o design impecável com a funcionalidade pura.",
     fotos: ["/ambientes/sala-01.webp"],
   },
   {
@@ -216,30 +226,41 @@ export const etapas = [
 ] as const;
 
 /* --- Os quatro estágios ----------------------------------------------------
-   Agrupam as onze etapas acima para a home. As frases são condensação dos
-   textos de `etapas` — nenhuma informação nova entra aqui. O array `etapas`
-   continua sendo a fonte completa. */
+   Agrupam as onze etapas acima para a home. O array `etapas` continua sendo a
+   fonte completa.
+
+   OS TEXTOS DE 01, 02 e 03 SÃO DO CLIENTE, e não mais a condensação literal
+   que a agência tinha escrito. O que não mudou é a regra: NENHUM FATO NOVO
+   entra aqui. Cada afirmação continua tendo origem numa etapa —
+   prumo/esquadro/água/luz vêm da "Medição no local", o 3D antes do orçamento
+   vem da "Apresentação", o orçamento módulo a módulo vem do "Orçamento
+   completo", e o cronômetro que começa na assinatura é o marco do "projeto
+   executivo".
+
+   O 04 continua com o texto anterior, de propósito: ele carrega os dois
+   números duros da operação — 45 dias úteis e 1 a 15 dias — e número não se
+   reescreve por tom. */
 
 export const estagios = [
   {
     n: "01",
     titulo: "Entender o ambiente",
     texto:
-      "A planta que você tiver já começa a conversa, mas é a medição no local — prumo, esquadro, ponto de água e altura de forro — que decide o que é possível de verdade.",
+      "Sua planta inicia a conversa. Mas é a nossa medição no local que decide o jogo. Prumo, esquadro, água e luz: conferimos tudo para garantir perfeição milimétrica.",
     etapas: ["Contato inicial", "Planta ou medidas", "Medição no local"],
   },
   {
     n: "02",
     titulo: "Desenhar",
     texto:
-      "O móvel desenhado no seu ambiente, não em um genérico: você vê o projeto antes de ver qualquer valor, e ajusta até ficar do jeito que quer.",
+      "Desenhamos o móvel no seu ambiente exato. Você visualiza o projeto em 3D antes de receber o orçamento, com liberdade para ajustar o que quiser.",
     etapas: ["Projeto 3D", "Apresentação", "Aprovação"],
   },
   {
     n: "03",
     titulo: "Fechar",
     texto:
-      "O orçamento sai módulo por módulo, sem valor por metro solto, e a assinatura do projeto executivo é o marco que inicia o prazo.",
+      "Orçamento detalhado por módulo, sem estimativas vagas. Assinou o projeto executivo? O cronômetro da nossa fábrica começa a rodar.",
     etapas: ["Orçamento completo", "Assinatura do projeto executivo"],
     marco: true,
   },
@@ -397,17 +418,26 @@ export const heroSlides = [
 export const heroLarguras = [2048, 1920, 1280, 768] as const;
 
 /* --- História --------------------------------------------------------------
-   Texto original da LDF, escrito a partir dos fatos já registrados aqui:
-   fábrica própria em Guarulhos, ausência de revenda, projeto 3D antes do
-   orçamento, 45 dias úteis de produção, 5 anos de garantia em madeiras.
-   Nada de ano de fundação, número de funcionários ou cargo — não temos. */
+   TEXTO FINAL DO CLIENTE. Substituiu os três parágrafos que a agência havia
+   escrito a partir dos fatos deste arquivo — fábrica própria, ausência de
+   revenda, projeto 3D antes do orçamento, 45 dias úteis, 5 anos de garantia.
+   Nenhum desses fatos sumiu do site: eles são o argumento da .fabrica e do
+   .processo, que é onde pertencem. Aqui a seção passa a ser sobre POR QUE a
+   LDF faz, e não sobre COMO.
+
+   SÃO TRÊS PARÁGRAFOS QUE VIRARAM UM. `paragrafos` continua sendo uma lista, e
+   o <Historia /> continua percorrendo com `.map()` — um item é caso válido, e
+   voltar a ter dois ou três não pede mudança nenhuma no componente.
+
+   ⚠ "há 15 anos" É AFIRMAÇÃO DE TEMPO, e é a primeira deste arquivo. Ela bate
+   com `numeros`, que traz "+15 anos de história" confirmado pelo cliente. As
+   duas têm de andar juntas: mudar uma sem a outra põe o site contando duas
+   idades diferentes na mesma rolagem. */
 
 export const historia = {
-  titulo: ["De Guarulhos,", "direto da fábrica"],
+  titulo: ["Muito mais que madeira", "e ferragens."],
   paragrafos: [
-    "Entre quem desenha o seu móvel e quem corta a chapa não existe ninguém. A fábrica é nossa, fica em Guarulhos, e é de lá que sai cada peça.",
-    "O projeto 3D vem antes do orçamento. Você aprova o móvel desenhado no seu ambiente — não um número solto numa planilha.",
-    "Da assinatura à entrega são até 45 dias úteis, e a garantia das madeiras é de cinco anos. Prazo e garantia são nossos, não de um fornecedor distante.",
+    "Acreditamos que um móvel não serve apenas para guardar objetos. Ele é o cenário onde a vida acontece. Nossa história começou há 15 anos, com o desejo de transformar espaços vazios em lares de verdade. Cada projeto carrega o compromisso de tornar o seu dia a dia mais prático e inesquecível.",
   ],
   /* A ASSINATURA É UMA IMAGEM, e `nome` é o TEXTO ALTERNATIVO dela — não um
      texto renderizado. Quem editar essa string está editando o que o leitor de
@@ -505,7 +535,7 @@ export const marcas: readonly Marca[] = [
    componente, não aqui: é dado de arquivo, não de conteúdo — a foto que um dia
    substituir uma destas continua entrando pelo mesmo campo. */
 export const projetoComercial = {
-  titulo: "Comercial: uma loja inteira, da fachada à linha de serviço.",
+  titulo: "Operação completa: da fachada à linha de serviço.",
   lede: "Ambiente comercial tem outra conta: uso intenso, muitos ciclos de abertura por dia, e uma obra que não pode parar esperando móvel.",
   fotos: [
     {

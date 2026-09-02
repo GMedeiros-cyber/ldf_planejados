@@ -114,7 +114,7 @@ export default function PaginaContato() {
           marca
           titulo="h1"
           idTitulo="t-contato"
-          frase="Conta o que você quer fazer."
+          frase="Conta o seu projeto pra gente."
         />
 
         <section className="contato__corpo" aria-labelledby="t-form">
@@ -126,11 +126,11 @@ export default function PaginaContato() {
             <div className="contato__lado">
               <div className="section__head">
                 <h2 className="h2 manchete-serifada" id="t-form">
-                  Manda o seu pedido.
+                  Preencha os dados do projeto.
                 </h2>
                 <p className="lede">
-                  Seis campos. A gente responde em até um dia útil com as próximas perguntas —
-                  ou já com uma data para medir.
+                  Apenas seis campos. Respondemos em até um dia útil com os próximos passos ou já
+                  com uma data para medir.
                 </p>
               </div>
 

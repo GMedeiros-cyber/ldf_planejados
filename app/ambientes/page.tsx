@@ -196,9 +196,9 @@ export default function PaginaAmbientes() {
                   Cada ambiente tem a sua régua, e é ela que decide o projeto.
                 </h1>
                 <p className="lede">
-                  Uma cozinha se resolve por circulação e altura de bancada. Um closet, por
-                  volumetria e iluminação interna. São projetos diferentes, e o site trata cada um no
-                  seu próprio capítulo.
+                  Uma cozinha exige circulação e altura de bancada perfeitas. Um closet pede
+                  volumetria e luz exatas. São dinâmicas diferentes. Por isso, não tratamos sua
+                  casa como uma linha de montagem: desenhamos cada cômodo de forma única.
                 </p>
               </div>
             </div>
