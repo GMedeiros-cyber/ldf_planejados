@@ -32,6 +32,24 @@ import FundoMadeira from "./FundoMadeira";
 
    O que JÁ mudou: o link "/contato" logo abaixo deixou de ser 404.
 
+   ══ ESTE BLOCO AGORA EXISTE NUMA ROTA SÓ ══
+
+   Ele foi o fim de /ambientes também, e ali levava junto uma SEGUNDA cópia do
+   id="contato" — o mesmo id em duas páginas. /ambientes passou a fechar com o
+   <ChamadaMadeira />, e o id voltou a existir em um lugar só: aqui, na home.
+   É melhoria, não regressão, e é o que faz "o id vive na home" deixar de ser
+   aproximação e virar fato.
+
+   As três âncoras não sentiram nada: são todas "/#contato", com a barra —
+   Nav 22, Nav 157 e Footer 7 — e apontam para a raiz, que é justamente onde
+   este bloco ficou.
+
+   ⚠ O <ChamadaMadeira /> NÃO SUBSTITUI ESTE COMPONENTE na home. Os dois são
+   blocos de madeira e dividem a mesma camada de fundo, mas este tem o
+   id="contato" e um <Link> para /contato, e aquele tem o botão de revelação.
+   Fundir os dois é uma decisão a tomar quando o formulário existir e o
+   id sair daqui — não antes.
+
    A lista de quem apontava para cá encolheu: o bloco comercial e a página da
    cozinha, que também citavam este id, não existem mais. */
 

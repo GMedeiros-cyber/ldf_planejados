@@ -2532,11 +2532,17 @@ a { color: inherit; }
    ══ A TEXTURA É PARÂMETRO, NÃO CONSTANTE ══
 
    Os dois arquivos entram por `--textura-1x` e `--textura-2x`, declarados no
-   SELETOR PAI de cada seção que hospeda a camada — .fechamento com a madeira
-   fria da home, .contato__palco com a quente da rota de contato. O componente
-   FundoMadeira é um só e continua sendo um só: duplicá-lo para trocar duas
-   URLs seria garantir que uma das cópias divirja da outra na primeira vez que
-   alguém mexer no parallax.
+   SELETOR PAI de cada hospedeiro da camada. São DOIS hospedeiros:
+
+     .fechamento  (seção 17) — a madeira fria, só na home.
+     .chamada     (seção 15) — a quente, no <ChamadaMadeira /> compartilhado,
+                               hoje em /contato e no fim de /ambientes.
+
+   A escolha entre as duas texturas é medida, e a conta está na seção 15.
+
+   O componente FundoMadeira é um só e continua sendo um só, agora com três
+   pontos de uso: duplicá-lo para trocar duas URLs seria garantir que uma das
+   cópias divirja da outra na primeira vez que alguém mexer no parallax.
 
    `var()` DENTRO de `image-set()` funciona, e não foi deduzido: medido no
    Chrome 152, o valor computado da forma com variável é idêntico, token por
@@ -3318,6 +3324,169 @@ a { color: inherit; }
 .ficha__d {
   font-family: var(--font-texto); display: block; color: var(--ink-2); font-size: var(--t-sm); margin-top: var(--s3); }
 
+/* --- 15. Chamada sobre madeira ----------------------------------------------
+   O <ChamadaMadeira />: logo, frase serifada, botão de revelação e, quando há,
+   uma linha de aviso. Bloco COMPARTILHADO — hoje fecha /ambientes e abre
+   /contato.
+
+   NASCEU COMO .contato__palco, dentro da seção 18, e foi renomeado quando
+   ganhou o segundo consumidor. O nome de rota teria virado mentira na hora em
+   que /ambientes passou a usá-lo, e classe que mente é pior que classe feia:
+   quem lê `.contato__frase` no fim de /ambientes procura um bug que não
+   existe. O que continua com nome de rota é a faixa "Onde nos achar", na 18b,
+   porque aquela é de /contato mesmo.
+
+   É o SEGUNDO hospedeiro da camada de madeira. O outro é o `.fechamento`, na
+   seção 17. Os dois dividem o mesmo <FundoMadeira />, o mesmo parallax e a
+   mesma seção 11b; o que os separa são duas variáveis e o conteúdo.
+
+   ══ QUAL MADEIRA, E POR QUÊ ══
+
+   A QUENTE, a de /contato, nos dois consumidores. Não é preferência: as duas
+   texturas foram medidas com sharp, e a quente ganha nos dois números que
+   importam para este bloco.
+
+     COSTURA DO repeat-y — degrau de luminância entre a última linha da imagem
+     e a primeira:
+
+       madeira-contato-1600 .... 1,68%
+       madeira-cta-1600 ....... 19,82%
+
+     Este é o número decisivo, e é decisivo POR CAUSA DA ALTURA DAQUI. O bloco
+     tem no mínimo uma tela de altura; a 390px de largura a imagem de 1600
+     desce para ~133px e o bloco de 760px a repete umas seis vezes. Com 19,82%
+     de degrau, cada emenda é uma faixa horizontal visível atravessando a
+     madeira — seis delas. Com 1,68%, nenhuma. O `.fechamento` escapa disso na
+     mesa porque tem 420px e a imagem cobre de uma vez; no celular ele também
+     emenda, e ali o problema existe — ver a nota no fim desta seção.
+
+     CONTRASTE SOB O VÉU DE 50%, --ink no pixel mais claro:
+
+       madeira-contato-1600 .... 7,25:1
+       madeira-cta-1600 ....... 6,30:1
+
+   A inclinação era "a página inteira apontar para o mesmo lugar", e ela bate
+   com a medida — mas quem decidiu foi a medida. Se um dia a madeira fria
+   voltar a este bloco, a costura dela tem de ser tratada antes.
+
+   ⚠ ACHADO QUE NÃO É DESTA RODADA E NÃO FOI MEXIDO: os 19,82% da
+   madeira-cta valem também para o `.fechamento` da home, que emenda no
+   celular. Não entra aqui porque mexer no Fechamento estava fora do escopo
+   das duas últimas rodadas. TODO: ou tratar a costura daquele arquivo, ou
+   passar o .fechamento para a textura quente. */
+
+.chamada {
+  /* A madeira DESTE bloco, para todos os consumidores. Ver a medição acima
+     antes de trocar, e ver a .fundo-madeira__textura na seção 11b para o
+     porquê de a URL entrar por variável.
+
+     ⚠ madeira-contato-1000.webp ESTÁ EM public/ E CONTINUA SEM CONSUMIDOR. É
+     o degrau de celular, parado pelo mesmo motivo que o madeira-cta-1000 da
+     home: ligá-lo pede um par de variáveis a mais por hospedeiro e uma media
+     query na camada. TODO: quando entrar, entra na .fundo-madeira__textura e
+     vale para os dois de uma vez. São 59 KB contra 152 no 1x — e agora que
+     este bloco também está em /ambientes, a conta dobrou de importância. */
+  --textura-1x: url("/madeira-contato-1600.webp");
+  --textura-2x: url("/madeira-contato-2400.webp");
+
+  /* Mesmo trio do .fechamento, e pelas mesmas três razões: position para a
+     camada de fundo se posicionar contra, isolation para o z-index negativo
+     dela não escapar para a página, overflow porque a textura é 130% da altura
+     da seção. */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  display: grid;
+  align-content: center;
+
+  /* A ALTURA DA TELA MENOS A NAVEGAÇÃO. `dvh` e não `vh`: no celular a barra
+     do navegador entra e sai, e com `vh` o bloco fica alto demais quando ela
+     está visível — o que vem depois some abaixo da dobra sem nada indicando
+     que existe.
+
+     O `max()` é o PISO em px, e existe para a paisagem no celular: a 844x390
+     deitado sobrariam ~306px de dvh, e o logo mais a frase mais o botão não
+     cabem nisso sem esmagar. Abaixo do piso o bloco simplesmente passa a
+     rolar, que é o comportamento honesto — `min-height`, e não `height`,
+     então ele cresce se o conteúdo pedir em vez de recortá-lo.
+
+     O PADDING DE TOPO DESCONTA A NAVEGAÇÃO DE NOVO, e não é redundância com o
+     `calc` acima. A altura entra ali para o BLOCO medir uma tela; entra aqui
+     para o CONTEÚDO não nascer debaixo da barra. A nav é `fixed` e a seção
+     começa em y=0 — sem este padding o `align-content: center` centra na caixa
+     inteira, inclusive nos 84px que a barra cobre. Em paisagem no celular,
+     onde a altura é curta, o logo sumia atrás dela: medido em 844x390. Os
+     --s4 a mais são a folga entre o painel da nav e o logo.
+
+     ⚠ O DESCONTO DA NAV VALE PARA O BLOCO NO TOPO DA ROTA, que é o caso de
+     /contato. Em /ambientes ele fecha a página e a barra não está por cima —
+     o padding vira respiro a mais, e respiro a mais no fim de uma página é
+     inofensivo. Não vale a pena um modificador para isso. */
+  min-height: max(480px, calc(100dvh - var(--altura-nav)));
+  padding-block: calc(var(--altura-nav) + var(--s4)) var(--s8);
+}
+
+.chamada__conteudo {
+  display: grid;
+  justify-items: center;
+  gap: var(--s6);
+  text-align: center;
+}
+
+/* Mesmo degrau do logo do Fechamento: 56px. É o mesmo papel — a marca
+   assinando um pedido — e um segundo tamanho aqui só criaria um degrau novo
+   para manter. */
+.chamada__marca {
+  display: block;
+  height: 56px;
+  width: auto;
+  aspect-ratio: 413.29 / 250.65;
+  color: var(--ink);
+}
+
+/* Instrument Serif. As três linhas de sempre — família, peso 400 e o eixo
+   zerado — porque a fonte não é variável e o body manda "wdth" 100 por
+   herança. É O ÚNICO LUGAR onde a família desta frase é declarada: o
+   componente não a repete, e nenhuma classe de rota a redeclara.
+
+   Vale para <h1> e para <h2>: o nível do título é decisão de hierarquia de
+   documento, e não de tamanho. Por isso o `font-size` está aqui e não vem de
+   um degrau da rampa que mudaria junto com a tag. Tamanho no degrau do
+   .fechamento__frase — é a mesma frase-pedido no mesmo tipo de bloco. */
+.chamada__frase {
+  font-family: var(--font-serif);
+  font-size: clamp(2.1rem, 1.15rem + 4vw, 3.9rem);
+  font-weight: 400;
+  font-variation-settings: normal;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  max-width: 18ch;
+}
+
+/* A discrição vem do TAMANHO e do espacejamento, não de apagar a tinta.
+   Medido sob o véu desta madeira, --ink-3 dá 2,06:1 e --ink-2 dá 3,02:1 no
+   pixel mais claro; --ink dá 7,25:1. A régua do sistema para superfície de
+   madeira já estava escrita no .fundo-madeira__veu — "aqui só existe --ink" —
+   e --ink-2 é o limite do que dá para afastar dela.
+
+   O gap do .chamada__conteudo é --s6; aqui ele encolhe para a linha ficar
+   colada no botão que ela explica, e não boiando entre ele e a borda. */
+.chamada__aviso {
+  margin-top: calc(var(--s3) - var(--s6));
+  font-size: var(--t-xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+@media (max-width: 700px) {
+  .chamada__conteudo { gap: var(--s5); }
+  .chamada__aviso { margin-top: calc(var(--s2) - var(--s5)); }
+  .chamada__marca { height: 44px; }
+}
+
 /* --- 16. Vazio honesto: os ativos que ainda não chegaram ----------------- */
 
 .aguardando {
@@ -3836,141 +4005,15 @@ a { color: inherit; }
 }
 
 /* --- 18. Rota de contato ----------------------------------------------------
-   Dois tempos: o palco de madeira com o pedido, e uma faixa seca com os dados.
+   Só o que é DESTA ROTA. O palco de madeira que ficava aqui saiu inteiro para
+   a seção 15 quando virou o <ChamadaMadeira /> — bloco compartilhado, hoje
+   também no fim de /ambientes — e com ele saíram as classes .contato__palco,
+   .contato__conteudo, .contato__marca, .contato__frase e .contato__aviso, que
+   viraram .chamada*. A medição das duas madeiras foi junto.
 
-   ══ A MADEIRA DAQUI É OUTRA, E ISSO É O DESENHO ══
+   O que sobra é a faixa "Onde nos achar", abaixo. Ela é de /contato e continua
+   com nome de rota, porque é verdade. */
 
-   Muito mais quente que a do CTA da home: RGB médio (88,53,30) contra
-   (53,50,45), medido nos arquivos de 1600 com sharp. A troca de temperatura é
-   o que faz esta rota parecer OUTRO LUGAR, e não a home com outro texto. Quem
-   chegar aqui achando que as duas madeiras deveriam combinar: não deveriam. Não
-   "corrija" a diferença.
-
-   O <FundoMadeira /> é o MESMO componente do Fechamento — mesmo parallax, mesma
-   amplitude, mesma variável. O que troca são duas URLs, e elas entram por
-   `--textura-1x` e `--textura-2x` aqui embaixo. O porquê do arranjo, e a prova
-   de que `var()` funciona dentro de `image-set()`, estão no comentário da
-   `.fundo-madeira__textura`, na seção 11b.
-
-   ══ O VÉU CONTINUA EM 50%, E O NÚMERO NOVO É MELHOR ══
-
-   Medido nesta textura, composta sob rgba(0,0,0,0.50), com a luminância
-   relativa da WCAG 2.x:
-
-     --ink    no pixel MAIS CLARO ... 7,25:1   (arquivo 1600)
-                                      6,56:1   (arquivo 2400, que resolve mais
-                                                brilho e por isso mede pior)
-     --ink    no percentil 99 ....... 9,93:1
-     --ink    na mediana ............ 14,15:1
-
-   O comentário do .fundo-madeira__veu registra 6,7:1 no pixel mais claro da
-   madeira da home; pelo meu método o mesmo arquivo mede 6,30:1. A diferença
-   é de método, não de material — e nos dois métodos a conclusão é a mesma:
-   ESTA madeira é mais fácil de escrever em cima que a da home. Por isso os 50%
-   ficam, e não sobem.
-
-   ⚠ SÓ --ink SOBREVIVE A ESTA SUPERFÍCIE. Sob o mesmo véu:
-
-     --ink-2  pixel mais claro ...... 3,02:1
-     --ink-3  pixel mais claro ...... 2,06:1
-
-   Os dois reprovam nos 4,5:1 de texto normal em AA. É a mesma conclusão que o
-   comentário do véu já tinha registrado para a madeira da home ("aqui só existe
-   --ink"), e vale igual aqui. É por isso que a linha "Formulário em breve." é
-   --ink-2 e NÃO --ink-3, e por que ela é pequena e espaçada em vez de apagada:
-   quem quiser deixá-la mais discreta mexe no TAMANHO, não na tinta. */
-
-.contato__palco {
-  /* A madeira DESTA seção. Quente. Ver o bloco acima antes de trocar.
-
-     ⚠ madeira-contato-1000.webp ESTÁ EM public/ E NÃO TEM CONSUMIDOR. Não é
-     esquecimento: é o degrau de celular, e ele fica parado pelo mesmo motivo
-     que o madeira-cta-1000.webp da home já está parado — ligá-lo pede um par
-     de variáveis a mais por seção e uma media query na camada, e isso mudaria
-     também o Fechamento, que nesta rodada devia continuar exatamente como
-     está. TODO: quando valer a pena, o degrau entra para as DUAS madeiras de
-     uma vez, na .fundo-madeira__textura, e não aqui. São 59 KB contra 152 no
-     1x — vale. */
-  --textura-1x: url("/madeira-contato-1600.webp");
-  --textura-2x: url("/madeira-contato-2400.webp");
-
-  /* Mesmo trio do .fechamento, e pelas mesmas três razões: position para a
-     camada de fundo se posicionar contra, isolation para o z-index negativo
-     dela não escapar para a página, overflow porque a textura é 130% da altura
-     da seção. */
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-
-  display: grid;
-  align-content: center;
-
-  /* A ALTURA DA TELA MENOS A NAVEGAÇÃO. `dvh` e não `vh`: no celular a barra
-     do navegador entra e sai, e com `vh` o palco fica alto demais quando ela
-     está visível — a faixa de dados some abaixo da dobra sem nada indicando
-     que existe.
-
-     O `max()` é o PISO em px, e existe para a paisagem no celular: a 844x390
-     deitado sobrariam ~306px de dvh, e o logo mais a frase mais o botão não
-     cabem nisso sem esmagar. Abaixo do piso o palco simplesmente passa a rolar,
-     que é o comportamento honesto — `min-height`, e não `height`, então o
-     bloco cresce se o conteúdo pedir em vez de recortá-lo.
-
-     O PADDING DE TOPO DESCONTA A NAVEGAÇÃO DE NOVO, e não é redundância com o
-     `calc` acima. A altura entra ali para o BLOCO medir uma tela; entra aqui
-     para o CONTEÚDO não nascer debaixo da barra. A nav é `fixed` e a seção
-     começa em y=0 — sem este padding o `align-content: center` centra na caixa
-     inteira, inclusive nos 84px que a barra cobre. Em paisagem no celular,
-     onde a altura é curta, o logo sumia atrás dela: medido em 844x390. Os
-     --s4 a mais são a folga entre o painel da nav e o logo. */
-  min-height: max(480px, calc(100dvh - var(--altura-nav)));
-  padding-block: calc(var(--altura-nav) + var(--s4)) var(--s8);
-}
-
-.contato__conteudo {
-  display: grid;
-  justify-items: center;
-  gap: var(--s6);
-  text-align: center;
-}
-
-/* Mesmo degrau do logo do Fechamento: 56px. É o mesmo papel — a marca
-   assinando um pedido — e um segundo tamanho aqui só criaria um degrau novo
-   para manter. */
-.contato__marca {
-  display: block;
-  height: 56px;
-  width: auto;
-  aspect-ratio: 413.29 / 250.65;
-  color: var(--ink);
-}
-
-/* Instrument Serif. As três linhas de sempre — família, peso 400 e o eixo
-   zerado — porque a fonte não é variável e o body manda "wdth" 100 por
-   herança. Tamanho no degrau do .fechamento__frase: é a mesma frase-pedido no
-   mesmo tipo de bloco. */
-.contato__frase {
-  font-family: var(--font-serif);
-  font-size: clamp(2.1rem, 1.15rem + 4vw, 3.9rem);
-  font-weight: 400;
-  font-variation-settings: normal;
-  line-height: 1.06;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  max-width: 18ch;
-}
-
-/* A discrição vem do TAMANHO e do espacejamento, não de apagar a tinta — ver a
-   medição no topo desta seção. O gap do .contato__conteudo é --s6; aqui ele
-   encolhe para a linha ficar colada no botão que ela explica, e não boiando
-   entre ele e a borda. */
-.contato__aviso {
-  margin-top: calc(var(--s3) - var(--s6));
-  font-size: var(--t-xs);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
 
 /* --- 18b. A faixa de dados --------------------------------------------------
    Fora do palco, sobre o fundo da página — onde --ink-2 e --ink-3 voltam a
@@ -4035,9 +4078,6 @@ a { color: inherit; }
 }
 
 @media (max-width: 700px) {
-  .contato__conteudo { gap: var(--s5); }
-  .contato__aviso { margin-top: calc(var(--s2) - var(--s5)); }
-  .contato__marca { height: 44px; }
   .contato__lista { gap: var(--s6); }
 }
 

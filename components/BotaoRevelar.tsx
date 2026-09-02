@@ -46,11 +46,27 @@ import { Seta } from "./Icones";
 
    ══ A ASSINATURA JÁ PREVÊ O DESTINO ══
 
-   Com `href`, sai um <Link> de verdade. Sem `href`, sai um <button
-   type="button" disabled> — que é o estado de hoje, porque o formulário ainda
-   não existe e um botão que não leva a lugar nenhum precisa dizer isso ao
-   teclado e ao leitor de tela, não só ao olho. Quando app/contato tiver para
-   onde mandar, é uma prop a mais na chamada e nada aqui muda. */
+   Com `href`, sai um link de verdade. Sem `href`, sai um <button
+   type="button" disabled> — o estado de /contato hoje, porque o formulário
+   ainda não existe e um botão que não leva a lugar nenhum precisa dizer isso
+   ao teclado e ao leitor de tela, não só ao olho.
+
+   ══ TRÊS SAÍDAS, E QUEM DECIDE É O PRÓPRIO href ══
+
+   externo  →  <a target="_blank" rel="noopener">, que é a convenção da base:
+               o Footer e as Avaliações usam exatamente esse par. `rel` sem
+               `noreferrer` também é a convenção — o alvo é a própria empresa
+               (WhatsApp da LDF), e cortar o referrer não protege ninguém aqui.
+               NÃO é <Link>: o next/link não pré-carrega URL de outro domínio,
+               e passar por ele só acrescenta uma camada que não faz nada.
+
+   interno  →  <Link>, com o pré-carregamento que ele traz.
+
+   sem href →  <button disabled>.
+
+   A distinção é por PROTOCOLO, e não por "começa com /": um href futuro como
+   "mailto:" ou "tel:" também não é rota interna, e cairia no <Link> se o teste
+   fosse pela barra. */
 
 type Props = {
   rotulo: string;
@@ -78,6 +94,18 @@ export default function BotaoRevelar({ rotulo, href, className }: Props) {
   );
 
   if (href) {
+    /* Qualquer coisa com esquema (http:, https:, mailto:, tel:) ou começando
+       em "//" sai da aplicação. O resto é rota nossa. */
+    const externo = /^([a-z][a-z0-9+.-]*:|\/\/)/i.test(href);
+
+    if (externo) {
+      return (
+        <a className={classe} href={href} target="_blank" rel="noopener">
+          {miolo}
+        </a>
+      );
+    }
+
     return (
       <Link className={classe} href={href}>
         {miolo}
