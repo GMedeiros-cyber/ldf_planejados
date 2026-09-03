@@ -3027,6 +3027,25 @@ a { color: inherit; }
   --vao: 14px;
   --fonte-nome: var(--font-texto);
 
+  /* ══ --nucleo: A FRAÇÃO DA MEIA-LARGURA QUE NÃO DESFOCA ══
+
+     O carrossel desfoca e apaga cada logo em função da distância dele até o
+     centro do canvas. Com núcleo 0 essa queda começa NO CENTRO: só o logo
+     exatamente no meio fica nítido, e o vizinho já está borrado.
+
+     Com núcleo 0,5, metade da meia-largura fica intocada e a queda inteira
+     acontece na metade de fora. É o que alarga a área nítida sem mexer na
+     velocidade nem na aritmética do laço.
+
+     O valor mora AQUI, e não no componente, pela mesma regra dos outros
+     quatro: quem manda no tamanho da faixa é a folha. */
+  --nucleo: 0;
+
+  /* As paradas da máscara, em custom property para a media query trocar só o
+     número em vez de reescrever os dois gradientes. */
+  --mascara-ini: 15%;
+  --mascara-fim: 85%;
+
   position: relative;
   height: 64px;
 }
@@ -3045,21 +3064,58 @@ a { color: inherit; }
   -webkit-mask-image: linear-gradient(
     to right,
     transparent 0%,
-    black 15%,
-    black 85%,
+    black var(--mascara-ini),
+    black var(--mascara-fim),
     transparent 100%
   );
   mask-image: linear-gradient(
     to right,
     transparent 0%,
-    black 15%,
-    black 85%,
+    black var(--mascara-ini),
+    black var(--mascara-fim),
     transparent 100%
   );
 }
 
 /* Abaixo de 768px a faixa encolhe, mas continua carrossel: numa tela estreita
    caberiam dois logos parados, e é o movimento que mostra os cinco.
+
+   ══ DUAS MARCAS POR VEZ, E NÃO UMA — O QUE FOI MEDIDO ══
+
+   A faixa mostrava UMA. Medido em 360px, com o limiar de nitidez que texto de
+   13px aguenta (desfoque ≤ 1,75px, ou s ≤ 0,25 na curva do componente):
+
+     zona nítida  101px  →  0,71 marca
+
+   Duas marcas pedem 284px, porque o passo médio é 142px. A faixa tem 310px:
+   dois logos ocupam 92% dela, e é por isso que não sobra espaço para uma
+   queda longa aqui.
+
+   ══ DOIS LIMITES DIFERENTES ESTAVAM APERTANDO, E SÓ UM ERA ÓBVIO ══
+
+     1. A QUEDA DO DESFOQUE, que com `--nucleo: 0` começa no centro exato. Era
+        ela que segurava em 101px — a máscara CSS nem chegava a ser o gargalo.
+     2. A MÁSCARA CSS, que em 15%/85% deixa 217px opacos. Ela ainda não
+        limitava nada, mas passaria a limitar assim que a queda abrisse.
+
+   Mexer num só não resolvia: com a máscara em 15%/85%, o melhor que qualquer
+   núcleo alcança é 217px, ou 1,53 marca. Os dois abrem juntos.
+
+   ══ POR QUE 0,83 E 6%/94% ══
+
+     núcleo 0,83 + 6%/94%  →  273px  →  1,92 marcas
+     núcleo 0,86 + 4%/96%  →  281px  →  1,98 marcas
+
+   A segunda linha ganha 0,06 de marca e paga com metade do esvaecimento das
+   bordas: 12px de fade contra 19px. Abaixo de ~15px a entrada e a saída dos
+   logos param de ser esvaecimento e viram corte. Fica a primeira.
+
+   ACIMA DE 0,83 O NÚCLEO NÃO COMPRA NADA com esta máscara: de 0,83 para 0,90 a
+   zona de desfoque vai a 289px, mas a máscara trava em 273px. Subir só o
+   núcleo é trabalho perdido — o par anda junto.
+
+   A VELOCIDADE E O LAÇO NÃO FORAM TOCADOS. `VELOCIDADE`, `deslocamento`,
+   `conjunto` e `voltas` estão como estavam; o que mudou é a curva por peça.
 
    --simbolo subiu de 20px para 30px, acompanhando o desktop. Ficar em 20
    enquanto o desktop ia a 40 deixava a proporção entre símbolo e nome
@@ -3074,6 +3130,9 @@ a { color: inherit; }
     --simbolo: 30px;
     --nome: 13px;
     --vao: 10px;
+    --nucleo: 0.83;
+    --mascara-ini: 6%;
+    --mascara-fim: 94%;
     height: 48px;
   }
   .marcas__carrossel canvas { height: 72px; }
