@@ -95,17 +95,26 @@ export const metadata: Metadata = {
    uma vez só na rota — antes ele corria o risco de ser digitado em dois
    lugares e divergir.
 
-   ABAIXO DE 900px VIRA UMA COLUNA, E O FORMULÁRIO VEM PRIMEIRO. A ordem no
-   DOM é esquerda-depois-direita, que é a de leitura no desktop; no celular o
-   CSS inverte com `order`. Quem abre /contato no telefone veio preencher, e
-   empurrar o formulário para depois de uma foto, um endereço e um botão de
-   mapa é pedir que role três telas antes de fazer o que veio fazer.
+   ABAIXO DE 900px VIRA UMA COLUNA, NA ORDEM DO DOM: manchete, lede, cartão de
+   contato e formulário. Acima de 900px, duas colunas — o cartão à esquerda, o
+   formulário à direita —, que é a mesma ordem lida da esquerda para a direita.
 
-   ⚠ A INVERSÃO É SÓ VISUAL. A ordem do Tab e a do leitor de tela seguem o DOM,
-   então no celular o teclado ainda passa pelo cartão antes do formulário. É o
-   preço de inverter por CSS, e é o certo: `order` não deve mexer na ordem de
-   leitura. Se um dia isso incomodar, o conserto é trocar a ordem no DOM e
-   inverter no desktop, não pôr tabindex.
+   ══ NÃO HÁ MAIS DISCORDÂNCIA ENTRE O QUE SE VÊ E O QUE SE TABULA ══
+
+   Havia. O CSS subia o formulário no celular com `order: -1`, e este comentário
+   registrava o preço: `order` move o pixel e não move o documento, então o Tab
+   e o leitor de tela continuavam passando pelo cartão primeiro. Quem enxerga e
+   usa teclado via o formulário no topo, apertava Tab, e o foco pulava para um
+   link de e-mail abaixo da dobra.
+
+   A ordem pedida agora — contatos em cima, formulário embaixo — já era a do
+   DOM. O conserto foi apagar a regra de `order`, não mexer neste JSX: a
+   inversão é que era o problema. Ordem visual, ordem de leitura e ordem de
+   foco são a mesma coisa hoje, nas duas larguras.
+
+   ⚠ Se um dia o formulário precisar subir no celular, troque a ordem AQUI e
+   devolva as colunas no desktop com `grid-column`. Nunca `order`, nunca
+   `tabindex`.
 
    ══ A HISTÓRIA DO PALCO DE MADEIRA, PARA QUEM VIER DEPOIS ══
 
@@ -133,8 +142,8 @@ export default function PaginaContato() {
           <FundoContato />
 
           <div className="contato__grade wrap">
-            {/* COLUNA ESQUERDA — no DOM primeiro, na tela à esquerda, e no
-                celular DEPOIS do formulário (ver a nota no topo). */}
+            {/* PRIMEIRO NO DOM, primeiro na tela: à esquerda no desktop, em
+                cima no celular. Sem `order` no meio. */}
             <div className="contato__lado">
               <div className="section__head rise">
                 {/* VIROU O <h1> DA ROTA quando a capa de madeira saiu. As

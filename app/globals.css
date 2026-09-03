@@ -4804,17 +4804,34 @@ main > .chamada:first-child {
    `.contato__valor` saíram da folha junto com ela. O endereço aparece uma vez
    só na rota.
 
-   ══ 900px É O PONTO DE VIRADA, E O FORMULÁRIO VEM PRIMEIRO ══
+   ══ 900px É O PONTO DE VIRADA, E NÃO HÁ MAIS INVERSÃO NENHUMA ══
 
-   Abaixo dele vira uma coluna, e a coluna do formulário sobe por `order`. Quem
-   abre /contato no telefone veio preencher; empurrar o formulário para depois
-   de uma foto, um endereço e um botão de mapa é pedir três telas de rolagem
-   antes de fazer o que a pessoa veio fazer.
+   Abaixo dele vira uma coluna, na ordem do DOM: manchete, lede, cartão de
+   contato e formulário. Acima dele, duas colunas — o `.contato__lado` à
+   esquerda e o formulário à direita, que é a MESMA ordem lida da esquerda para
+   a direita. Nas duas larguras o que se vê é o que está no documento.
 
-   O `order` mexe só na ORDEM VISUAL — a de leitura e a do Tab continuam
-   seguindo o DOM. É o preço de inverter por CSS, está registrado no topo de
-   app/contato/page.tsx, e é melhor que a alternativa (tabindex positivo, que
-   quebra a ordem do documento inteiro). */
+   ══ O `order: -1` SAIU, E É A CORREÇÃO DE UM DEFEITO ══
+
+   Havia aqui um `.contato__coluna-form { order: -1 }` que subia o formulário
+   no celular. O argumento era razoável — quem abre /contato no telefone veio
+   preencher — e o preço estava escrito no arquivo desde então: `order` move o
+   PIXEL e não move o DOM, então o Tab e o leitor de tela continuavam passando
+   pelo cartão antes do formulário, ao contrário do que os olhos viam.
+
+   Quem enxerga e usa teclado é exatamente quem essa discordância atrapalha:
+   vê o formulário no topo, aperta Tab, e o foco aparece num link de e-mail
+   trinta pixels abaixo da dobra.
+
+   A ordem visual pedida agora — contatos em cima, formulário embaixo — é a
+   ordem que o DOM já tinha. Então o conserto foi APAGAR a regra, não inverter
+   o JSX: a inversão é que era o problema.
+
+   ⚠ NÃO REINTRODUZA `order` AQUI. Se um dia o formulário precisar subir no
+   celular de novo, o caminho é trocar a ordem no JSX e devolver as colunas no
+   desktop com `grid-column`, que reordena a GRADE sem mentir sobre o
+   documento. `tabindex` positivo nunca — ele quebra a ordem da página
+   inteira, não só desta seção. */
 
 /* ══ O PADDING DE TOPO DESCONTA A BARRA FIXA, E ANTES NÃO DESCONTAVA ══
 
@@ -4864,8 +4881,7 @@ main > .chamada:first-child {
 }
 
 @media (max-width: 899.98px) {
-  /* O FORMULÁRIO SOBE. Ver a nota acima antes de trocar por outra ordem. */
-  .contato__coluna-form { order: -1; }
+  /* Nenhum `order` aqui, e é deliberado — ver a nota acima. */
   .contato__grade { gap: var(--s7); }
 }
 
