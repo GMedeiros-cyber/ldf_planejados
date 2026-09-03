@@ -3038,8 +3038,40 @@ a { color: inherit; }
      velocidade nem na aritmética do laço.
 
      O valor mora AQUI, e não no componente, pela mesma regra dos outros
-     quatro: quem manda no tamanho da faixa é a folha. */
-  --nucleo: 0;
+     quatro: quem manda no tamanho da faixa é a folha.
+
+     ══ 0,16 É O DESKTOP, E FOI MEDIDO EM 1440px ══
+
+     Com 0 a faixa mostrava 2,33 marcas em 1440 — o passo médio é 180,5px e a
+     zona nítida tinha 420px. Três pedem 542px. Varrido:
+
+       núcleo   zona nítida   marcas em 1440
+       0            420px       2,33
+       0,14         541px       3,00
+       0,16         558px       3,09   ← esta
+       0,22         610px       3,38
+
+     0,14 acerta 3,00 raspando, e "raspando" aqui significa que a terceira
+     marca vive exatamente na fronteira do limiar. 0,16 dá 3,09 e deixa as três
+     inteiras dentro da zona, que é o que se pede quando se pede três.
+
+     ⚠ A CONTA É PROPORCIONAL À LARGURA — `marcas = d × faixa / passo` —, então
+     este número entrega três em 1440 e não em toda tela. Medido com 0,16:
+
+       768px → 1,64    1280px → 2,75    1440px → 3,09    1920px → 4,21
+
+     É o comportamento certo, e não um defeito a corrigir com breakpoint: tela
+     mais larga MOSTRA mais. O que se escolhe aqui é a largura de referência, e
+     a deste projeto é 1440. Em toda largura o número subiu.
+
+     ══ A MÁSCARA CSS NÃO É O GARGALO NO DESKTOP ══
+
+     Em nenhuma largura testada. Em 1440 a janela opaca dá 900px e a zona de
+     desfoque, 558px — quem limita é sempre o desfoque. Por isso as paradas
+     abaixo continuam em 15%/85%: abri-las não mostraria uma marca a mais, só
+     encurtaria o esvaecimento das bordas de graça. No MOBILE é diferente, e lá
+     as duas precisaram abrir juntas — ver a media query no fim da seção. */
+  --nucleo: 0.16;
 
   /* As paradas da máscara, em custom property para a media query trocar só o
      número em vez de reescrever os dois gradientes. */
