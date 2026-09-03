@@ -2918,8 +2918,69 @@ a { color: inherit; }
   margin-top: var(--s3);
   font-family: var(--font-texto);
   font-size: var(--t-md);
-  line-height: 1.4;
-  color: var(--ink-2);
+  /* Solto, a marca-texto encosta na linha de cima. 1.7 abre a entrelinha o
+     bastante para as duas marcas de uma legenda de duas linhas respirarem. */
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+/* ══ 11d-c. A MARCA-TEXTO DA LEGENDA ══
+
+   As quatro legendas nomeiam as partes de uma operação — fachada, linha de
+   serviço, vitrine, balcão — e são o único texto que diz o que cada foto
+   mostra. Em --ink-2, solto embaixo da imagem, ele lia como didascália. Com a
+   marca ele lê como o que é: a etiqueta da peça.
+
+   ══ POR QUE UM TRAÇO TRANSLÚCIDO, E NÃO UM PASTEL DE VERDADE ══
+
+   Marca-texto pastel é rosa claro com texto escuro por cima — é assim no
+   papel. Nesta página não pode ser: o campo é --ground-deep, quase preto, e um
+   traço claro obrigaria o texto a virar escuro. Aí a parte do glifo que sobe
+   ACIMA da marca ficaria escura sobre quase preto, e sumiria. O traço só
+   funciona claro se a página for clara.
+
+   A saída é a mesma ideia invertida: marca ESCURA e translúcida, texto claro.
+   "Um pouco pastel" vira dessaturação, não clareamento — o vermelho de marca
+   puxado 22% para o `--ink-2` antes de receber o alfa. O resultado é um tijolo
+   quente em vez do vermelho-sinal, que é o que a palavra pedia aqui.
+
+   ⚠ NÃO USE `--stone` AQUI. Ele é o nome óbvio para este papel, está listado
+   no DESIGN.md como `#AFA99E`, e NÃO EXISTE nesta folha — nunca foi declarado
+   no :root. `var(--stone)` é inválido, e um var inválido dentro de um
+   `color-mix` derruba a declaração inteira: a custom property vira vazia e o
+   `background-image` que a consome cai em `none`. A marca simplesmente não
+   aparecia, sem erro nenhum no console. Foi o primeiro rascunho desta regra.
+   `--ink-2` é #A8A099, praticamente o mesmo cinza quente, e existe.
+
+   ⚠ ISTO É UM QUARTO USO DO VERMELHO, e o DESIGN.md lista três (instrumento,
+   etiqueta de amostra, ação primária). Está mais perto do segundo — é etiqueta
+   —, mas não é o mesmo componente. Decisão do cliente, registrada aqui para
+   quem for atualizar o documento não achar que foi descuido.
+
+   Contraste medido, com --ink no texto:
+     sobre a marca            10,0:1
+     sobre o campo da seção   16,8:1
+   O traço para antes do topo e da base da linha de propósito: é marca de
+   caneta, não retângulo, e as duas pontas do glifo respiram fora dela. */
+.comercial {
+  --grifo: color-mix(in srgb, var(--red) 78%, var(--ink-2) 22%);
+}
+
+.comercial__grifo {
+  /* `clone` é obrigatório: sem ele a legenda de duas linhas ganha UMA marca só,
+     que começa na primeira e termina na segunda passando por fora do texto. */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 14%,
+    color-mix(in srgb, var(--grifo) 48%, transparent) 14%,
+    color-mix(in srgb, var(--grifo) 48%, transparent) 93%,
+    transparent 93%
+  );
+  padding-inline: 0.3em;
+  /* Um respiro mínimo entre a ponta da marca e a palavra vizinha na quebra. */
+  box-shadow: 0 0 0 0.05em transparent;
 }
 
 /* ══ 11d-b. O FOCO DA GRADE ══
@@ -4755,12 +4816,37 @@ main > .chamada:first-child {
    app/contato/page.tsx, e é melhor que a alternativa (tabindex positivo, que
    quebra a ordem do documento inteiro). */
 
+/* ══ O PADDING DE TOPO DESCONTA A BARRA FIXA, E ANTES NÃO DESCONTAVA ══
+
+   O defeito: a barra de navegação é `position: fixed` e mede `--altura-nav`
+   (5,25rem, base em 81,6px). Esta seção abria com
+   `padding-block: clamp(var(--s8), 7vw, var(--s10))`, e no celular o clamp
+   escolhe o piso — `--s8`, 64px. O primeiro rótulo do formulário nascia em
+   64px, DEZESSETE PIXELS E MEIO ACIMA da base da barra. Medido em 360, 390 e
+   412: folga de −17,6px nas três. A palavra "NOME" ficava por baixo da barra.
+
+   ⚠ NÃO ERA O `scroll-margin`. Ele está em 0px aqui e continua em 0 — o
+   deslocamento acontecia com a página no topo, sem rolagem nenhuma, então
+   nenhuma margem de âncora poderia tê-lo causado. Era o padding, e é no
+   padding que se conserta.
+
+   ══ POR QUE ISTO NÃO APARECEU ANTES ══
+
+   Esta seção não era a primeira da rota: acima dela vinha a capa de madeira do
+   <ChamadaMadeira />, que absorvia a barra. Quando a capa saiu, a seção herdou
+   o topo da página sem herdar a conta que o topo exige. A rota /ambientes e a
+   política já resolviam isso com `--topo-rota`, e é a MESMA fórmula que entra
+   aqui — não uma variante, para as três rotas abrirem no mesmo lugar.
+
+   A base continua com o clamp original: quem precisava de desconto era o topo. */
 .contato__corpo {
+  --topo-rota: calc(var(--altura-nav) + clamp(var(--s6), 5vw, var(--s9)));
+
   position: relative;
   isolation: isolate;
   overflow: hidden;
   background: var(--ground-deep);
-  padding-block: clamp(var(--s8), 7vw, var(--s10));
+  padding-block: var(--topo-rota) clamp(var(--s8), 7vw, var(--s10));
 }
 
 .contato__grade {

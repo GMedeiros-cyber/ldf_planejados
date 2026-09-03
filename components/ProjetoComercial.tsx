@@ -83,7 +83,15 @@ export default function ProjetoComercial() {
               loading="lazy"
               decoding="async"
             />
-            <figcaption className="comercial__legenda">{f.legenda}</figcaption>
+            {/* O <span> existe para o grifo ABRAÇAR AS PALAVRAS. O
+                figcaption é bloco e ocupa a coluna inteira: um fundo nele
+                desenharia uma barra da largura da célula, que é tarja, não
+                marca-texto. O grifo é do texto, então mora num elemento em
+                linha — e é o `box-decoration-break: clone` da folha que faz
+                a segunda linha receber a sua própria marca. */}
+            <figcaption className="comercial__legenda">
+              <span className="comercial__grifo">{f.legenda}</span>
+            </figcaption>
           </figure>
         ))}
       </div>
