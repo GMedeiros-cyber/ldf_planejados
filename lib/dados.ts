@@ -345,56 +345,65 @@ export const ficha = [
    reenquadrado: mexer no `crop` durante a migração mudaria o que oito cards
    mostram sem ninguém ter pedido. 886 kB de origem viraram 503 kB.
 
-   ⚠ "COZINHA PLANEJADA" E "LAVANDERIA" SÃO A MESMA FOTO. Medido na migração:
-   0,8 de 255 de diferença média por canal, ou seja, ruído de reencode. O
-   `crop=top` da lavanderia não recortou nada porque o original já é 3:4, e o
-   pedido devolveu o quadro inteiro — o comentário que morava aqui afirmava que
-   os dois últimos itens tinham "recorte diferente", e para este não tinha. Os
-   outros dois pares reusados são recortes de verdade: o banheiro difere 13,7
-   do dormitório, e a sala difere 28,8 do home office.
+   ⚠ TRÊS PARES DE FOTO REPETIDA JÁ SAÍRAM DAQUI, EM DUAS RODADAS.
 
-   OS DOIS ARQUIVOS FICAM SEPARADOS mesmo sendo iguais hoje. Apontar as duas
-   entradas para um caminho só economizaria 47 kB e criaria uma armadilha:
-   quando a foto real de lavanderia chegar, ela trocaria os DOIS cards.
+   O banco de imagem foi reusado com o mesmo id em endereços diferentes, e a
+   migração para arquivo local congelou isso em arquivos distintos — hashes
+   diferentes, foto igual. Nenhuma checagem automática pega: o `md5sum` dá
+   nove valores únicos, e os nove caminhos são únicos.
 
-   ══ A LISTA HOJE É MISTA: 2 OBRAS REAIS E 7 DE BANCO ══
+   1ª rodada — "Cozinha planejada" ≡ "Lavanderia": 0,8 de 255 de diferença
+   média por canal, ruído de reencode. Saiu a Cozinha.
+
+   2ª rodada — "Banheiro" ≡ "Dormitório" e "Home office" ≡ "Sala e living".
+
+   ⚠ A 1ª RODADA MEDIU ESTES DOIS PARES E OS ABSOLVEU, e o erro de julgamento
+   vale registrar: 13,7 e 28,8 de diferença média por canal parecem muito ao
+   lado de 0,8, e por isso foram chamados de "recortes de verdade". São
+   recortes de verdade — e são A MESMA FOTOGRAFIA. O banheiro é o dormitório
+   com 151px a mais de altura; a sala é o home office com 271px a mais. Quem
+   olha o carrossel vê a mesma cena passar duas vezes, e não mede pixel.
+
+   A LIÇÃO, para a próxima foto que entrar: a pergunta não é quanto dois
+   arquivos diferem, é se são a mesma CENA. Recorte diferente do mesmo quadro
+   conta como repetição.
+
+   DE CADA PAR SAIU A ENTRADA CUJO RÓTULO MENTIA, e isso resolveu duas coisas
+   de uma vez: a foto do "Banheiro" era um quarto e a do "Home office" era uma
+   sala. Ficaram "Dormitório" e "Sala e living", em que nome e imagem batem.
+
+   ══ A LISTA HOJE É MISTA: 2 OBRAS REAIS E 5 DE BANCO ══
 
    As duas últimas entradas são obras da LDF, fotografadas e enviadas pelo
-   cliente. As sete primeiras continuam sendo banco de imagem, e a seção que as
-   exibe se chama "Trabalho que fala por nós", com aria-label "Obras
-   entregues" — ou seja, sete dos nove cards ainda afirmam na tela algo que não
-   é verdade. Tirar a requisição externa resolveu a privacidade; a veracidade
-   só se resolve trocando foto.
+   cliente. As cinco primeiras continuam sendo banco de imagem, e a seção que
+   as exibe se chama "Trabalho que fala por nós", com aria-label "Obras
+   entregues" — ou seja, cinco dos sete cards ainda afirmam na tela algo que
+   não é verdade. Tirar a requisição externa resolveu a privacidade; a
+   veracidade só se resolve trocando foto.
 
-   ══ ERA OITO, E UMA SAIU: A FOTO ESTAVA REPETIDA ══
+   ⚠ E DUAS DAS CINCO AINDA TÊM NOME QUE NÃO BATE COM A FOTO. A "Lavanderia" é
+   um quarto — cama, espelho de corpo inteiro e um quadro, nada de lavanderia.
+   O "Closet" é uma sala de estar com sofá de couro. O `nome` é oculto-visual,
+   então ninguém LÊ o rótulo errado na tela; quem recebe a informação errada é
+   leitor de tela, pelo `alt`. Não foram renomeadas nesta rodada porque o
+   conserto certo é a foto certa, e ela está a caminho — entram na conta das
+   cinco que precisam trocar.
 
-   "Cozinha planejada" e "Lavanderia" apontavam para arquivos DIFERENTES com o
-   MESMO conteúdo — 0,8 de 255 de diferença média por canal, medido. As duas
-   URLs do Unsplash usavam o mesmo id e o `crop=top` de uma delas não recortou
-   nada, porque o original já era 3:4. A entrada "Cozinha planejada" saiu, e
-   com ela o arquivo `obra-cozinha-planejada.webp`. Ficou a Lavanderia, para a
-   única "Cozinha" do carrossel ser a real.
-
-   ⚠ E A FOTO QUE SOBROU É UM QUARTO. Cama, espelho de corpo inteiro, criado-
-   mudo e um quadro na parede — nada de lavanderia, e nada de marcenaria além
-   do criado-mudo, que é móvel solto. O `nome` é oculto-visual, então ninguém
-   LÊ "Lavanderia" na tela; quem recebe a informação errada é leitor de tela,
-   pelo `alt`. Entra na conta das sete que precisam trocar.
-
-   Não coloquei nada no lugar: o carrossel é gerado por `obras.map()`, então a
-   lista mais curta não deixa buraco — os nove cards se redistribuem e o laço
-   continua fechando, porque a metade é `max-content`.
+   Nada entrou no lugar do que saiu: o carrossel é gerado por `obras.map()`,
+   então a lista mais curta não deixa buraco — os cards se redistribuem e o
+   laço continua fechando, porque a metade é `max-content`. Nenhum lugar do
+   código depende de `obras.length`.
 
    ⚠ A ORDEM IMPORTA E É PROVISÓRIA. As reais entraram no FIM porque o
    carrossel corre em laço e não tem começo visível — não há posição de honra
    a disputar. Quando as de banco saírem, a ordem passa a ser escolha de
    edição, e não resto de migração.
 
-   Nos oito de banco, os nomes são tipos de ambiente e não obras específicas —
+   Nas cinco de banco, os nomes são tipos de ambiente e não obras específicas —
    nenhum cliente, endereço ou condomínio é citado, porque nenhum foi
    informado. Nas duas reais o nome descreve o ambiente executado.
 
-   TODO: substituir img, nome e alt das SETE PRIMEIRAS por obras da LDF. */
+   TODO: substituir img, nome e alt das CINCO PRIMEIRAS por obras da LDF. */
 
 export const obras = [
   {
@@ -408,12 +417,6 @@ export const obras = [
     sigla: "SL",
     img: "/obras/obra-sala-living.webp",
     alt: "Sala de estar com painel e estante planejados.",
-  },
-  {
-    nome: "Home office",
-    sigla: "HO",
-    img: "/obras/obra-home-office.webp",
-    alt: "Bancada de trabalho integrada à marcenaria do ambiente.",
   },
   {
     nome: "Closet",
@@ -432,12 +435,6 @@ export const obras = [
     sigla: "LV",
     img: "/obras/obra-lavanderia.webp",
     alt: "Armário alto de lavanderia com portas lisas.",
-  },
-  {
-    nome: "Banheiro",
-    sigla: "BN",
-    img: "/obras/obra-banheiro.webp",
-    alt: "Gabinete de banheiro com espelheira e nicho.",
   },
   /* ══ AS DUAS PRIMEIRAS OBRAS DE VERDADE ══
 
