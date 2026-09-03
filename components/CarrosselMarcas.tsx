@@ -73,6 +73,8 @@ export default function CarrosselMarcas() {
     let larguraCSS = 0;
     let alturaCSS = 64;
     let espaco = 56;
+    /* Fração da meia-largura que fica SEM queda. Ver `--nucleo` na folha. */
+    let nucleo = 0;
 
     /* Os tamanhos moram no CSS, em custom properties: a faixa muda embaixo de
        768px e quem manda nisso é a folha, não um matchMedia aqui. */
@@ -85,6 +87,7 @@ export default function CarrosselMarcas() {
         simbolo: num("--simbolo", 26),
         nome: num("--nome", 15),
         vao: num("--vao", 14),
+        nucleo: num("--nucleo", 0),
         fonte: cs.getPropertyValue("--fonte-nome").trim() || "serif",
       };
     };
@@ -135,7 +138,12 @@ export default function CarrosselMarcas() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       larguraCSS = container.getBoundingClientRect().width;
       alturaCSS = parseFloat(getComputedStyle(canvas).height) || 64;
-      espaco = medidas().espaco;
+      const m = medidas();
+      espaco = m.espaco;
+      /* Lido AQUI e guardado, não no `pintar`: getComputedStyle a 60fps é
+         leitura de layout por quadro, e este valor só muda quando a faixa
+         muda de tamanho — que é exatamente quando `dimensionar` roda. */
+      nucleo = Math.min(Math.max(m.nucleo, 0), 0.98);
       canvas.width = Math.max(1, Math.round(larguraCSS * dpr));
       canvas.height = Math.max(1, Math.round(alturaCSS * dpr));
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -172,7 +180,16 @@ export default function CarrosselMarcas() {
       for (let v = 0; v < voltas; v++) {
         for (const p of pecas) {
           if (x + p.largura > 0 && x < larguraCSS) {
-            const d = Math.min(Math.abs(x + p.largura / 2 - centro) / centro, 1);
+            /* Distância crua até o centro, de 0 (no centro) a 1 (na borda). */
+            const bruta = Math.min(Math.abs(x + p.largura / 2 - centro) / centro, 1);
+            /* O NÚCLEO REMAPEIA essa distância: tudo dentro dele vira 0, e a
+               queda inteira passa a acontecer no que sobra. É o que alarga a
+               área nítida sem tocar na velocidade nem na aritmética do laço —
+               `deslocamento`, `conjunto` e `voltas` continuam como estavam. */
+            const d =
+              nucleo > 0
+                ? Math.min(Math.max((bruta - nucleo) / (1 - nucleo), 0), 1)
+                : bruta;
             const s = d * d * (3 - 2 * d); // smoothstep
             ctx.filter = `blur(${(s * DESFOQUE_MAX).toFixed(2)}px)`;
             ctx.globalAlpha = 1 - s * (1 - ALFA_MIN);
