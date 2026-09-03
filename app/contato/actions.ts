@@ -1,8 +1,11 @@
 "use server";
 
-import { opcoesAmbiente, opcoesEstagio } from "@/lib/dados";
+import { redirect } from "next/navigation";
+
+import { opcoesAmbiente, opcoesEstagio, whatsappUrl } from "@/lib/dados";
 import {
   ESTADO_INICIAL,
+  mensagemWhatsApp,
   resumoDeErros,
   soDigitos,
   validar,
@@ -104,31 +107,41 @@ export async function enviarContato(
 
   /* ══ ENTREGA ══
 
-     O destino é um fluxo n8n do cliente, em LEAD_WEBHOOK_URL. Ele ainda não
-     existe, então a variável pode estar vazia — e o comportamento nesse caso é
-     DIFERENTE por ambiente, de propósito:
+     O destino é um webhook do cliente, em LEAD_WEBHOOK_URL. Um POST com fetch,
+     nenhum SDK, nenhum serviço de e-mail inventado.
 
-       desenvolvimento  loga e devolve sucesso, para o formulário poder ser
-                        testado de ponta a ponta sem depender do n8n.
-       produção         devolve FALHA. Um formulário que diz "recebemos" sem
-                        ter para onde mandar é pior que um formulário fora do
-                        ar: o pedido some e ninguém fica sabendo.
+     ⚠ ELE NÃO EXISTE HOJE, E A ESPERA NÃO TEM DATA. Por duas rodadas o plano
+     foi um fluxo n8n; o cliente adiou a automação, e a ferramenta voltou a ser
+     uma decisão em aberto. A variável continua aqui, sem nome de fornecedor
+     nenhum: no dia em que houver um endereço, ele entra e este arquivo não
+     muda.
 
-     Nenhum SDK, nenhum serviço de e-mail inventado. Um POST com fetch. */
+     ══ COM A VARIÁVEL VAZIA, O PEDIDO VAI PARA O WHATSAPP ══
+
+     E não é atalho — é o conserto que os dois arquivos já prescreviam.
+
+     Antes daqui, com a variável vazia, este caminho devolvia FALHA em
+     produção. Fazia sentido enquanto o webhook era questão de dias: um
+     formulário que diz "recebemos" sem ter para onde mandar é pior que um
+     formulário fora do ar. Mas quem cai aqui é o visitante SEM JAVASCRIPT — o
+     com script já abre o WhatsApp pelo componente —, e ir ao ar mandando só
+     esse visitante embora com uma mensagem de erro é escolher o pior desfecho
+     para justamente quem tem menos recurso.
+
+     O `redirect()` termina os dois caminhos no MESMO lugar, com a MESMA
+     mensagem (`mensagemWhatsApp`, em ./estado.ts). Nada se perde: a validação
+     e o antispam acima já rodaram — é justamente o que o caminho com JS não
+     tem.
+
+     ⚠ O redirect fica FORA do try/catch de propósito: ele sinaliza desviando
+     uma exceção interna do Next, e um catch por perto a engoliria. */
   const destino = process.env.LEAD_WEBHOOK_URL;
 
   if (!destino) {
-    if (process.env.NODE_ENV === "production") {
-      return {
-        estado: "falha",
-        erros: {},
-        resumo:
-          "Não conseguimos enviar agora. Tente de novo em alguns minutos, ou chame no WhatsApp — o número está logo abaixo.",
-        valores,
-      };
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[contato] LEAD_WEBHOOK_URL vazia — indo para o WhatsApp:", valores);
     }
-    console.warn("[contato] LEAD_WEBHOOK_URL vazia — pedido NÃO enviado:", valores);
-    return { estado: "sucesso", erros: {}, resumo: null, valores: ESTADO_INICIAL.valores };
+    redirect(`${whatsappUrl}?text=${encodeURIComponent(mensagemWhatsApp(valores))}`);
   }
 
   try {

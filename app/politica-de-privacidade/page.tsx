@@ -203,18 +203,25 @@ export default function PaginaPolitica() {
                 lado dela. Nomeá-la como operadora seria descrever um tratamento
                 que não acontece.
 
+                HOJE O TEXTO ABAIXO DESCREVE O CAMINHO INTEIRO, sem sobra. Com
+                `LEAD_WEBHOOK_URL` vazia — e ela está vazia em todo o
+                repositório —, os DOIS caminhos do formulário terminam no
+                WhatsApp da LDF: com script o componente abre o wa.me, sem
+                script a Server Action redireciona para o mesmo endereço. Não há
+                terceiro no meio, e não há nada armazenado fora do WhatsApp.
+
+                Foi por isso que o fluxo automatizado saiu daqui. Por duas
+                rodadas este comentário nomeava um fluxo n8n como o destino
+                pendente; o cliente adiou a automação e a ferramenta virou
+                decisão em aberto. Descrever ferramenta que ninguém contratou é
+                descrever tratamento que não acontece.
+
                 ⚠ TODO — RECONFERIR QUANDO `LEAD_WEBHOOK_URL` FOR PREENCHIDA.
 
-                O que ficou confirmado é o DESTINO. O que ainda não tem resposta
-                escrita é ONDE O FLUXO n8n RODA: a Server Action em
-                app/contato/actions.ts faz um POST para essa variável, e ela
-                está vazia em todo o repositório. O .env.example descreve o
-                destino como "um webhook do fluxo n8n que o cliente mantém", o
-                que é coerente com o texto abaixo — mas o PRODUCT.md registra
-                hospedagem e propriedade do sistema como pendência comercial em
-                aberto.
-
-                NO DIA EM QUE A VARIÁVEL FOR PREENCHIDA, olhe o host dela:
+                No dia em que houver um webhook, o pedido passa a trafegar por
+                ele ANTES do WhatsApp, e aí há um intermediário a declarar. O
+                PRODUCT.md registra hospedagem e propriedade desse sistema como
+                pendência comercial em aberto. Olhe o host da variável:
 
                   domínio da LDF / VPS do cliente  → este texto está certo.
                   infraestrutura da Tribus Labs    → o pedido TRAFEGA por ela,

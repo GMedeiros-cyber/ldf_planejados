@@ -8,6 +8,7 @@ import { consentimento, opcoesAmbiente, opcoesEstagio, whatsappUrl } from "@/lib
 import { enviarContato } from "@/app/contato/actions";
 import {
   ESTADO_INICIAL,
+  mensagemWhatsApp,
   resumoDeErros,
   validar,
   type EstadoContato,
@@ -60,8 +61,9 @@ const NOME_DO_ESTADO_ENVIANDO = "Enviando…";
    ══════════════════════════════════════════════════════════════════════════
 
    Com JavaScript, o botão NÃO posta na Server Action: ele abre o WhatsApp da
-   LDF com o pedido já escrito, em nova aba. Vale enquanto o fluxo n8n
-   definitivo não existir.
+   LDF com o pedido já escrito, em nova aba. Vale enquanto o webhook definitivo
+   não existir — e ele não existe: a automação foi adiada pelo cliente, e a
+   ferramenta é decisão em aberto.
 
    ══ O NÚMERO É O DA LDF, E VEM DO dados.ts ══
 
@@ -76,57 +78,47 @@ const NOME_DO_ESTADO_ENVIANDO = "Enviando…";
    "poder trocar sem build": o número é dado do site, e dado do site mora no
    lib/dados.ts.
 
-   ══ O QUE SE PERDE, e precisa estar escrito porque some sem aviso ══
+   ══ OS DOIS VISITANTES TERMINAM NO MESMO LUGAR ══
 
-     1. OS DOIS VISITANTES TÊM DESTINOS DIFERENTES. Abrir wa.me é ação de
-        cliente. Sem script o `onSubmit` não roda, o navegador faz o POST
-        nativo e cai na Server Action — que continua sendo o caminho certo,
-        mas manda para o webhook, não para o WhatsApp. E enquanto
-        `LEAD_WEBHOOK_URL` estiver vazia em produção, esse visitante vê a
-        mensagem de falha, com o WhatsApp da LDF logo abaixo como saída.
+   Por duas rodadas não terminavam, e o registro do defeito antigo ficou aqui
+   porque a correção é fácil de desfazer sem querer.
 
-        ⚠ É O DEFEITO CONHECIDO DESTE ARRANJO. Ele se resolve sozinho no dia em
-        que o webhook existir. Se demorar, o conserto é a action passar a
-        `redirect()` para o wa.me em vez de postar — aí os dois caminhos voltam
-        a terminar no mesmo lugar, com ou sem script.
+   ERA ASSIM: abrir o wa.me é ação de cliente. Sem script o `onSubmit` não
+   roda, o navegador faz o POST nativo e cai na Server Action — que, com
+   `LEAD_WEBHOOK_URL` vazia em produção, respondia FALHA. Só o visitante sem
+   JavaScript era mandado embora com uma mensagem de erro.
 
-     2. O ANTISPAM DE SERVIDOR. Honeypot e carimbo de tempo moram na action, e
+   AGORA A ACTION REDIRECIONA para o mesmo wa.me, com a mesma mensagem. Os dois
+   caminhos entregam igual, com ou sem script. É exatamente o conserto que
+   estava escrito aqui como plano B, aplicado quando o webhook deixou de ter
+   data.
+
+   ⚠ `mensagemWhatsApp` MORA EM app/contato/estado.ts, e não neste arquivo.
+   Ela subiu para lá no mesmo commit, pelo motivo que subiu a `validar()`: dois
+   lados montando o texto, uma cópia só. Não a traga de volta para cá.
+
+   ══ O QUE ESTE CAMINHO NÃO TEM, e precisa estar escrito porque some sem aviso ══
+
+     1. O ANTISPAM DE SERVIDOR. Honeypot e carimbo de tempo moram na action, e
         este caminho não passa por ela. Um robô que preencha o formulário com
         JS ligado abre uma aba de WhatsApp — barulho, não vazamento, mas vale
-        saber.
+        saber. (O visitante sem JS continua coberto: ele passa pela action.)
 
-     3. A CHECAGEM QUE DECIDE. A do cliente usa `validar()`, a MESMA função da
+     2. A CHECAGEM QUE DECIDE. A do cliente usa `validar()`, a MESMA função da
         action (ver app/contato/estado.ts). Não diverge — mas continua sendo
         checagem de navegador, que qualquer um contorna.
 
    O QUE NÃO SE PERDE: a Server Action e a `LEAD_WEBHOOK_URL` continuam
    inteiras, no lugar, funcionando. Nada foi apagado.
 
-   ⚠ TODO — DESFAZER QUANDO O FLUXO DEFINITIVO EXISTIR.
+   ⚠ TODO — DESFAZER QUANDO O WEBHOOK EXISTIR.
 
    O gatilho é o mesmo TODO que já está em app/contato/actions.ts, no bloco
-   "ENTREGA": no dia em que `LEAD_WEBHOOK_URL` for preenchida e o fluxo n8n
-   estiver de pé, daqui saem o `aoEnviar`, o `estadoTeste`, o
-   `mensagemWhatsApp` e o `onSubmit` do <form>. O formulário volta a ser
-   `<form action={acao}>` puro, e o caminho sem JS volta a ser o mesmo caminho
-   de todo mundo. Nada além disso precisa mudar — foi desenhado para sair
-   inteiro. */
-
-/* A mensagem que chega no WhatsApp. Os asteriscos são o negrito do app. */
-function mensagemWhatsApp(v: ValoresContato) {
-  const linhas = [
-    "*Novo pedido de projeto — site LDF*",
-    "",
-    `*Nome:* ${v.nome}`,
-    `*WhatsApp:* ${v.whatsapp}`,
-    `*E-mail:* ${v.email}`,
-    `*Ambientes:* ${v.ambiente.join(", ")}`,
-    `*Estágio da obra:* ${v.estagio}`,
-  ];
-  /* A mensagem é opcional: linha ausente em vez de "Mensagem: (vazio)". */
-  if (v.mensagem) linhas.push("", "*Mensagem:*", v.mensagem);
-  return linhas.join(String.fromCharCode(10));
-}
+   "ENTREGA": no dia em que `LEAD_WEBHOOK_URL` for preenchida, daqui saem o
+   `aoEnviar`, o `estadoTeste`, o `urlBloqueada` e o `onSubmit` do <form>. O
+   formulário volta a ser `<form action={acao}>` puro, e o `redirect()` da
+   action cai junto por não ter mais como ser alcançado. Nada além disso
+   precisa mudar — foi desenhado para sair inteiro. */
 
 export default function FormularioContato() {
   const [estado, acao, pendente] = useActionState(enviarContato, ESTADO_INICIAL);

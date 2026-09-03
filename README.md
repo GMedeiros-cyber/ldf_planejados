@@ -8,11 +8,18 @@ Site da **LDF Planejados** — fábrica de móveis planejados em Guarulhos/SP.
 |---|---|
 | Framework | Next.js 16 (App Router, Turbopack) |
 | UI | React 19 · TypeScript |
-| Estilo | CSS puro com custom properties — sem framework de utilitários |
-| Fontes | Archivo e Libre Caslon Text, auto-hospedadas via `next/font` |
+| Estilo | CSS à mão em `app/globals.css`, com custom properties e nomes em português |
+| Animação | GSAP, num componente só (`components/ui/text-block-animation.tsx`) |
+| Fontes | Archivo, Instrument Serif e Tinos, auto-hospedadas via `next/font` |
 
-Rotas são pré-renderizadas estaticamente. Não há banco, API nem build server —
-o resultado roda em qualquer hospedagem estática ou VPS.
+As cinco rotas são pré-renderizadas estaticamente e não há banco nem API. O que
+o site **não** dispensa é um runtime Node: o formulário de `/contato` é uma
+Server Action, e é ela que faz o envio funcionar sem JavaScript no navegador.
+Hospedagem estática pura deixaria esse visitante sem saída.
+
+> O Tailwind aparece nas dependências e é importado na primeira linha do
+> `globals.css`, mas **nenhuma classe utilitária é usada** no projeto — ele
+> entra só pelo reset. Se um dia sair, o reset precisa ser reposto à mão.
 
 ## Rodar
 
@@ -20,6 +27,7 @@ o resultado roda em qualquer hospedagem estática ou VPS.
 npm install
 npm run dev          # http://localhost:3000
 npm run build        # produção
+npm run tipos        # tsc --noEmit
 ```
 
 Requer Node.js 24+.
@@ -28,35 +36,43 @@ Requer Node.js 24+.
 
 ```
 app/
-  layout.tsx              fontes, metadata, <body data-fin>
-  page.tsx                home
-  globals.css             o sistema de design inteiro
-  ambientes/              listagem de ambientes
-components/               uma seção por arquivo
-lib/dados.ts              dados do cliente e conteúdo — fonte única
+  layout.tsx                    fontes e metadata
+  page.tsx                      home
+  globals.css                   o sistema de design inteiro
+  ambientes/                    os quatro ambientes e o bloco comercial
+  contato/                      formulário (page + Server Action + validação)
+  politica-de-privacidade/
+components/                     uma seção por arquivo
+lib/dados.ts                    conteúdo do cliente — fonte única
+lib/avaliacoes.ts               as avaliações do Google, literais
+lib/menu.ts                     a navegação, separada de propósito (leia o topo)
+public/                         fotos, vídeo e texturas
+scripts/hero-imagens.mjs        gera as variantes WebP da capa
 ```
 
 **Para editar conteúdo, comece por [`lib/dados.ts`](lib/dados.ts).** Contato,
-acabamentos, ambientes, as onze etapas e a ficha técnica estão todos ali.
+ambientes, as onze etapas, os números e as obras estão todos ali.
 
 ## O sistema de design
 
-Chama-se **O Amostrário**: a amostra de acabamento é o material da página, não um
-filtro. O visitante veste a peça antes de falar com alguém.
+CSS à mão, em seções numeradas dentro de um arquivo só. As decisões estão
+escritas nos comentários do próprio `globals.css` — inclusive as remoções, com
+o motivo de cada uma.
 
-- O `<body>` carrega `data-fin` com o acabamento selecionado
-- A elevação da cozinha é **desenhada em CSS**, não fotografada — e é assim de
-  propósito, porque ainda não há fotos dos ambientes executados
-- `#DF0100` tem três usos e nenhum a mais: tinta de instrumento, etiqueta de
-  amostra viva e preenchimento da ação primária
+- A capa são três slides de foto que se cruzam por opacidade, sem biblioteca
+- `#DF0100` tem usos contados: tinta de instrumento e preenchimento da ação
+  primária
+- Restrição medida: `#DF0100` sobre o fundo `#131211` dá **3,69:1** — serve só
+  para display grande, nunca para texto corrido ou rótulo pequeno
+- Tudo que se move respeita `prefers-reduced-motion`, e o site inteiro tem um
+  estado declarado para `@media (scripting: none)`
 
-Restrição medida: `#DF0100` sobre o fundo `#131211` dá **3,69:1** — serve só para
-display grande, nunca para texto corrido ou rótulo pequeno.
+## Onde os pedidos do formulário caem
 
-## Verificação de design
+No **WhatsApp da LDF**, pelos dois caminhos: com JavaScript o componente abre o
+`wa.me`; sem JavaScript a Server Action valida, roda o antispam e redireciona
+para o mesmo endereço.
 
-```bash
-npm run detect
-```
-
-Roda os detectores determinísticos do Impeccable.
+`LEAD_WEBHOOK_URL` existe para o dia em que houver um webhook, e **deve ficar
+vazia até lá** — inclusive na Vercel. O `.env.example` explica o arranjo
+inteiro.
