@@ -153,6 +153,16 @@ export default function FormularioContato() {
      Nulo enquanto ninguém tentou enviar pelo modo de teste. */
   const [estadoTeste, setEstadoTeste] = useState<EstadoContato | null>(null);
 
+  /* ⚠ A URL DO WHATSAPP QUANDO A JANELA NÃO ABRIU.
+
+     `window.open` devolve `null` quando o navegador bloqueia o pop-up, e o
+     bloqueio é comum: basta o navegador não reconhecer o envio como gesto do
+     usuário, ou a pessoa ter o bloqueador ligado. Guardando a URL aqui, o
+     pedido não se perde — ela vira um link que a pessoa clica.
+
+     Nula quando não há nada pendente. */
+  const [urlBloqueada, setUrlBloqueada] = useState<string | null>(null);
+
   /* Quem manda na tela: o teste, quando houve tentativa; a action, senão. */
   const visivel = estadoTeste ?? estado;
 
@@ -198,7 +208,30 @@ export default function FormularioContato() {
     /* `whatsappUrl` já é `https://wa.me/<contato.whatsapp>` — o mesmo endereço
        do rodapé e do cartão. Só o `?text=` é daqui. */
     const url = `${whatsappUrl}?text=${encodeURIComponent(mensagemWhatsApp(valores))}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+
+    /* ══ O RETORNO DE `window.open` É VERIFICADO, E ANTES NÃO ERA ══
+
+       O defeito: a chamada acontecia e a linha seguinte marcava sucesso sem
+       olhar o resultado. Com o pop-up bloqueado, `window.open` devolve `null`,
+       nenhuma aba abria, e a tela dizia "Projeto recebido!". O pedido sumia e
+       a pessoa ia embora achando que tinha enviado — o pior desfecho que este
+       formulário pode ter, porque ele não deixa rastro nenhum do outro lado.
+
+       AS TRÊS CHECAGENS SÃO NECESSÁRIAS, e cada uma cobre um navegador
+       diferente: `null` é o caso comum; `undefined` aparece em ambientes
+       embutidos que não implementam o retorno; e uma janela que nasce com
+       `closed === true` é o que alguns bloqueadores devolvem no lugar de
+       `null` — abrem e fecham no mesmo quadro. */
+    const janela = window.open(url, "_blank", "noopener,noreferrer");
+    if (!janela || janela.closed) {
+      setUrlBloqueada(url);
+      /* SEM sucesso. O formulário fica na tela, com os valores intactos: a
+         pessoa clica no link, ou aperta Enviar de novo — o segundo toque
+         costuma passar, porque aí o navegador tem um gesto recente. */
+      return;
+    }
+
+    setUrlBloqueada(null);
     setEstadoTeste({ estado: "sucesso", erros: {}, resumo: null, valores: ESTADO_INICIAL.valores });
   }
 
@@ -246,6 +279,32 @@ export default function FormularioContato() {
       {falhou && visivel.resumo ? (
         <div className="form__resumo" role="alert" tabIndex={-1} ref={resumoRef}>
           {visivel.resumo}
+        </div>
+      ) : null}
+
+      {/* ══ O POP-UP FOI BLOQUEADO ══
+
+          `role="alert"` porque é notícia que interrompe: a pessoa acha que
+          enviou e não enviou. O link carrega a MESMA url que a janela teria
+          aberto, com a mensagem inteira dentro — nada precisa ser redigitado.
+
+          Fica ACIMA do formulário e não no lugar dele: o pedido continua na
+          tela, então tentar de novo é apertar o botão. */}
+      {urlBloqueada ? (
+        <div className="form__bloqueado" role="alert">
+          <p className="form__bloqueado-titulo">O WhatsApp não abriu.</p>
+          <p className="form__bloqueado-texto">
+            O navegador bloqueou a janela. Seu pedido está pronto — abra a conversa pelo link
+            abaixo, com a mensagem já escrita.
+          </p>
+          <a
+            className="form__bloqueado-link"
+            href={urlBloqueada}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Abrir o WhatsApp
+          </a>
         </div>
       ) : null}
 
