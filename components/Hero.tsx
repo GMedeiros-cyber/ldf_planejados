@@ -33,6 +33,29 @@ const sociais = [
 const srcSet = (base: string) =>
   heroLarguras.map((w) => `${base}-${w}.webp ${w}w`).join(", ");
 
+/* ══ O FUNDO VERMELHO DA PALAVRA DE DESTAQUE ══
+
+   A palavra vem de `slide.destaque`, no lib/dados.ts. Aqui só se procura onde
+   ela está na linha e se corta o texto em três.
+
+   ⚠ SÓ NO HERÓI. Nada disto atravessa para os numerais, para a faixa de marcas
+   ou para qualquer outra seção — o fundo vermelho é o gesto de abertura da
+   página, e repetido em outro lugar deixa de ser gesto e vira decoração.
+
+   A BUSCA IGNORA CAIXA e devolve `null` quando a palavra não está na linha; o
+   porquê dos dois está no lib/dados.ts, junto do campo. */
+function partir(linha: string, palavra: string) {
+  const i = linha.toLowerCase().indexOf(palavra.toLowerCase());
+  if (i < 0) return null;
+  return {
+    antes: linha.slice(0, i),
+    /* A fatia vem da LINHA, não do campo `destaque`: assim a capitalização que
+       aparece na tela é a do título, e o campo serve só para localizar. */
+    palavra: linha.slice(i, i + palavra.length),
+    depois: linha.slice(i + palavra.length),
+  };
+}
+
 export default function Hero() {
   const [ativo, setAtivo] = useState(0);
 
@@ -71,9 +94,16 @@ export default function Hero() {
             />
             <div className="hero__vinheta" />
             <h1 className="hero__titulo">
-              {slide.titulo[0]}
+              <Linha texto={slide.titulo[0]} destaque={slide.destaque} />
               <br />
-              {slide.titulo[1]}
+              <Linha
+                texto={slide.titulo[1]}
+                /* A palavra só pode ser destacada UMA vez. Se ela estiver na
+                   primeira linha, a segunda recebe `undefined` e sai limpa —
+                   sem isso, um título com a palavra repetida ganharia dois
+                   destaques e o gesto perderia o sentido. */
+                destaque={partir(slide.titulo[0], slide.destaque) ? undefined : slide.destaque}
+              />
             </h1>
           </li>
         ))}
@@ -102,5 +132,26 @@ export default function Hero() {
         </svg>
       </div>
     </section>
+  );
+}
+
+/* Uma linha do título. Sem palavra a destacar — ou com uma que não está nesta
+   linha — ela devolve o texto cru, e o herói fica exatamente como era.
+
+   ⚠ A FAIXA VERMELHA SAIU. Por uma rodada o destaque foi um fundo animado por
+   trás da palavra, com `motion` e `scaleX`. O cliente preferiu o vermelho na
+   LETRA, e com a faixa foram junto o elemento animado, o `motion` e o
+   `useReducedMotion` — não sobrou movimento nenhum neste arquivo para
+   respeitar. O <span> continua, porque a cor precisa de um alvo. */
+function Linha({ texto, destaque }: { texto: string; destaque?: string }) {
+  const corte = destaque ? partir(texto, destaque) : null;
+  if (!corte) return <>{texto}</>;
+
+  return (
+    <>
+      {corte.antes}
+      <span className="hero__destaque">{corte.palavra}</span>
+      {corte.depois}
+    </>
   );
 }
