@@ -1208,6 +1208,65 @@ a { color: inherit; }
   color: var(--ink);
 }
 
+/* --- 5b. A palavra de destaque do herói ------------------------------------
+   Uma palavra por slide sai em vermelho. A palavra vem de `slide.destaque`,
+   no lib/dados.ts; aqui só se pinta.
+
+   ⚠ SÓ AQUI. Não existe `.destaque` genérico nesta folha, e não deve existir:
+   o vermelho na letra é o gesto de abertura da capa. Os numerais, a faixa de
+   marcas e as manchetes de seção continuam sem ele.
+
+   ══ FOI UMA FAIXA VERMELHA ATRÁS DA PALAVRA, E DEIXOU DE SER ══
+
+   Por uma rodada o destaque era um fundo `--red` que crescia por `scaleX` com
+   o `motion`. O cliente preferiu o vermelho na LETRA. Saíram com a faixa: o
+   `.hero__destaque-fundo`, o `.hero__destaque-texto`, o elemento animado e o
+   `motion` inteiro do <Hero /> — não sobrou movimento nenhum ali.
+
+   ⚠ SE A FAIXA VOLTAR, o texto dela tem de voltar a `--white`: `--ink` sobre
+   `--red` dá 4,27:1 e reprova. O caso é diferente do de agora, em que o
+   vermelho é a tinta e não o campo.
+
+   ══ O VERMELHO COMO TINTA DE TEXTO É A EXCEÇÃO QUE O SISTEMA ABRE ══
+
+   O DESIGN.md é duro nisso: "o vermelho de marca nunca é texto, EXCETO EM
+   DISPLAY". Esta manchete é display — clamp até 7,5rem — então cai
+   exatamente na exceção, e não a força.
+
+   O limiar que vale para ela é o de TEXTO GRANDE, 3:1, e não os 4,5:1 do
+   corpo. Mas o fundo aqui não é token: é fotografia com uma vinheta por cima,
+   e muda de slide para slide.
+
+   ══ É `--red-bright`, E `--red` FOI MEDIDO E REPROVOU ══
+
+   Amostrei o percentil 2% mais CLARO dos pixels compostos atrás de cada
+   palavra — o pior caso para uma tinta vermelha — nas três fotos e nas duas
+   larguras:
+
+     1440px   slide 1 rgb(57,49,39)   --red 2,52:1 ✗   --red-bright 3,73:1 ✓
+              slide 2 rgb(41,38,34)   --red 2,97:1 ✗   --red-bright 4,40:1 ✓
+              slide 3 rgb(65,49,37)   --red 2,45:1 ✗   --red-bright 3,63:1 ✓
+
+      390px   slide 1 rgb(10, 9, 9)   --red 3,92:1 ✓   --red-bright 5,81:1 ✓
+              slide 2 rgb(39,32,27)   --red 3,16:1 ✓   --red-bright 4,69:1 ✓
+              slide 3 rgb(36,21,10)   --red 3,49:1 ✓   --red-bright 5,17:1 ✓
+
+   `--red` REPROVA nos três slides em 1440 — a manchete é maior ali, cobre mais
+   fotografia, e pega as partes claras da imagem que no celular ficam fora da
+   caixa da palavra. Não é caso de arredondar: 2,45:1 contra um mínimo de 3.
+
+   `--red-bright` é o token que o DESIGN.md nomeia para exatamente isto —
+   "onde a página precisa de vermelho legível sobre escuro". Pior caso medido
+   3,63:1, com folga sobre o 3:1.
+
+   ⚠ ISTO DEPENDE DAS FOTOS. As três de hoje são mockup declarado (ver
+   `heroSlides` no lib/dados.ts). Quando as fotos reais da LDF entrarem, esta
+   medição precisa ser refeita: uma cozinha branca estourada atrás da palavra
+   derruba qualquer vermelho, e aí a saída é a vinheta, não a tinta. */
+.hero__destaque {
+  color: var(--red-bright);
+}
+
 .hero--capa .hero__seta {
   position: absolute;
   left: 50%;

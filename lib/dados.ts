@@ -397,19 +397,49 @@ export const obras = [
    Os arquivos vivem em public/hero/originais/{1,2,3}.jpg. Para trocar:
    substitua os três e rode `node scripts/hero-imagens.mjs`. */
 
+/* ══ `destaque`: A PALAVRA QUE RECEBE O FUNDO VERMELHO ══
+
+   É DADO, e não uma string procurada dentro do JSX. A diferença importa: o
+   componente não sabe nada sobre "qual é a palavra forte de um slide", e
+   trocar o título aqui — como a rodada de copy vai fazer — não obriga a mexer
+   no <Hero />.
+
+   A BUSCA É INSENSÍVEL A CAIXA, de propósito. "Planejados" acha "planejados"
+   em "Móveis planejados". Sem isso, capitalizar os títulos quebraria o
+   destaque em silêncio: o fundo simplesmente não apareceria, sem erro nenhum.
+
+   E ela é TOLERANTE À AUSÊNCIA: palavra que não existe no título rende o
+   título inteiro sem destaque, em vez de estourar. Foi o que segurou o slide 3
+   enquanto o texto dele ainda era "Sem revenda / no meio"; hoje as três
+   palavras existem nos três títulos.
+
+   ══ A CAIXA ALTA É DESTA SEÇÃO, E NÃO DO SITE ══
+
+   Os três títulos capitalizam TODAS as palavras, inclusive as curtas — "De
+   Fábrica", "Antes Do Orçamento", "Que Começam Na Chapa". Não é a norma do
+   projeto: nenhuma outra manchete faz isso, e a `.h2` de toda seção continua
+   em caixa de frase. É decisão de desenho da CAPA, onde o título é objeto
+   gráfico antes de ser frase.
+
+   ⚠ NÃO PROPAGUE. Se um título de seção aparecer capitalizado assim, é erro
+   de cópia daqui, não coerência. */
+
 export const heroSlides = [
   {
-    titulo: ["Móveis planejados", "de fábrica"],
+    titulo: ["Móveis Planejados", "De Fábrica"],
+    destaque: "Planejados",
     img: "/hero/1",
     alt: "Sala de estar com marcenaria planejada, painel ripado e iluminação embutida.",
   },
   {
-    titulo: ["Projeto 3D", "antes do orçamento"],
+    titulo: ["Projeto 3D", "Antes Do Orçamento"],
+    destaque: "3D",
     img: "/hero/2",
     alt: "Ambiente integrado com armários planejados e bancada em tom claro.",
   },
   {
-    titulo: ["Sem revenda", "no meio"],
+    titulo: ["Projetos Personalizados", "Que Começam Na Chapa"],
+    destaque: "Personalizados",
     img: "/hero/3",
     alt: "Detalhe de marcenaria sob medida, com prateleiras e nichos em madeira.",
   },
