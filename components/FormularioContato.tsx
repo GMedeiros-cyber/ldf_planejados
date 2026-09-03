@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 
 import BotaoRevelar from "./BotaoRevelar";
-import { consentimento, opcoesAmbiente, opcoesEstagio } from "@/lib/dados";
+import { consentimento, opcoesAmbiente, opcoesEstagio, whatsappUrl } from "@/lib/dados";
 import { enviarContato } from "@/app/contato/actions";
 import {
   ESTADO_INICIAL,
   resumoDeErros,
-  soDigitos,
   validar,
   type EstadoContato,
   type ValoresContato,
@@ -57,26 +56,44 @@ import {
 const NOME_DO_ESTADO_ENVIANDO = "Enviando…";
 
 /* ══════════════════════════════════════════════════════════════════════════
-   ⚠⚠⚠  MODO DE TESTE POR WHATSAPP — PROVISÓRIO, E É REGRESSÃO CONSCIENTE
+   ⚠⚠⚠  A ENTREGA É POR WHATSAPP, E É PROVISÓRIA
    ══════════════════════════════════════════════════════════════════════════
 
-   Com `NEXT_PUBLIC_WHATSAPP_TESTE` preenchida, o botão DEIXA de postar na
-   Server Action e passa a abrir o WhatsApp com a mensagem pronta. Serve para o
-   cliente ver a tela funcionando enquanto o fluxo definitivo não existe.
+   Com JavaScript, o botão NÃO posta na Server Action: ele abre o WhatsApp da
+   LDF com o pedido já escrito, em nova aba. Vale enquanto o fluxo n8n
+   definitivo não existir.
 
-   O QUE SE PERDE, e precisa estar escrito porque some sem aviso:
+   ══ O NÚMERO É O DA LDF, E VEM DO dados.ts ══
 
-     1. O CAMINHO SEM JAVASCRIPT. Abrir wa.me é ação de cliente. Sem script o
-        `onSubmit` não roda, o navegador faz o POST nativo e cai na Server
-        Action — que é o certo, mas significa que os dois visitantes têm
-        destinos DIFERENTES. Um manda para o WhatsApp de teste, o outro para o
-        webhook. Enquanto o webhook não existir, o segundo vê a mensagem de
-        falha.
+   `whatsappUrl` — o MESMO endereço que o rodapé e o cartão de /contato usam,
+   derivado de `contato.whatsapp`. Não há segundo número escrito em lugar
+   nenhum, e trocar o da empresa troca o do formulário junto.
+
+   ISTO SUBSTITUIU UMA VARIÁVEL DE AMBIENTE. Por uma rodada o destino foi um
+   `NEXT_PUBLIC_WHATSAPP_TESTE`, com um número de teste que só existia no .env
+   de quem estava testando. O cliente confirmou o número de produção, e a
+   variável saiu — do código e do .env.example. Não a traga de volta para
+   "poder trocar sem build": o número é dado do site, e dado do site mora no
+   lib/dados.ts.
+
+   ══ O QUE SE PERDE, e precisa estar escrito porque some sem aviso ══
+
+     1. OS DOIS VISITANTES TÊM DESTINOS DIFERENTES. Abrir wa.me é ação de
+        cliente. Sem script o `onSubmit` não roda, o navegador faz o POST
+        nativo e cai na Server Action — que continua sendo o caminho certo,
+        mas manda para o webhook, não para o WhatsApp. E enquanto
+        `LEAD_WEBHOOK_URL` estiver vazia em produção, esse visitante vê a
+        mensagem de falha, com o WhatsApp da LDF logo abaixo como saída.
+
+        ⚠ É O DEFEITO CONHECIDO DESTE ARRANJO. Ele se resolve sozinho no dia em
+        que o webhook existir. Se demorar, o conserto é a action passar a
+        `redirect()` para o wa.me em vez de postar — aí os dois caminhos voltam
+        a terminar no mesmo lugar, com ou sem script.
 
      2. O ANTISPAM DE SERVIDOR. Honeypot e carimbo de tempo moram na action, e
-        o caminho de teste não passa por ela. Um robô que preencha o formulário
-        com JS ligado abre uma aba de WhatsApp — barulho, não vazamento, mas
-        vale saber.
+        este caminho não passa por ela. Um robô que preencha o formulário com
+        JS ligado abre uma aba de WhatsApp — barulho, não vazamento, mas vale
+        saber.
 
      3. A CHECAGEM QUE DECIDE. A do cliente usa `validar()`, a MESMA função da
         action (ver app/contato/estado.ts). Não diverge — mas continua sendo
@@ -89,22 +106,11 @@ const NOME_DO_ESTADO_ENVIANDO = "Enviando…";
 
    O gatilho é o mesmo TODO que já está em app/contato/actions.ts, no bloco
    "ENTREGA": no dia em que `LEAD_WEBHOOK_URL` for preenchida e o fluxo n8n
-   estiver de pé, some com `NEXT_PUBLIC_WHATSAPP_TESTE` do .env, e daqui saem
-   o `aoEnviar`, o `estadoTeste`, o `mensagemWhatsApp` e o `onSubmit` do
-   <form>. O formulário volta a ser `<form action={acao}>` puro, e o caminho
-   sem JS volta a ser o mesmo caminho de todo mundo. Nada além disso precisa
-   mudar — foi desenhado para sair inteiro.
-
-   ⚠ O NÚMERO NÃO MORA NO REPOSITÓRIO. Vem do .env, e está documentado em
-   .env.example. Com a variável VAZIA nada acontece de diferente: o `onSubmit`
-   não intercepta e o formulário se comporta exatamente como antes deste bloco
-   existir. */
-
-/* Leitura ESTÁTICA da variável — `process.env.X` é substituído no build, e um
-   acesso por índice não seria. O `.trim()` cobre a variável declarada vazia no
-   .env, que chega como string vazia e não como undefined. */
-const WHATSAPP_TESTE = (process.env.NEXT_PUBLIC_WHATSAPP_TESTE ?? "").trim();
-const MODO_TESTE = WHATSAPP_TESTE.length > 0;
+   estiver de pé, daqui saem o `aoEnviar`, o `estadoTeste`, o
+   `mensagemWhatsApp` e o `onSubmit` do <form>. O formulário volta a ser
+   `<form action={acao}>` puro, e o caminho sem JS volta a ser o mesmo caminho
+   de todo mundo. Nada além disso precisa mudar — foi desenhado para sair
+   inteiro. */
 
 /* A mensagem que chega no WhatsApp. Os asteriscos são o negrito do app. */
 function mensagemWhatsApp(v: ValoresContato) {
@@ -158,13 +164,12 @@ export default function FormularioContato() {
     if (visivel.estado === "erro" || visivel.estado === "falha") resumoRef.current?.focus();
   }, [visivel]);
 
-  /* ⚠ PROVISÓRIO — ver o bloco MODO DE TESTE no topo do arquivo.
+  /* ⚠ PROVISÓRIO — ver o bloco A ENTREGA É POR WHATSAPP no topo do arquivo.
 
-     Sem `MODO_TESTE` esta função não faz nada e o submit segue para a Server
-     Action, exatamente como antes. É o tratamento do caso "variável vazia":
-     não quebra, não avisa, só não intercepta. */
+     `preventDefault` é o que tira a Server Action do caminho quando há script.
+     Sem script esta função não roda, e o POST nativo vai para a action — os
+     dois destinos e o porquê estão documentados lá em cima. */
   function aoEnviar(evento: React.FormEvent<HTMLFormElement>) {
-    if (!MODO_TESTE) return;
     evento.preventDefault();
 
     const dados = new FormData(evento.currentTarget);
@@ -190,9 +195,9 @@ export default function FormularioContato() {
       return;
     }
 
-    const url = `https://wa.me/${soDigitos(WHATSAPP_TESTE)}?text=${encodeURIComponent(
-      mensagemWhatsApp(valores),
-    )}`;
+    /* `whatsappUrl` já é `https://wa.me/<contato.whatsapp>` — o mesmo endereço
+       do rodapé e do cartão. Só o `?text=` é daqui. */
+    const url = `${whatsappUrl}?text=${encodeURIComponent(mensagemWhatsApp(valores))}`;
     window.open(url, "_blank", "noopener,noreferrer");
     setEstadoTeste({ estado: "sucesso", erros: {}, resumo: null, valores: ESTADO_INICIAL.valores });
   }
