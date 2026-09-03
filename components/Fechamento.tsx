@@ -74,7 +74,7 @@ export default function Fechamento() {
         {/* A rota existe. TODO: o formulário — ver o bloco no topo do arquivo
             para o que a chegada dele destrava. */}
         <Link className="btn btn--contorno" href="/contato">
-          Começar Meu Orçamento
+          Enviar projeto
         </Link>
       </div>
     </section>

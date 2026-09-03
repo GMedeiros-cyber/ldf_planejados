@@ -34,6 +34,101 @@ export type EstadoContato = {
   valores: ValoresContato;
 };
 
+/* ── A VALIDAÇÃO MORA AQUI, E NÃO NA ACTION ────────────────────────────────
+
+   Ela nasceu dentro de app/contato/actions.ts e SUBIU para este arquivo quando
+   o modo de teste por WhatsApp apareceu. O motivo é o mesmo que trouxe os
+   tipos para cá: um módulo marcado com "use server" só pode exportar função
+   assíncrona, então a action não consegue emprestar as regras dela a ninguém.
+   Aqui não há diretiva nenhuma, e os dois lados importam sem cerimônia.
+
+   ⚠ ESTA É A ÚNICA CÓPIA DAS REGRAS. A Server Action valida com `validar()`, e
+   o caminho de teste no cliente valida com `validar()`. Escrever uma segunda
+   checagem "só para o cliente" é como as duas divergem — e divergindo, o
+   formulário passa a aceitar na tela o que o servidor recusa, ou o contrário.
+
+   A validação de servidor CONTINUA SENDO A QUE DECIDE. O que roda no cliente é
+   conveniência: um POST direto ignora tudo o que é do navegador, e por isso a
+   action chama `validar()` de novo, sempre, sem confiar em nada que venha de
+   fora.
+
+   ── Os limites, e o motivo de cada um ──
+
+     nome 2..80        dois caracteres é o menor nome próprio real; 80 cobre
+                       nome completo com sobrenomes compostos.
+     whatsapp 10 ou 11 telefone brasileiro depois de limpo: DDD + 8 (fixo) ou
+                       DDD + 9 (celular). Não aceitamos +55 porque a máscara do
+                       campo não pede país; um número com 12 ou 13 dígitos é
+                       colagem de outro formato, e é melhor devolver erro do
+                       que adivinhar onde cortar.
+     mensagem 0..1000  opcional, e o teto existe para o webhook não receber um
+                       romance colado. */
+export const LIMITE_NOME = { min: 2, max: 80 };
+export const LIMITE_MENSAGEM = 1000;
+
+/* E-mail: verificação SIMPLES, e é decisão. A regex "completa" do RFC 5322
+   tem centenas de caracteres, rejeita endereços válidos e aceita inválidos —
+   o único teste que de fato prova um e-mail é mandar mensagem para ele. Aqui
+   basta separar erro de digitação de coisa que não é endereço: um arroba, algo
+   antes, algo depois, um ponto no domínio, nenhum espaço. */
+export const pareceEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+export const soDigitos = (v: string) => v.replace(/\D+/g, "");
+
+/* REJEITAR, NÃO NORMALIZAR. Valor de `ambiente` ou `estagio` fora das listas
+   conhecidas vira erro, e não é "ajustado" para o mais parecido. Normalizar
+   entrada desconhecida é aceitar que alguém decidiu por nós o que o campo
+   significa. */
+export function validar(
+  valores: ValoresContato,
+  opcoes: { ambientes: readonly string[]; estagios: readonly string[] },
+): EstadoContato["erros"] {
+  const erros: EstadoContato["erros"] = {};
+
+  if (valores.nome.length < LIMITE_NOME.min || valores.nome.length > LIMITE_NOME.max) {
+    erros.nome = `Escreva seu nome, entre ${LIMITE_NOME.min} e ${LIMITE_NOME.max} caracteres.`;
+  }
+
+  const digitos = soDigitos(valores.whatsapp);
+  if (digitos.length !== 10 && digitos.length !== 11) {
+    erros.whatsapp = "Informe DDD e número, com 10 ou 11 dígitos.";
+  }
+
+  if (!pareceEmail(valores.email)) {
+    erros.email = "Informe um e-mail válido, no formato nome@dominio.com.";
+  }
+
+  if (valores.ambiente.length === 0) {
+    erros.ambiente = "Escolha ao menos um ambiente.";
+  } else if (!valores.ambiente.every((a) => opcoes.ambientes.includes(a))) {
+    erros.ambiente = "Escolha ao menos um ambiente.";
+  }
+
+  if (!opcoes.estagios.includes(valores.estagio)) {
+    erros.estagio = "Diga em que estágio a obra está.";
+  }
+
+  if (valores.mensagem.length > LIMITE_MENSAGEM) {
+    erros.mensagem = `A mensagem passa de ${LIMITE_MENSAGEM} caracteres.`;
+  }
+
+  if (!valores.consentimento) {
+    erros.consentimento = "Precisamos da sua autorização para entrar em contato.";
+  }
+
+  return erros;
+}
+
+/* A frase única do resumo no topo, derivada da contagem de erros. Fica junto
+   da validação para os dois caminhos contarem do mesmo jeito. */
+export function resumoDeErros(erros: EstadoContato["erros"]): string | null {
+  const quantos = Object.keys(erros).length;
+  if (quantos === 0) return null;
+  return quantos === 1
+    ? "Falta corrigir um campo antes de enviar."
+    : `Faltam corrigir ${quantos} campos antes de enviar.`;
+}
+
 export const ESTADO_INICIAL: EstadoContato = {
   estado: "inicial",
   erros: {},

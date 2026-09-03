@@ -1632,23 +1632,38 @@ a { color: inherit; }
 .obra__quadro::before { bottom: 100%; }
 .obra__quadro::after { top: 100%; }
 
+/* ⚠ A FAIXA DE RÓTULO FICOU SEM CONTEÚDO VISÍVEL, E A ALTURA VIROU RESERVA.
+
+   A sigla saiu do markup — ver components/Obras.tsx. O que sobra dentro do
+   .obra__rotulo é o .obra__nome, que é oculto-visual e ABSOLUTO: não gera
+   caixa de linha, e portanto não gera altura.
+
+   MEDIDO: só com `line-height` o card caiu de 600px para 573px. `line-height`
+   dimensiona a caixa de linha, e sem nenhum conteúdo inline não existe caixa
+   de linha para dimensionar — a regra continuava lá e não sustentava nada. Por
+   isso entra `min-height`, que é altura de bloco e vale com a caixa vazia.
+
+   Os 27px são os mesmos de antes: 537 da foto + 36 de margem + 27 fecham os
+   600px do card, e é essa conta que a pista inteira assume. `line-height`
+   FICA junto, para o dia em que algum texto voltar a esta faixa.
+
+   ⚠ SÃO 63px DE ESPAÇO VAZIO abaixo da foto agora — a margem mais a reserva.
+   Mantê-los é o que preserva a geometria documentada do card. Recuperá-los é
+   decisão de desenho, não conserto: quem quiser o card mais curto acerta aqui,
+   no .obra e na conta da pista, os três juntos.
+
+   .obra__sigla FOI REMOVIDA desta folha: sem o span, era regra órfã. */
 .obra__rotulo {
   margin-top: 36px;
-  /* Linha de 27px: 537 + 36 + 27 fecha os 600px do card. */
+  /* 537 + 36 + 27 fecha os 600px do card. */
+  min-height: 27px;
   line-height: 27px;
   text-align: center;
 }
-.obra__sigla {
-  font-size: 18px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
 
-/* O nome completo sai da tela, nao da arvore de acessibilidade: o leitor
-   anuncia "Cozinha planejada" e nao "CZ". display: none o tiraria do
-   anuncio junto, e ai a sigla aria-hidden deixaria o card sem rotulo. */
+/* O nome sai da tela, nao da arvore de acessibilidade: o leitor anuncia
+   "Cozinha planejada". display: none o tiraria do anuncio junto, e ai o card
+   ficaria sem rotulo nenhum. */
 .obra__nome {
   position: absolute;
   width: 1px;
@@ -3300,6 +3315,16 @@ a { color: inherit; }
    linha da franquia quando ela quebra, em vez de deixar uma órfã — a quebra
    passa a ler como decisão. */
 .cadeia__what {
+  /* A MESMA FAMÍLIA DOS VIZINHOS: --font-texto, que é o que .cadeia__who logo
+     acima e .fabrica__nota logo abaixo já declaram, e o que a .lede desta
+     coluna usa. Sem esta linha a cadeia herdava a Archivo do body e era o
+     único elemento da coluna de texto em sans — destoava de tudo em volta.
+
+     NÃO é --font-serif. Aquela é a Instrument Serif, face de display de um
+     peso só que o :root reserva para manchete; posta aqui, punha tipo de
+     título numa linha de diagrama. A "serifada" que a Fábrica usa no corpo é
+     esta. Nenhuma fonte nova entrou. */
+  font-family: var(--font-texto);
   font-size: var(--t-lg);
   color: var(--ink-3);
   line-height: 1.35;
