@@ -135,3 +135,28 @@ export const ESTADO_INICIAL: EstadoContato = {
   resumo: null,
   valores: { nome: "", whatsapp: "", email: "", ambiente: [], estagio: "", mensagem: "", consentimento: false },
 };
+
+/* ── A MENSAGEM QUE CHEGA NO WHATSAPP ──────────────────────────────────────
+
+   Subiu para cá pelo mesmo motivo que a validação subiu: os DOIS caminhos do
+   formulário terminam no WhatsApp, e cada um monta o texto de um lado da
+   fronteira. Com JS, o cliente abre o wa.me em nova aba; sem JS, a Server
+   Action redireciona para o mesmo endereço. Duas cópias desta função é como o
+   pedido passaria a chegar diferente conforme o visitante tem script ou não —
+   e ninguém perceberia, porque as duas continuariam funcionando.
+
+   Os asteriscos são o negrito do aplicativo. */
+export function mensagemWhatsApp(v: ValoresContato) {
+  const linhas = [
+    "*Novo pedido de projeto — site LDF*",
+    "",
+    `*Nome:* ${v.nome}`,
+    `*WhatsApp:* ${v.whatsapp}`,
+    `*E-mail:* ${v.email}`,
+    `*Ambientes:* ${v.ambiente.join(", ")}`,
+    `*Estágio da obra:* ${v.estagio}`,
+  ];
+  /* A mensagem é opcional: linha ausente em vez de "Mensagem: (vazio)". */
+  if (v.mensagem) linhas.push("", "*Mensagem:*", v.mensagem);
+  return linhas.join(String.fromCharCode(10));
+}

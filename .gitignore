@@ -34,3 +34,7 @@ desktop.ini
 # Originais da capa: 7 MB de foto de terceiro, regeneráveis.
 # As variantes WebP em public/hero/*.webp sobem, senão o site quebra.
 public/hero/originais/
+
+# Estado de ferramenta local, não do site: as skills moram em .claude/skills/,
+# que já é ignorado. Versionar o lock sem o conteúdo aponta para o vazio.
+skills-lock.json

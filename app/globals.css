@@ -136,43 +136,12 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --dur:  520ms;
 
-  /* --- Acabamento vigente. Trocado pelo amostrário. --- */
-  --fin-face:   #4A3423;
-  --fin-light:  #5E4430;
-  --fin-dark:   #33231684;
-  --fin-band:   #6B4E36;
-  --fin-grain:  0.5;
-  --fin-sheen:  0.10;
-  --fin-sheen-end: 22%;
-  --fin-shade:  14%;
 }
 
-/* Acabamentos. Nomes descritivos — os códigos de catálogo do fornecedor
-   ainda não foram informados pelo cliente (ver PRODUCT.md). */
-[data-fin="nogueira"] {
-  --fin-face: #4A3423; --fin-light: #63482F; --fin-dark: #2C1D12;
-  --fin-band: #6B4E36; --fin-grain: 0.55; --fin-sheen: 0.10; --fin-sheen-end: 22%; --fin-shade: 14%;
-}
-[data-fin="freijo"] {
-  --fin-face: #8B6640; --fin-light: #A47C52; --fin-dark: #5E4227;
-  --fin-band: #A67F55; --fin-grain: 0.50; --fin-sheen: 0.12; --fin-sheen-end: 22%; --fin-shade: 14%;
-}
-[data-fin="carvalho"] {
-  --fin-face: #C2A177; --fin-light: #D8BA92; --fin-dark: #9A7C55;
-  --fin-band: #D4B68D; --fin-grain: 0.42; --fin-sheen: 0.14; --fin-sheen-end: 22%; --fin-shade: 14%;
-}
-[data-fin="cinza"] {
-  --fin-face: #8E8A83; --fin-light: #A5A099; --fin-dark: #6B6862;
-  --fin-band: #9C978F; --fin-grain: 0.30; --fin-sheen: 0.13; --fin-sheen-end: 20%; --fin-shade: 13%;
-}
-[data-fin="laca-branca"] {
-  --fin-face: #E4E0D8; --fin-light: #F2EFE9; --fin-dark: #C3BFB6;
-  --fin-band: #EDEAE3; --fin-grain: 0.00; --fin-sheen: 0.15; --fin-sheen-end: 8%;  --fin-shade: 7%;
-}
-[data-fin="laca-grafite"] {
-  --fin-face: #3B3B39; --fin-light: #4C4C49; --fin-dark: #262624;
-  --fin-band: #45443F; --fin-grain: 0.00; --fin-sheen: 0.13; --fin-sheen-end: 8%;  --fin-shade: 9%;
-}
+/* As oito variáveis `--fin-*` e os seis blocos `[data-fin]` saíram daqui.
+   Pintavam a `.mat`, que saiu da seção 4 pelo motivo escrito lá: ficou sem
+   nenhum elemento no site. O <body> deixou de carregar `data-fin` no mesmo
+   commit. */
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -338,46 +307,21 @@ p:last-child { margin-bottom: 0; }
 
 a { color: inherit; }
 
-/* --- 4. Materiais autorais ------------------------------------------------
-   O veio e o brilho são desenhados, não fotografados. Todo campo de
-   acabamento nesta página é desenho — nenhum se apresenta como foto. ------- */
+/* --- 4. Materiais autorais — REMOVIDA ------------------------------------
 
-.mat {
-  position: relative;
-  background-color: var(--fin-face);
-  background-image:
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--white) calc(var(--fin-sheen) * 100%), transparent) 0%,
-      transparent var(--fin-sheen-end),
-      transparent 74%,
-      color-mix(in srgb, var(--black) var(--fin-shade), transparent) 100%);
-  transition: background-color var(--dur) var(--ease);
-  overflow: hidden;
-}
+   Aqui morava a `.mat`: o campo de acabamento desenhado, com veio de
+   turbulência SVG e fita de borda, pintado pelas variáveis `--fin-*` que os
+   blocos `[data-fin]` do topo definiam.
 
-/* Veio: turbulência esticada no eixo vertical. */
-.mat::before {
-  content: "";
-  position: absolute;
-  inset: -10%;
-  opacity: var(--fin-grain);
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62 0.006' numOctaves='4' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='400' filter='url(%23g)' opacity='0.62'/%3E%3C/svg%3E");
-  background-size: 240px 100%;
-  transition: opacity var(--dur) var(--ease);
-}
+   SAIU INTEIRA porque perdeu os dois consumidores. A `.mat` só era aplicada
+   pelo <Amostrario /> — a interação de trocar o acabamento — e pelo
+   `.amb__plate` do índice de ambientes. O primeiro ficou órfão quando a home
+   deixou de montá-lo; o segundo foi substituído pelo <AmbienteBloco />, que
+   usa foto. Sem os dois, nada no site tinha a classe, e as seis paletas de
+   `[data-fin]` pintavam um elemento que não existia.
 
-/* Fita de borda: a linha física que separa uma amostra de um chip de cor. */
-.mat::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 2px;
-  background: var(--fin-band);
-  opacity: 0.85;
-  transition: background var(--dur) var(--ease);
-}
+   Está no histórico do git, com a cartela de seis acabamentos e o filtro
+   inteiro, se a interação voltar. ------------------------------------------ */
 
 /* --- 5. Layout ------------------------------------------------------------ */
 
@@ -786,11 +730,9 @@ a { color: inherit; }
 .btn:hover { background: var(--red-hot); transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
 
-.btn--ghost {
-  background: transparent; color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--edge-2);
-}
-.btn--ghost:hover { background: var(--ground-lift); box-shadow: inset 0 0 0 1px var(--ink-3); }
+/* O `.btn--ghost` saiu: nenhum botão do site o usava. Quem faz o papel de
+   botão secundário é o `.btn--contorno` abaixo, que nasceu depois e para um
+   caso concreto — botão sobre fotografia. */
 
 /* Botão sobre fotografia: contorno claro e fundo escuro translúcido. Não é
    vermelho porque o vermelho já está no logo, 3rem acima — dois vermelhos
@@ -814,8 +756,9 @@ a { color: inherit; }
 
 .btn__arrow { width: 14px; height: 14px; flex: none; }
 
-/* Régua de cabelo: 1px, largura total, sem ornamento. O único divisor. */
-.regua { display: block; height: 1px; background: var(--edge); border: 0; }
+/* A `.regua` — régua de cabelo de 1px — saiu com o cabeçalho do amostrário,
+   que era quem a desenhava. Os divisores que restam no site são bordas das
+   próprias seções, não elementos. */
 
 /* --- 7b. Botão de revelação -------------------------------------------------
    O <BotaoRevelar />. Fica AQUI, entre os botões, e não na seção da rota de
@@ -1066,39 +1009,19 @@ a { color: inherit; }
 
 .hero { position: relative; }
 
-/* Palco full-bleed: a elevação é o fundo, o texto se sobrepõe a ~30% do topo.
-   Sem duas colunas — o desenho ocupa a largura inteira. */
-.hero__stage {
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  align-content: start;
-  min-height: clamp(34rem, 52vw, 51rem);
-  padding-block: clamp(var(--s8), 17vw, 16rem) clamp(var(--s7), 6vw, var(--s9));
-  padding-inline: var(--gutter);
-  background: var(--ground-deep);
-}
+/* ⚠ O PALCO ANTIGO SAIU DAQUI: `.hero__stage`, o véu `.hero__stage::after`,
+   `.hero__overlay`, `.hero__note` e a consulta de 940px que os empilhava.
 
-/* Véu de leitura. É superfície e temperatura, não sombra: escurece o lado
-   do texto e deixa o material inteiro à direita. */
-.hero__stage::after {
-  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background:
-    linear-gradient(97deg,
-      var(--ground-deep) 0%,
-      color-mix(in srgb, var(--ground-deep) 97%, transparent) 34%,
-      color-mix(in srgb, var(--ground-deep) 74%, transparent) 52%,
-      color-mix(in srgb, var(--ground-deep) 24%, transparent) 70%,
-      transparent 84%),
-    linear-gradient(0deg, color-mix(in srgb, var(--ground-deep) 70%, transparent), transparent 30%),
-    linear-gradient(180deg, var(--ground-deep) 0%, color-mix(in srgb, var(--ground-deep) 62%, transparent) 9%, transparent 20%);
-}
+   Eram do herói de uma coluna com material desenhado ao fundo — o da página
+   por ambiente, apagada quando o cliente deixou de querer página por
+   ambiente. A capa que existe hoje é a `.hero--capa` da seção 8c: três slides
+   de FOTO que se cruzam por opacidade, com estrutura própria
+   (`.hero__slides`, `.hero__slide`, `.hero__foto`, `.hero__vinheta`).
 
-.hero__overlay {
-  position: relative; z-index: 2;
-  display: grid; gap: var(--s5);
-  max-width: 44rem;
-}
+   Por duas rodadas o comentário da 8c dizia que estas regras "continuam
+   servindo o herói desta capa". Não serviam: nenhuma classe delas estava no
+   HTML desde a reescrita. Ficaram no ar como CSS que todo visitante baixava
+   sem nunca aplicar. */
 
 .hero .display {
   font-family: var(--font-serif);
@@ -1110,37 +1033,9 @@ a { color: inherit; }
 }
 
 
-.hero__note {
-  margin-top: var(--s5);
-  padding-top: var(--s4);
-  border-top: 1px solid var(--edge-2);
-  max-width: 44ch;
-}
-.hero__note p { font-size: var(--t-md); color: var(--ink-2); margin: 0; }
-
-/* Em tela estreita o texto não se sobrepõe ao desenho: as linhas de porta e
-   os puxadores cortavam a leitura. O palco empilha — texto, depois material. */
-@media (max-width: 940px) {
-  .hero__stage {
-    min-height: 0;
-    display: grid;
-    gap: var(--s7);
-    padding: calc(var(--s8) + 4.5rem) 0 0;
-  }
-  .hero__stage::after { display: none; }
-  .hero__overlay {
-    order: 1;
-    padding-inline: var(--gutter);
-    max-width: none;
-  }
-}
-
 /* --- 8c. Capa da home ------------------------------------------------------
    Três slides sobrepostos que se cruzam por opacidade. A headline pertence ao
-   slide, então atravessa junto com a foto — nada é animado em separado.
-   As regras de .hero__stage e .hero__overlay ficam onde estão: nasceram para
-   a página de ambiente, que foi apagada quando o cliente deixou de querer
-   página por ambiente, e continuam servindo o herói desta capa. */
+   slide, então atravessa junto com a foto — nada é animado em separado. */
 
 .hero--capa {
   position: relative;
@@ -1802,167 +1697,28 @@ a { color: inherit; }
   .obra { scroll-snap-align: center; }
 }
 
-/* --- 10. Amostrário (a interação assinatura) ------------------------------ */
+/* --- 10 e 11. Amostrário e índice de ambientes — REMOVIDAS ---------------
 
-/* Rótulo em coluna lateral estreita, ligado ao trilho por régua horizontal.
-   Gramática do In Common With; libera o trilho para usar a largura inteira. */
-.amostrario-head {
-  display: grid;
-  grid-template-columns: 7.5rem 1fr auto;
-  align-items: center;
-  gap: var(--s4);
-  padding: var(--s5) var(--gutter) var(--s4);
-  border-top: 1px solid var(--edge);
-}
-.amostrario-head__estado {
-  display: flex; align-items: baseline; gap: var(--s3);
-  font-size: var(--t-sm);
-}
-.amostrario-head__estado strong { font-weight: 700; color: var(--ink); }
-.amostrario-head__estado span { color: var(--ink-3); }
+   Duas seções inteiras saíram daqui, e as duas pelo mesmo motivo: o HTML que
+   as vestia não existe mais.
 
-@media (max-width: 620px) {
-  .amostrario-head { grid-template-columns: auto 1fr; row-gap: var(--s3); }
-  .amostrario-head .regua { display: none; }
-  .amostrario-head__estado { grid-column: 1 / -1; }
-}
+   A 10 era o AMOSTRÁRIO — `.amostrario-head`, `.amostrario`, `.sample`,
+   `.sample__face`, `.sample__name`, `.provisorio` e a régua. Vestia a peça com
+   o acabamento escolhido, escrevendo `data-fin` no <body>. O componente ficou
+   órfão quando a home parou de montá-lo; a `.mat` que ele pintava saiu da
+   seção 4, e a cartela de acabamentos saiu do lib/dados.ts.
 
-.amostrario {
-  position: relative; z-index: 5;
-  display: flex; align-items: stretch;
-  gap: 0;
-  background: var(--ground-lift);
-  border-top: 1px solid var(--edge);
-  border-bottom: 1px solid var(--edge);
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-}
+   A 11 era o ÍNDICE DE AMBIENTES — `.ambientes`, `.amb`, `.amb__plate`,
+   `.amb__name`, `.amb__meta`, `.amb__go`. Quatro cartões com o material
+   DESENHADO ao fundo e um puxador de gradiente. Foi substituído pelo
+   <AmbienteBloco />, que usa FOTO de obra entregue: quando existe foto real do
+   ambiente, desenhá-lo é competir com a evidência.
 
-.amostrario { border-top: 0; }
+   As duas continuam no histórico do git, com os gradientes e as medidas.
+   ------------------------------------------------------------------------- */
 
+/* --- 11. Página de ambientes ---------------------------------------------- */
 
-.sample {
-  flex: 1 0 7.5rem;
-  scroll-snap-align: start;
-  position: relative;
-  display: block;
-  padding: 0; border: 0;
-  background: none;
-  cursor: pointer;
-  min-height: 5.5rem;
-  border-right: 1px solid var(--edge);
-  transition: flex-basis 380ms var(--ease);
-}
-
-.sample__face { position: absolute; inset: 0; }
-
-/* Cada amostra pinta o seu próprio acabamento: o botão redefine as
-   variáveis do sistema para o seu subtree, e .mat as lê normalmente. */
-
-.sample__name {
-  position: absolute; inset: auto 0 0 0; z-index: 2;
-  padding: var(--s3);
-  font-variation-settings: "wdth" 66;
-  font-weight: 600; font-size: var(--t-2xs);
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--white);
-  text-shadow: 0 1px 6px rgba(0,0,0,0.85);
-  background: linear-gradient(0deg, rgba(0,0,0,0.55), transparent);
-  opacity: 0; transform: translateY(4px);
-  transition: opacity 260ms var(--ease), transform 260ms var(--ease);
-}
-.sample:hover .sample__name, .sample:focus-visible .sample__name { opacity: 1; transform: none; }
-
-/* A amostra viva é a que você está segurando: mais larga, e a própria
-   etiqueta vira vermelha. O vermelho é a etiqueta, não uma borda. */
-.sample[aria-pressed="true"] { flex-basis: 10rem; }
-.sample[aria-pressed="true"] .sample__name {
-  opacity: 1; transform: none;
-  background: var(--red);
-  text-shadow: none;
-  padding-block: var(--s3);
-}
-
-/* Nota de provisório: a cartela real do cliente ainda não chegou. */
-.provisorio {
-  font-family: var(--font-texto);
-  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3);
-  margin: 0; padding: var(--s3) var(--gutter);
-  max-width: none;
-  background: var(--ground-deep);
-  border-bottom: 1px solid var(--edge);
-  color: var(--ink-3); font-size: var(--t-sm);
-}
-.provisorio .slot__tag { position: static; }
-
-/* --- 11. Índice de ambientes --------------------------------------------- */
-
-.ambientes {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 2px;
-  background: var(--edge);
-  border: 1px solid var(--edge);
-}
-
-@media (max-width: 1080px) { .ambientes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 560px)  { .ambientes { grid-template-columns: 1fr; } }
-
-.amb {
-  position: relative;
-  display: flex; flex-direction: column; justify-content: flex-end;
-  min-height: clamp(15rem, 26vw, 21rem);
-  padding: var(--s5);
-  text-decoration: none;
-  background: var(--ground-lift);
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.amb__plate {
-  position: absolute; inset: 0; z-index: -2;
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
-  background: var(--ground-deep);
-  transition: transform 700ms var(--ease);
-}
-.amb__plate .mat { position: relative; }
-.amb__plate::after {
-  content: ""; position: absolute; z-index: 2;
-  left: 14%; right: 14%; top: 56%; height: 3px; border-radius: 2px;
-  /* Puxador metálico: meia altura de luz, meia de sombra. Lê sobre
-     madeira escura e sobre laca branca sem precisar de duas regras. */
-  background: linear-gradient(180deg,
-    color-mix(in srgb, var(--ink) 62%, transparent) 0 50%,
-    rgba(12,10,9,0.55) 50% 100%);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.42);
-}
-
-.amb::before {
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  /* Scrim só onde o rótulo vive. Acima dele o material fica limpo,
-     para que a laca branca leia como laca e não como cromo. */
-  background: linear-gradient(0deg, rgba(10,9,8,0.95) 0%, rgba(10,9,8,0.88) 24%, rgba(10,9,8,0) 56%);
-}
-.amb:hover .amb__plate { transform: scale(1.035); }
-
-.amb__name {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: var(--t-card);
-  font-variation-settings: normal;
-  letter-spacing: -0.008em;
-  line-height: 1.16;
-}
-.amb__meta { font-family: var(--font-texto); color: var(--ink-2); font-size: var(--t-sm); margin-top: var(--s2); }
-
-.amb__go {
-  position: absolute; top: var(--s5); right: var(--s5);
-  width: 30px; height: 30px;
-  opacity: 0; transform: translate(-6px, 6px);
-  transition: opacity 340ms var(--ease), transform 340ms var(--ease);
-  color: var(--red-bright);
-}
-.amb:hover .amb__go, .amb:focus-visible .amb__go { opacity: 1; transform: none; }
 
 /* Primeira seção de /ambientes. A navbar é fixed e mede --altura-nav, e o
    padding-block padrão da .section (64–128px) não a limpa sozinho: em 1200px
@@ -4096,53 +3852,23 @@ a { color: inherit; }
 @media (max-width: 991px) { .estagios { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 639px) { .estagios { grid-template-columns: 1fr; } }
 
-/* --- 13b. Lista de módulos (páginas de ambiente) ------------------------- */
+/* --- 13b e 14. Lista de módulos e ficha técnica — REMOVIDAS ---------------
 
-.mods { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+   Saíram juntas porque eram do mesmo lugar: as PÁGINAS POR AMBIENTE, apagadas
+   quando o cliente deixou de querer uma rota para cada ambiente.
 
-.mod {
-  display: grid;
-  grid-template-columns: 3.5rem 1fr;
-  gap: var(--s5);
-  align-items: stretch;
-  background: var(--ground-lift);
-}
-.mod__chip { position: relative; min-height: 100%; }
-.mod__body { padding: var(--s5) var(--s5) var(--s5) 0; }
-.mod__t { display: block; font-weight: 700; letter-spacing: -0.015em; }
-.mod__d {
-  font-family: var(--font-texto); color: var(--ink-2); font-size: var(--t-md); margin-top: var(--s2); max-width: 58ch; }
+   A 13b listava os módulos de um projeto — `.mods`, `.mod`, `.mod__chip`,
+   `.mod__body`, `.mod__t`, `.mod__d` — e vinha com a `.migalha`, a trilha de
+   navegação que levava de volta ao índice. Sem rota filha, não há de onde
+   voltar.
 
-@media (max-width: 620px) {
-  .mod { grid-template-columns: 2rem 1fr; gap: var(--s4); }
-  .mod__body { padding-block: var(--s4); }
-}
+   A 14 era a ficha técnica em grade — `.ficha`, `.ficha__cell`, `.ficha__k`,
+   `.ficha__v`, `.ficha__d` —, com chave e valor por célula. Os números que ela
+   mostrava não se perderam: estão no <Numeros /> da home, que tem estrutura
+   própria.
 
-.migalha { display: flex; gap: var(--s3); align-items: center; margin-bottom: var(--s4); }
-.migalha a { color: var(--ink-3); text-decoration: none; }
-.migalha a:hover { color: var(--ink); }
-.migalha svg { width: 12px; height: 12px; color: var(--ink-3); flex: none; }
-
-/* --- 14. Ficha técnica --------------------------------------------------- */
-
-.ficha {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-  gap: 1px;
-  background: var(--edge);
-  border: 1px solid var(--edge);
-}
-.ficha__cell { background: var(--ground); padding: var(--s6) var(--s5); }
-.ficha__k { display: block; margin-bottom: var(--s3); }
-.ficha__v {
-  font-size: var(--t-stat);
-  font-weight: 800; font-variation-settings: "wdth" 88;
-  letter-spacing: -0.035em; line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.ficha__v--sm { font-size: var(--t-h3); }
-.ficha__d {
-  font-family: var(--font-texto); display: block; color: var(--ink-2); font-size: var(--t-sm); margin-top: var(--s3); }
+   Nenhuma das duas tinha uma única classe no HTML desde a remoção das rotas.
+   ------------------------------------------------------------------------- */
 
 /* --- 15. Chamada sobre madeira ----------------------------------------------
    O <ChamadaMadeira />: logo, frase serifada, botão de revelação e, quando há,
@@ -4328,41 +4054,26 @@ main > .chamada:first-child {
   .chamada__marca { height: 44px; }
 }
 
-/* --- 16. Vazio honesto: os ativos que ainda não chegaram ----------------- */
+/* --- 16. Vazio honesto — REMOVIDA -----------------------------------------
 
-.aguardando {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
-  gap: var(--s4);
-}
+   Era a grade de lacunas declaradas do <Prova />: `.aguardando`, `.slot`,
+   `.slot__tag`, `.slot__what`, `.slot__why`. Cartões hachurados dizendo, em
+   tela, o que ainda faltava — fotos de obra, depoimentos, fotos da fábrica.
 
-.slot {
-  position: relative;
-  min-height: 11rem;
-  padding: var(--s5);
-  display: flex; flex-direction: column; justify-content: flex-end; gap: var(--s2);
-  background:
-    repeating-linear-gradient(135deg,
-      transparent 0 9px,
-      color-mix(in srgb, var(--ink) 4%, transparent) 9px 10px);
-  box-shadow: inset 0 0 0 1px var(--edge-2);
-}
-.slot__tag {
-  position: absolute; top: var(--s4); left: var(--s4);
-  padding: 0.25rem 0.5rem;
-  background: var(--red); color: var(--white);
-  font-variation-settings: "wdth" 66;
-  font-weight: 700; font-size: var(--t-2xs);
-  letter-spacing: 0.14em; text-transform: uppercase;
-}
-.slot__what { font-weight: 700; }
-.slot__why {
-  font-family: var(--font-texto); color: var(--ink-3); font-size: var(--t-sm); }
+   SAIU PORQUE O VAZIO FOI PREENCHIDO. As obras têm foto local, a fábrica tem
+   vídeo próprio e as avaliações do Google estão na 16b, logo abaixo. O
+   componente já não era montado por rota nenhuma, e a lista que ele lia saiu
+   do lib/dados.ts no mesmo commit.
+
+   ⚠ A 16b MENCIONA ESTA SEÇÃO: ela vinha logo depois do vazio honesto de
+   propósito — era o primeiro slot daquela lista a chegar de verdade. O
+   comentário de lá foi ajustado junto.
+   ------------------------------------------------------------------------- */
 
 /* --- 16b. Avaliações do Google ----------------------------------------------
-   Faixa contínua entre a Fábrica e o CTA. Vem logo depois de 16 de propósito:
-   aquele é o vazio honesto — o que ainda não chegou — e este é o primeiro
-   slot daquela lista que chegou de verdade.
+   Faixa contínua entre a Fábrica e o CTA. Nasceu logo depois do vazio honesto
+   da 16 de propósito: era o primeiro item daquela lista de lacunas a chegar de
+   verdade. A 16 saiu — o vazio acabou —, e esta ficou.
 
    O MARQUEE É SÓ CSS. Duas trilhas idênticas lado a lado, ambas deslizando
    -100% da PRÓPRIA largura. Ao fim do ciclo a segunda ocupa exatamente o
@@ -6067,8 +5778,6 @@ main > .chamada:first-child {
   clip-path: inset(50%);
   white-space: nowrap;
 }
-
-.hero__note strong { color: var(--ink); }
 
 .lede--espacada { margin-top: var(--s5); }
 

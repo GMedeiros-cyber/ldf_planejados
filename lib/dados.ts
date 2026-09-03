@@ -25,6 +25,20 @@ export const contato = {
 
 export const whatsappUrl = `https://wa.me/${contato.whatsapp}`;
 
+/* --- O endereço do site ----------------------------------------------------
+
+   PRECISA SER ABSOLUTO, e é por isso que existe uma constante em vez de um
+   caminho relativo espalhado pelo código. Três coisas só funcionam com o
+   domínio inteiro: a URL canônica de cada rota, a imagem de compartilhamento
+   (WhatsApp e Facebook baixam a foto de um endereço absoluto — com caminho
+   relativo, o link vai sem imagem) e o sitemap.
+
+   SEM BARRA NO FIM. O `new URL()` do metadataBase e o sitemap montam as rotas
+   concatenando "/algo"; uma barra aqui viraria "//algo".
+
+   ⚠ TROCAR AQUI SE O DOMÍNIO MUDAR. É o único lugar. */
+export const siteUrl = "https://ldfplanejados.com.br";
+
 /* --- O menu do site --------------------------------------------------------
    MORA EM lib/menu.ts, e não aqui. O <Nav /> é "use client", e importar deste
    arquivo arrastaria o catálogo inteiro do site para o grafo do navegador —
@@ -49,28 +63,16 @@ export const numeros = [
   { alvo: 5, prefixo: "", sufixo: "", rotulo: "Anos de garantia" },
 ] as const;
 
-/* --- Acabamentos -----------------------------------------------------------
-   PROVISÓRIO: são exemplos de referência. A cartela real da LDF entra aqui
-   quando o cliente informar as opções e os códigos. */
+/* --- Acabamentos — SAÍRAM ---------------------------------------------------
 
-export type ChaveAcabamento =
-  | "nogueira"
-  | "freijo"
-  | "carvalho"
-  | "cinza"
-  | "laca-branca"
-  | "laca-grafite";
+   Eram seis: a cartela PROVISÓRIA que alimentava o <Amostrario />, a interação
+   de vestir a peça com um acabamento. Ela ficou sem consumidor — a home deixou
+   de montá-la —, e com ela caíram a `.mat` do globals.css, os seis blocos
+   `[data-fin]` e o atributo no <body>.
 
-export const acabamentos: { chave: ChaveAcabamento; nome: string; tipo: string }[] = [
-  { chave: "nogueira", nome: "Nogueira", tipo: "Madeirado · veio vertical" },
-  { chave: "freijo", nome: "Freijó", tipo: "Madeirado · veio vertical" },
-  { chave: "carvalho", nome: "Carvalho", tipo: "Madeirado · veio vertical" },
-  { chave: "cinza", nome: "Cinza", tipo: "Madeirado · veio suave" },
-  { chave: "laca-branca", nome: "Laca branca", tipo: "Laca · acabamento fosco" },
-  { chave: "laca-grafite", nome: "Laca grafite", tipo: "Laca · acabamento fosco" },
-];
-
-export const acabamentoInicial: ChaveAcabamento = "nogueira";
+   ⚠ A CARTELA REAL DA LDF CONTINUA PENDENTE (ver PRODUCT.md). Se ela chegar e
+   a interação voltar, o bloco inteiro está no histórico do git — não precisa
+   ser reescrito de memória. */
 
 /* --- Ambientes ------------------------------------------------------------ */
 
@@ -305,31 +307,19 @@ export const ficha = [
   },
 ] as const;
 
-/* --- Prova social: slots honestos ------------------------------------------
-   Nada aqui pode ser inventado. Ver PRODUCT.md, Evidence on Hand.
+/* --- Prova social: slots honestos — SAÍRAM ---------------------------------
 
-   "Avaliações no Google" SAIU desta lista: foi entregue. A nota, o total e
-   oito trechos literais estão em lib/avaliacoes.ts, na faixa que a home
-   mostra antes do CTA. Continuar listando como pendente o que já está no ar
-   é a única coisa que esta lista não pode fazer — ela existe para dizer o
-   que falta, e um item falso aqui contamina os outros três. */
+   Eram três lacunas declaradas em tela — fotos de ambientes, depoimentos,
+   fotos da fábrica —, mostradas pelo <Prova />, que a home parou de montar.
 
-export const slotsProva = [
-  {
-    o: "Fotos de ambientes executados",
-    porque:
-      "Cozinha, dormitório, closet e comercial, na resolução original, não reenviadas por WhatsApp.",
-  },
-  {
-    o: "Depoimentos de clientes",
-    porque: "Nome, ambiente e o que foi dito. Texto, áudio ou vídeo. Nada aqui é escrito por nós.",
-  },
-  {
-    o: "Fotos da fábrica e da montagem",
-    porque:
-      'É o que prova a frase principal do site. Sem elas, "fábrica própria" é só uma alegação.',
-  },
-] as const;
+   AS TRÊS FORAM PREENCHIDAS DESDE ENTÃO, e é por isso que sair não custa
+   nada: as obras estão em `obras`, logo abaixo, com foto local; a fábrica tem
+   vídeo próprio na home; e as avaliações do Google estão em lib/avaliacoes.ts,
+   na faixa antes do CTA. Uma lista de pendências que lista o que já está no ar
+   não diz mais a verdade — e essa lista existia só para dizer a verdade.
+
+   O que continua pendente são os DEPOIMENTOS assinados. Isso é registro de
+   PRODUCT.md, não de tela: enquanto não chegam, o site não os menciona. */
 
 /* --- Obras entregues -------------------------------------------------------
 
