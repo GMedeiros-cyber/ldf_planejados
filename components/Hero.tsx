@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import { heroSlides, heroLarguras, contato } from "@/lib/dados";
 import {
@@ -93,17 +93,24 @@ export default function Hero() {
               decoding="async"
             />
             <div className="hero__vinheta" />
+            {/* ⚠ O TÍTULO TEM UMA OU DUAS LINHAS, e o número não é fixo. Este
+                bloco já leu `titulo[0]` e `titulo[1]` direto, o que dava um
+                <br /> pendurado e uma linha vazia no slide que tem só uma. O
+                `.map` cobre os dois casos sem condicional. */}
             <h1 className="hero__titulo">
-              <Linha texto={slide.titulo[0]} destaque={slide.destaque} />
-              <br />
-              <Linha
-                texto={slide.titulo[1]}
-                /* A palavra só pode ser destacada UMA vez. Se ela estiver na
-                   primeira linha, a segunda recebe `undefined` e sai limpa —
-                   sem isso, um título com a palavra repetida ganharia dois
-                   destaques e o gesto perderia o sentido. */
-                destaque={partir(slide.titulo[0], slide.destaque) ? undefined : slide.destaque}
-              />
+              {slide.titulo.map((linha, k) => (
+                <Fragment key={linha}>
+                  {k > 0 ? <br /> : null}
+                  {/* A palavra só é destacada UMA vez por título: `linhaDoDestaque`
+                      acha a PRIMEIRA linha que a contém, e só ela recebe o campo.
+                      Sem isso, um título com a palavra repetida ganharia dois
+                      destaques e o gesto perderia o sentido. */}
+                  <Linha
+                    texto={linha}
+                    destaque={k === linhaDoDestaque(slide) ? slide.destaque : undefined}
+                  />
+                </Fragment>
+              ))}
             </h1>
           </li>
         ))}
@@ -133,6 +140,13 @@ export default function Hero() {
       </div>
     </section>
   );
+}
+
+/* Índice da primeira linha do título que contém a palavra de destaque, ou -1
+   quando nenhuma contém — caso em que o título inteiro sai sem destaque, que é
+   o comportamento certo: não há palavra a destacar. */
+function linhaDoDestaque(slide: (typeof heroSlides)[number]) {
+  return slide.titulo.findIndex((linha) => partir(linha, slide.destaque) !== null);
 }
 
 /* Uma linha do título. Sem palavra a destacar — ou com uma que não está nesta
