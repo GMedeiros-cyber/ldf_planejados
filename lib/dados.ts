@@ -11,7 +11,7 @@ export const empresa = {
 export const contato = {
   whatsapp: "5511947351488",
   whatsappExibicao: "(11) 94735-1488",
-  email: "ldfmoveisplanejados@gmail.com",
+  email: "contato@ldfplanejados.com.br",
   endereco: {
     rua: "Av. Brigadeiro Faria Lima, 114",
     bairro: "Jardim Cocaia — Guarulhos/SP",

@@ -1,7 +1,14 @@
 "use server";
 
 import { opcoesAmbiente, opcoesEstagio } from "@/lib/dados";
-import { ESTADO_INICIAL, type EstadoContato, type ValoresContato } from "./estado";
+import {
+  ESTADO_INICIAL,
+  resumoDeErros,
+  soDigitos,
+  validar,
+  type EstadoContato,
+  type ValoresContato,
+} from "./estado";
 
 /* Envio do formulário de contato.
 
@@ -13,43 +20,22 @@ import { ESTADO_INICIAL, type EstadoContato, type ValoresContato } from "./estad
    coisa a exigir script.
 
    NENHUMA DEPENDÊNCIA. Sem zod, sem lib de validação, sem SDK de e-mail. A
-   validação abaixo é escrita à mão porque são sete campos com regras curtas —
-   uma biblioteca aqui custaria mais bytes que o formulário inteiro.
+   validação é escrita à mão porque são sete campos com regras curtas — uma
+   biblioteca aqui custaria mais bytes que o formulário inteiro.
 
    ══ VALIDAÇÃO É SEMPRE DO SERVIDOR ══
 
    O `required` do HTML e o `type="email"` ajudam quem tem JS e navegador
-   moderno, e não são garantia de nada: um POST direto ignora os dois. Tudo o
-   que decide se o pedido entra está NESTA função.
+   moderno, e não são garantia de nada: um POST direto ignora os dois. Quem
+   DECIDE se o pedido entra é esta função, que chama `validar()` sempre, sem
+   confiar em checagem nenhuma feita do outro lado.
 
-   REJEITAR, NÃO NORMALIZAR. Valor de `ambiente` ou `estagio` fora das listas
-   conhecidas vira erro, e não é "ajustado" para o mais parecido. Normalizar
-   entrada desconhecida é aceitar que alguém decidiu por nós o que o campo
-   significa. */
-
-/* ── Regras ────────────────────────────────────────────────────────────────
-   Os limites são deliberados e cada um tem motivo:
-
-     nome 2..80        dois caracteres é o menor nome próprio real; 80 cobre
-                       nome completo com sobrenomes compostos.
-     whatsapp 10 ou 11 telefone brasileiro depois de limpo: DDD + 8 (fixo) ou
-                       DDD + 9 (celular). Não aceitamos +55 porque a máscara do
-                       campo não pede país; um número com 12 ou 13 dígitos é
-                       colagem de outro formato, e é melhor devolver erro do
-                       que adivinhar onde cortar.
-     mensagem 0..1000  opcional, e o teto existe para o webhook não receber um
-                       romance colado. */
-const LIMITE_NOME = { min: 2, max: 80 };
-const LIMITE_MENSAGEM = 1000;
-
-/* E-mail: verificação SIMPLES, e é decisão. A regex "completa" do RFC 5322
-   tem centenas de caracteres, rejeita endereços válidos e aceita inválidos —
-   o único teste que de fato prova um e-mail é mandar mensagem para ele. Aqui
-   basta separar erro de digitação de coisa que não é endereço: um arroba, algo
-   antes, algo depois, um ponto no domínio, nenhum espaço. */
-const pareceEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-
-const soDigitos = (v: string) => v.replace(/\D+/g, "");
+   ⚠ AS REGRAS SAÍRAM DAQUI E FORAM PARA ./estado.ts. Não é reorganização por
+   gosto: o modo de teste por WhatsApp valida no cliente, e um módulo
+   "use server" não pode exportar nada além de função assíncrona — então esta
+   action não conseguia emprestar as regras dela a ninguém. Com as duas pontas
+   importando `validar()` do mesmo lugar, elas não podem divergir. Os limites e
+   o porquê de cada um estão documentados lá. */
 
 /* Envio em menos disto, com o carimbo presente, é robô. */
 const RAPIDO_DEMAIS_MS = 3000;
@@ -102,53 +88,19 @@ export async function enviarContato(
     return { estado: "sucesso", erros: {}, resumo: null, valores: ESTADO_INICIAL.valores };
   }
 
-  /* ══ VALIDAÇÃO ══ */
-  const erros: EstadoContato["erros"] = {};
+  /* ══ VALIDAÇÃO ══
+     A MESMA função que o formulário usa no modo de teste. Ver ./estado.ts. */
+  const erros: EstadoContato["erros"] = validar(valores, {
+    ambientes: opcoesAmbiente,
+    estagios: opcoesEstagio,
+  });
 
-  if (valores.nome.length < LIMITE_NOME.min || valores.nome.length > LIMITE_NOME.max) {
-    erros.nome = `Escreva seu nome, entre ${LIMITE_NOME.min} e ${LIMITE_NOME.max} caracteres.`;
+  const resumo = resumoDeErros(erros);
+  if (resumo) {
+    return { estado: "erro", erros, resumo, valores };
   }
 
   const digitos = soDigitos(valores.whatsapp);
-  if (digitos.length !== 10 && digitos.length !== 11) {
-    erros.whatsapp = "Informe DDD e número, com 10 ou 11 dígitos.";
-  }
-
-  if (!pareceEmail(valores.email)) {
-    erros.email = "Informe um e-mail válido, no formato nome@dominio.com.";
-  }
-
-  if (valores.ambiente.length === 0) {
-    erros.ambiente = "Escolha ao menos um ambiente.";
-  } else if (!valores.ambiente.every((a) => (opcoesAmbiente as readonly string[]).includes(a))) {
-    /* Fora da lista conhecida: rejeita, não conserta. */
-    erros.ambiente = "Escolha ao menos um ambiente.";
-  }
-
-  if (!(opcoesEstagio as readonly string[]).includes(valores.estagio)) {
-    erros.estagio = "Diga em que estágio a obra está.";
-  }
-
-  if (valores.mensagem.length > LIMITE_MENSAGEM) {
-    erros.mensagem = `A mensagem passa de ${LIMITE_MENSAGEM} caracteres.`;
-  }
-
-  if (!valores.consentimento) {
-    erros.consentimento = "Precisamos da sua autorização para entrar em contato.";
-  }
-
-  const quantos = Object.keys(erros).length;
-  if (quantos > 0) {
-    return {
-      estado: "erro",
-      erros,
-      resumo:
-        quantos === 1
-          ? "Falta corrigir um campo antes de enviar."
-          : `Faltam corrigir ${quantos} campos antes de enviar.`,
-      valores,
-    };
-  }
 
   /* ══ ENTREGA ══
 

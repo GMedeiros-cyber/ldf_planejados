@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import ChamadaMadeira from "@/components/ChamadaMadeira";
 import FormularioContato from "@/components/FormularioContato";
 import CartaoEndereco from "@/components/CartaoEndereco";
 import FundoContato from "@/components/FundoContato";
@@ -13,20 +12,57 @@ export const metadata: Metadata = {
     "Fale com a fábrica: endereço em Guarulhos, e-mail e WhatsApp da LDF Planejados. Formulário de projeto em breve.",
 };
 
-/* O FORMULÁRIO CHEGOU, e com ele o mockup acabou.
+/* A ROTA COMEÇA NO FORMULÁRIO. Não há capa.
 
-   ══ TRÊS TEMPOS ══
+   ══ O HERÓI DE MADEIRA SAIU, E COM ELE O ÚLTIMO <ChamadaMadeira /> ══
 
-   Herói de madeira (só a frase) → formulário → "Onde nos achar".
+   Esta página abria com o bloco de madeira — logotipo, a frase "Conta o seu
+   projeto pra gente." e nada mais. Decisão do cliente: quem chega em /contato
+   veio preencher, e uma tela de capa antes disso é uma rolagem entre a pessoa
+   e o que ela veio fazer.
 
-   O BOTÃO DO HERÓI SAIU. Ele existia para segurar a linha "Formulário em
-   breve"; com o formulário logo abaixo, virava um clique a mais para chegar
-   onde a pessoa já ia. Por isso o <ChamadaMadeira /> entra sem `rotulo` e sem
-   `aviso` — a prop virou opcional para isto, e o bloco sem ela é capa, não
-   pedido.
+   ⚠ O <ChamadaMadeira /> FICOU SEM CONSUMIDOR NENHUM. Esta rota era a última;
+   /ambientes já tinha voltado ao <Fechamento /> uma rodada antes. O componente
+   NÃO foi apagado — a decisão de apagar é outra conversa, e está reportada.
+   Se ele voltar a ser usado, o contrato das cinco props continua de pé.
 
-   O <BotaoRevelar> não ficou órfão: virou o botão de ENVIAR do formulário,
-   com o novo `tipo="submit"`. É o lugar certo para ele.
+   ══ QUEM VIROU O <h1> ══
+
+   O título do formulário — "Preencha os dados do projeto." — passou de <h2> a
+   <h1>. É o único <h1> da rota, e é o certo: agora ele é a manchete da página,
+   não o subtítulo de uma capa.
+
+   ⚠ ISSO ABRIU UM PULO DE NÍVEL: o <h3> "Fábrica e loja" do <CartaoEndereco />
+   e os quatro do rodapé passaram a vir logo depois de um <h1>, sem <h2> no
+   meio. Não é falha de critério do WCAG, é aviso de auditoria — e o conserto é
+   uma tag no CartaoEndereco. Ficou de fora desta rodada de propósito: mexer
+   naquele componente não estava no pedido.
+
+   O <BotaoRevelar> continua sendo o botão de ENVIAR do formulário, com
+   `tipo="submit"`. É o lugar certo para ele.
+
+   ══ A ROTA PASSOU A REVELAR NA ROLAGEM ══
+
+   /contato era a única rota que entrava seca: nenhum bloco tinha `.rise`, a
+   classe que o <Reveal /> do layout observa. Agora três têm — o cabeçalho da
+   seção, o cartão e a coluna do formulário —, e é a MESMA classe e o MESMO
+   observador do resto do site. Nenhuma animação nova foi inventada.
+
+   ⚠ O CABEÇALHO E O FORMULÁRIO NASCEM ACIMA DA DOBRA, e por isso revelam de
+   imediato: o IntersectionObserver já os encontra intersectando na primeira
+   varredura, o `in` entra no mesmo quadro e não há atraso nenhum. É esperado,
+   não defeito — com a capa de madeira fora, o topo da página É o formulário.
+   Quem de fato ganha percurso é o cartão, que em telas normais começa abaixo
+   da dobra.
+
+   ⚠ O CARTÃO GANHOU UM <div> DE INVÓLUCRO em vez de receber a classe direto.
+   O `.contato__lado` é `position: sticky` acima de 900px, e `.rise` anima
+   `transform` — transform num ancestral cria bloco de contenção e MATA o
+   sticky do filho. O invólucro fica por dentro do sticky, então o que se move
+   é o cartão, e a coluna continua acompanhando a rolagem.
+
+   SEM JAVASCRIPT tudo aparece: a `@media (scripting: none)` no fim da folha
+   devolve `.rise` a opacity 1. Conferido nesta rodada, não deduzido.
 
 ══ AS ÂNCORAS MIGRARAM ══
 
@@ -71,52 +107,28 @@ export const metadata: Metadata = {
    leitura. Se um dia isso incomodar, o conserto é trocar a ordem no DOM e
    inverter no desktop, não pôr tabindex.
 
-   ══ O PALCO DE MADEIRA SAIU DAQUI, E CONTINUA FORA ══
+   ══ A HISTÓRIA DO PALCO DE MADEIRA, PARA QUEM VIER DEPOIS ══
 
-   Ele era escrito à mão neste arquivo — <FundoMadeira />, <Logo />, a frase, o
-   botão e o aviso — e virou o <ChamadaMadeira />. A extração aconteceu quando
-   /ambientes passou a fechar com o mesmo bloco; aquela rota depois voltou ao
-   <Fechamento />, por decisão do cliente, e ESTA PÁGINA É O ÚNICO CONSUMIDOR
-   HOJE.
+   Ele já foi escrito à mão neste arquivo — <FundoMadeira />, <Logo />, a frase
+   e um botão —, virou o <ChamadaMadeira /> quando /ambientes passou a fechar
+   com o mesmo bloco, sobreviveu à volta daquela rota ao <Fechamento />, e
+   agora saiu daqui também. Não sobrou consumidor.
 
-   A EXTRAÇÃO CONTINUA VALENDO. Ela não se justificava pelo número de
-   chamadores: o bloco é componente por ser um bloco com contrato próprio —
-   cinco props, cada uma com regra escrita —, e trazê-lo de volta para dentro
-   desta rota devolveria sessenta linhas de JSX ao meio do arquivo em troca de
-   nada. O porquê completo está no topo de components/ChamadaMadeira.tsx.
+   O ARQUIVO CONTINUA EM components/ChamadaMadeira.tsx, com o contrato de cinco
+   props intacto e a documentação dele de pé. A madeira, a medição do véu e o
+   porquê de a URL vir por variável estão na seção 15 da folha.
 
-   O que esta página mostra não mudou com a extração nem com a reversão da
-   outra rota — conferido com captura antes e depois, nas três larguras.
-
-   `titulo="h1"` porque AQUI o bloco é a manchete da rota: não há outro título
-   acima dele. O padrão da prop é "h2", para o dia em que ele voltar a fechar
-   uma página que já tem o seu <h1>.
-
-   `marca` pelo mesmo motivo: o bloco é a CAPA desta rota, e acima dele só
-   existe a barra de navegação. O padrão da prop é NÃO ter marca — o caso de
-   quem fecha uma página onde o logotipo já apareceu na nav e no rodapé.
-
-   `aviso` entra porque o botão daqui está desabilitado e a linha diz por quê.
-   Onde o botão converter, não entra.
-
-   A madeira, a medição do véu e o porquê de a URL vir por variável estão na
-   seção 15 da folha, junto do bloco. */
+   ⚠ SE ALGUÉM FOR RESSUSCITÁ-LO, leia o topo daquele arquivo antes: `titulo`
+   escolhe o nível do cabeçalho e tem padrão "h2", `marca` decide se o logotipo
+   entra, e `rotulo`/`aviso` só fazem sentido onde há botão. Esta rota o usava
+   com `marca` e `titulo="h1"` — combinação de CAPA, que é justamente o papel
+   que ela deixou de querer. */
 
 export default function PaginaContato() {
   return (
     <>
       <Nav />
       <main>
-        {/* SEM `rotulo` e SEM `aviso`: o botão do herói saiu quando o
-            formulário chegou. `marca` fica — este bloco é a capa da rota, e
-            acima dele só existe a barra de navegação. */}
-        <ChamadaMadeira
-          marca
-          titulo="h1"
-          idTitulo="t-contato"
-          frase="Conta o seu projeto pra gente."
-        />
-
         <section className="contato__corpo" aria-labelledby="t-form">
           <FundoContato />
 
@@ -124,21 +136,28 @@ export default function PaginaContato() {
             {/* COLUNA ESQUERDA — no DOM primeiro, na tela à esquerda, e no
                 celular DEPOIS do formulário (ver a nota no topo). */}
             <div className="contato__lado">
-              <div className="section__head">
-                <h2 className="h2 manchete-serifada" id="t-form">
+              <div className="section__head rise">
+                {/* VIROU O <h1> DA ROTA quando a capa de madeira saiu. As
+                    classes não mudaram: `.h2` dá o TAMANHO e `.manchete-
+                    serifada` dá a família — o nível é decisão de hierarquia de
+                    documento, e o sistema já trata as duas coisas como
+                    separadas (ver a seção 3 da folha). */}
+                <h1 className="h2 manchete-serifada" id="t-form">
                   Preencha os dados do projeto.
-                </h2>
+                </h1>
                 <p className="lede">
                   Apenas seis campos. Respondemos em até um dia útil com os próximos passos ou já
                   com uma data para medir.
                 </p>
               </div>
 
-              <CartaoEndereco />
+              <div className="rise">
+                <CartaoEndereco />
+              </div>
             </div>
 
-            {/* COLUNA DIREITA — o formulário, sem uma linha alterada. */}
-            <div className="contato__coluna-form">
+            {/* COLUNA DIREITA — o formulário. */}
+            <div className="contato__coluna-form rise">
               <FormularioContato />
             </div>
           </div>

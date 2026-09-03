@@ -23,15 +23,21 @@ function Cartao({ obra, copia }: { obra: Obra; copia?: boolean }) {
             decoding="async"
           />
         </span>
-        {/* Sigla e nome dividem a mesma célula da grade: trocam por
-            opacidade, sem salto de layout. Os dois ficam no DOM. */}
-        {/* A sigla e o que se ve; o nome completo e o que se ouve. A sigla
-            sai da arvore de acessibilidade para o leitor nao soletrar "CZ"
-            antes de dizer "Cozinha planejada". */}
+        {/* A SIGLA SAIU DA TELA. Era um <span class="obra__sigla"> com "CZ",
+            "DR", "SL"… — o único rótulo VISÍVEL do card, com o nome completo
+            atrás dele em oculto-visual. Decisão do cliente: o card mostra a
+            foto e nada mais.
+
+            O NOME CONTINUA, e continua sendo o que o leitor de tela anuncia.
+            Ele nunca esteve na tela: .obra__nome é oculto-visual — fora da
+            vista, dentro da árvore de acessibilidade. Tirar a sigla não mexeu
+            nele, e é por isso que o card não ficou mudo.
+
+            ⚠ O CAMPO `sigla` CONTINUA EM lib/dados.ts e agora não tem leitor.
+            Não é chave (a key é `obra.nome`) nem rótulo acessível — foi
+            conferido por grep antes da remoção. Ficou de propósito: apagar
+            dado do cliente é outra conversa. */}
         <figcaption className="obra__rotulo">
-          <span className="obra__sigla" aria-hidden="true">
-            {obra.sigla}
-          </span>
           <span className="obra__nome">{obra.nome}</span>
         </figcaption>
       </figure>
