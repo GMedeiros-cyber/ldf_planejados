@@ -466,7 +466,22 @@ export const historia = {
    geral sobre marca de terceiro. */
 export type Marca = {
   readonly nome: string;
-  /* Opcional: só quem tem símbolo que lê em tamanho pequeno. Ver abaixo. */
+  /* ⚠ CONTINUA OPCIONAL, e hoje NENHUMA marca usa a opção.
+
+     Ela existia por causa do Espaço Harmony, a única que entrava só com o
+     nome: a marca dele é um rosto de uma linha contínua de 0,33% da altura,
+     que a 40px dá 0,13px e desaparece — engrossar foi tentado e as voltas da
+     linha se colaram umas nas outras. A empresa saiu da lista por decisão do
+     cliente, e o caso foi junto.
+
+     O `?` fica porque o <CarrosselMarcas /> ainda sabe desenhar uma peça sem
+     símbolo: a `carregar()` devolve null e a `montarPeca()` não reserva o vão.
+     É capacidade testada, e apagá-la agora é trabalho a refazer no dia em que
+     entrar um cliente sem ícone utilizável — que foi o caso de um em cinco.
+
+     Quem for tornar `arquivo` obrigatório precisa tirar esse ramo do
+     componente no mesmo commit; deixar um sem o outro é código morto de um
+     lado ou erro de tipo do outro. */
   readonly arquivo?: string;
 };
 
@@ -489,18 +504,6 @@ export const marcas: readonly Marca[] = [
      TODO: pedir ao cliente a versão ícone ou horizontal oficial da Tesla e
      substituir. Releitura automática é solução de contorno, não o certo. */
   { nome: "Tesla Soluções", arquivo: "/marcas/tesla-solucoes.svg" },
-
-  /* SEM SÍMBOLO, e o mesmo engrossamento que salvou a Tesla NÃO salva esta.
-     A marca do Espaço Harmony é um rosto desenhado com UMA LINHA CONTÍNUA de
-     0,33% da altura — a 40px, 0,13px. Engrossar foi tentado e falhou por um
-     motivo que não é de ferramenta: a linha volta sobre si mesma, e nos pontos
-     apertados as voltas se colaram umas nas outras até o rosto desaparecer. É
-     um desenho que só existe em tamanho grande.
-
-     O arquivo foi APAGADO de public/marcas/ — não tinha consumidor e não vai
-     ter nesta forma.
-     TODO: pedir ao cliente a versão ícone do Espaço Harmony. */
-  { nome: "Espaço Harmony" },
 ];
 
 /* --- Projeto comercial -----------------------------------------------------

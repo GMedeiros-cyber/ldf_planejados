@@ -3252,23 +3252,24 @@ a { color: inherit; }
 
      ══ 0,16 É O DESKTOP, E FOI MEDIDO EM 1440px ══
 
-     Com 0 a faixa mostrava 2,33 marcas em 1440 — o passo médio é 180,5px e a
-     zona nítida tinha 420px. Três pedem 542px. Varrido:
+     Com 0 a faixa mostrava 2,27 marcas em 1440 — o passo médio é 185,6px e a
+     zona nítida tinha 420px. Três pedem 557px. Varrido:
 
        núcleo   zona nítida   marcas em 1440
-       0            420px       2,33
-       0,14         541px       3,00
-       0,16         558px       3,09   ← esta
-       0,22         610px       3,38
+       0            420px       2,27
+       0,16         558px       3,01   ← esta
+       0,22         610px       3,29
 
-     0,14 acerta 3,00 raspando, e "raspando" aqui significa que a terceira
-     marca vive exatamente na fronteira do limiar. 0,16 dá 3,09 e deixa as três
-     inteiras dentro da zona, que é o que se pede quando se pede três.
+     ⚠ OS NÚMEROS FORAM REMEDIDOS quando o Espaço Harmony saiu da lista. Ele
+     era a peça mais curta do conjunto, então tirá-lo SUBIU o passo médio de
+     180,5 para 185,6px e baixou a contagem de 3,09 para 3,01. A escolha não
+     mudou — 0,16 continua entregando três —, mas o número na página mudou, e
+     um comentário com a conta velha é pior que nenhum.
 
      ⚠ A CONTA É PROPORCIONAL À LARGURA — `marcas = d × faixa / passo` —, então
      este número entrega três em 1440 e não em toda tela. Medido com 0,16:
 
-       768px → 1,64    1280px → 2,75    1440px → 3,09    1920px → 4,21
+       768px → 1,60    1280px → 2,67    1440px → 3,01    1920px → 4,10
 
      É o comportamento certo, e não um defeito a corrigir com breakpoint: tela
      mais larga MOSTRA mais. O que se escolhe aqui é a largura de referência, e
@@ -3320,18 +3321,23 @@ a { color: inherit; }
 }
 
 /* Abaixo de 768px a faixa encolhe, mas continua carrossel: numa tela estreita
-   caberiam dois logos parados, e é o movimento que mostra os cinco.
+   caberiam dois logos parados, e é o movimento que mostra todas.
 
    ══ DUAS MARCAS POR VEZ, E NÃO UMA — O QUE FOI MEDIDO ══
 
    A faixa mostrava UMA. Medido em 360px, com o limiar de nitidez que texto de
    13px aguenta (desfoque ≤ 1,75px, ou s ≤ 0,25 na curva do componente):
 
-     zona nítida  101px  →  0,71 marca
+     zona nítida  101px  →  0,70 marca
 
-   Duas marcas pedem 284px, porque o passo médio é 142px. A faixa tem 310px:
-   dois logos ocupam 92% dela, e é por isso que não sobra espaço para uma
+   Duas marcas pedem 290px, porque o passo médio é 145px. A faixa tem 310px:
+   dois logos ocupam 94% dela, e é por isso que não sobra espaço para uma
    queda longa aqui.
+
+   ⚠ REMEDIDO quando o Espaço Harmony saiu: ele era a peça mais curta, e
+   tirá-lo subiu o passo médio de 142,1 para 145,1px. A contagem foi de 1,93
+   para 1,89 marca — continua entregando duas, e o par de valores continua o
+   mesmo.
 
    ══ DOIS LIMITES DIFERENTES ESTAVAM APERTANDO, E SÓ UM ERA ÓBVIO ══
 
@@ -3345,8 +3351,8 @@ a { color: inherit; }
 
    ══ POR QUE 0,83 E 6%/94% ══
 
-     núcleo 0,83 + 6%/94%  →  273px  →  1,92 marcas
-     núcleo 0,86 + 4%/96%  →  281px  →  1,98 marcas
+     núcleo 0,83 + 6%/94%  →  273px  →  1,88 marcas
+     núcleo 0,86 + 4%/96%  →  281px  →  1,94 marcas
 
    A segunda linha ganha 0,06 de marca e paga com metade do esvaecimento das
    bordas: 12px de fade contra 19px. Abaixo de ~15px a entrada e a saída dos
