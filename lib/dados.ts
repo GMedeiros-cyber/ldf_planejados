@@ -478,11 +478,24 @@ export const heroSlides = [
     alt: "Ambiente integrado com armários planejados e bancada em tom claro.",
   },
   {
-    /* UMA LINHA SÓ, e é o único slide assim. "Que Começam Na Chapa" saiu por
-       decisão do cliente. O <Hero /> percorre o array, então uma linha ou duas
-       é indiferente para ele — não há <br /> pendurado nem linha vazia. */
-    titulo: ["Projetos Personalizados"],
-    destaque: "Personalizados",
+    /* ⚠ A QUEBRA É DECISÃO, E NÃO SOBRA DO NAVEGADOR.
+
+       "Excelência Em Cada Detalhe" tem 26 caracteres e o `.hero__titulo` tem
+       `max-width: 22ch` com `text-wrap: balance` — solto numa linha só, ele
+       quebraria de qualquer jeito, e o ponto da quebra mudaria com a largura
+       da tela. Em duas entradas do array a quebra é sempre a mesma.
+
+       E É NESTE PONTO, com a palavra vermelha sozinha em cima. É o uso mais
+       forte do destaque, e repete a estrutura do slide 1: nome na primeira
+       linha, qualificador na segunda ("Móveis Planejados" / "De Fábrica").
+
+       A CAIXA ALTA EM "Em" NÃO É ERRO — é a convenção da capa, documentada no
+       comentário acima deste array: os três títulos capitalizam todas as
+       palavras, inclusive as curtas, como "De Fábrica" e "Antes Do Orçamento".
+       Este slide ficaria sozinho em caixa de frase se fosse escrito como se
+       fala. */
+    titulo: ["Excelência", "Em Cada Detalhe"],
+    destaque: "Excelência",
     img: "/hero/3",
     alt: "Detalhe de marcenaria sob medida, com prateleiras e nichos em madeira.",
   },
