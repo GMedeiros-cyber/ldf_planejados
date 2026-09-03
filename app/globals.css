@@ -1543,6 +1543,28 @@ a { color: inherit; }
   --obra-vao: 32px;
 }
 
+/* ══ NO CELULAR O CARD ENCOLHE, PARA A PISTA LER COMO PISTA ══
+
+   Medido em 360×800: o card de 291px de largura fecha em 600px de altura —
+   0,75 da tela — e cabia 1,24 card na largura. Um carrossel em que se vê UM
+   card não se anuncia como carrossel: parece uma foto grande que por acaso
+   está cortada na borda, e a pessoa não sabe que há mais.
+
+   Com 200px o card fecha em 432px (0,54 da tela) e cabem 1,55 — o segundo card
+   entra na tela o bastante para dizer "isto continua". É o que a redução compra
+   além da altura, e é a razão de ela existir.
+
+   ⚠ A PROPORÇÃO NÃO MUDOU. O `aspect-ratio: 291 / 537` do quadro continua o
+   mesmo; o que muda é a largura de onde ele parte. A altura do card segue a
+   conta de sempre — largura × 537/291, mais os 36px até a legenda e os 27px
+   de reserva do rótulo.
+
+   Nitidez: o arquivo tem 900px e a foto passa a ser desenhada em 200px, o que
+   dá 2,25 pixels de arquivo por pixel de tela em 2× — contra 1,55 antes. */
+@media (max-width: 767px) {
+  .obras { --obra-larg: 200px; }
+}
+
 /* Mesma tipografia do titulo da Historia. Local, nao global -- a .h2 das
    outras secoes continua em Archivo. O peso 400 e o font-variation-settings:
    normal sao obrigatorios, e nao decoracao: a .h2 herda peso 700 e um eixo
@@ -2712,19 +2734,55 @@ a { color: inherit; }
 
    Ver a nota de teto na `.lista-ambientes`, na seção 11b, para o porquê da
    forma, do número e da troca de 1280 para 1440. */
+/* ══ DUAS COLUNAS JÁ NO CELULAR, E ISSO É LEITURA, NÃO ECONOMIA ══
+
+   O piso era UMA coluna. Medido em 360×800: quatro retratos de 3/4 empilhados
+   davam 413px cada e uma grade de 1890px — 2,4 telas de rolagem só de foto,
+   dentro de uma seção de 2,86 telas. É literalmente o "quadrado atrás do
+   outro": quatro fotos da MESMA loja, com a mesma parede laranja e o mesmo
+   letreiro, uma abaixo da outra.
+
+   E é aí que a repetição vira defeito em vez de recurso. As quatro não são
+   quatro trabalhos: são quatro ângulos de UM — o dados.ts registra isso, e o
+   título da seção diz "Operação completa: da fachada à linha de serviço".
+   Empilhadas em coluna única elas leem como quatro fotos parecidas demais;
+   numa grade 2×2 leem como o que são, um conjunto.
+
+   ══ O QUE ISSO CUSTA, MEDIDO ══
+
+   Em 360px a foto cai de 310×413 para 143×191. Parece pouco, e a pergunta
+   certa não é "quantos pixels" e sim "ainda dá para ver o que a foto mostra".
+   Dá: o assunto é um balcão inteiro, não um detalhe de puxador, e a legenda
+   que nomeia cada ângulo continua abaixo de cada uma.
+
+   A NITIDEZ MELHOROU, não piorou: o arquivo tem 900px de largura e a foto
+   passa a ser desenhada em 143px, o que dá 3,15 pixels de arquivo por pixel
+   exibido em tela 2× — contra 1,45 antes. Diminuir a exibição AUMENTA a folga
+   de retina, porque o arquivo é fixo.
+
+   A grade inteira cai de 1890px para ~470px. A seção comercial deixa de ser a
+   parte mais longa de /ambientes.
+
+   ⚠ A PROPORÇÃO E O RECORTE NÃO MUDARAM. `aspect-ratio: 3/4` e os atributos
+   width/height da <img> continuam iguais, então a caixa segue reservada antes
+   do arquivo chegar e o CLS continua zero — conferido nas três larguras.
+
+   A media query de 480px SAIU: ela existia para abrir de uma para duas
+   colunas, e duas passou a ser o piso. */
 .comercial__grade {
   --coluna: min(1440px, 100%);
   display: grid;
-  /* Uma coluna é o piso. As duas media queries abaixo abrem para duas e
-     quatro — mobile-first, como o resto da folha. */
-  grid-template-columns: 1fr;
+  /* Duas colunas é o piso. A media query abaixo abre para quatro. */
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--s5);
   max-width: var(--coluna);
   margin-inline: auto;
 }
 
-@media (min-width: 480px) {
-  .comercial__grade { grid-template-columns: repeat(2, 1fr); }
+/* Abaixo de 480px o gap fecha um degrau: com a coluna em ~143px, --s5 (24px)
+   come 8% da largura útil da grade e as duas fotos ficam finas demais. */
+@media (max-width: 479.98px) {
+  .comercial__grade { gap: var(--s4); }
 }
 
 @media (min-width: 900px) {
