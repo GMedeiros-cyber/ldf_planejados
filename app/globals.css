@@ -3663,12 +3663,74 @@ a { color: inherit; }
    sem ela, a ordem do DOM já é texto → vídeo. O space-between também sai —
    sem vídeo ao lado não há altura de referência para repartir, e ele só
    esticaria os buracos até o fim do conteúdo. Sobra o piso do gap. */
+/* ══ EM COLUNA ÚNICA O VÍDEO TEM TETO, E ANTES NÃO TINHA ══
+
+   `.fabrica__video` não tinha NENHUMA medida — só colocação na grade. Em duas
+   colunas isso bastava, porque o `--coluna: 1280px` da `.fabrica` já segurava
+   a largura. Em uma coluna ele passou a valer a largura inteira, e ninguém
+   percebeu porque a redução da rodada passada tratou `.ambiente__quadro`,
+   `.comercial__grade` e as obras — esta seção não tem foto, tem vídeo, e
+   escapou da varredura.
+
+   ══ O PIOR CASO NÃO É O TELEFONE, É O 991 ══
+
+   Medido antes, altura do vídeo como fração da tela:
+
+     360×800    320×427    53,3%
+     390×844    350×467    55,3%
+     412×915    371×494    54,0%
+     991×900    882×1176  130,7%   ← mais alto que a tela inteira
+
+   Nos 991 a coluna tem 882px e o quadro 3:4 vira 1176px de altura: a seção
+   inteira passa de duas telas. Uma media query só de telefone deixaria a faixa
+   de 768 a 991 exatamente como estava — por isso o teto entra AQUI, no mesmo
+   991 em que a grade vira uma coluna, e não num ponto de quebra novo.
+
+   ══ O TETO SAI DO ARQUIVO, NÃO DE UM NÚMERO REDONDO ══
+
+   O vídeo e o pôster têm 576×768 — os dois. Isso é o que decide: a 288px de
+   exibição, uma tela de DPR 2 já pede exatamente os 576 pixels que existem.
+   Acima disso o navegador inventa pixel.
+
+   Antes desta regra a exibição ia de 320 a 371px no telefone, ou seja
+   0,78×–0,90× de pixel de arquivo por pixel de tela em 2×: JÁ ESTAVA
+   AMPLIANDO. Reduzir aqui não é só ritmo, é a única forma de este vídeo ficar
+   nítido num celular.
+
+   `min(80%, 280px)`. Os 280 ficam abaixo dos 288 do limite, com margem; os 80%
+   entram só nos telefones mais estreitos, onde um teto fixo encostaria nas
+   bordas e o vídeo leria como faixa em vez de placa.
+
+     360px   256×341   42,6% da tela   1,13× de retina em 2×
+     390px   280×373   44,2%           1,03×
+     412px   280×373   40,8%           1,03×
+     991px   280×373   41,4%           1,03×
+
+   Isso põe o vídeo na mesma faixa das outras mídias da página — o card de obra
+   está em 46% e a foto de ambiente em 29% — e ele fica logo abaixo do card de
+   obra, que é o certo: obra é fita que se percorre, e o vídeo é bloco que
+   para o olho.
+
+   ⚠ 1,03× VALE PARA DPR 2. Num telefone de DPR 3 o mesmo 280px dá 0,69×, e
+   continua ampliando. O conserto disso não é CSS: é um arquivo maior. O vídeo
+   atual é PROVISÓRIO — não é da fábrica, e está marcado assim no
+   VideoFabrica.tsx. Quando a filmagem real chegar, peça 1152px de largura e
+   este teto pode subir.
+
+   O `max-width` mora no INVÓLUCRO e não na peça: o `.fabrica__peca` continua
+   `width: 100%` com `aspect-ratio: 3/4`, então a caixa segue reservada antes
+   do arquivo chegar e o CLS continua zero. */
 @media (max-width: 991px) {
   .fabrica { grid-template-columns: 1fr; gap: var(--s7); }
   .fabrica__texto,
   .fabrica__video { grid-column: auto; grid-row: auto; }
   .fabrica__texto { justify-content: flex-start; }
   .fabrica .fabrica__texto > .cadeia { margin-block-start: var(--s3); }
+
+  .fabrica__video {
+    max-width: min(80%, 280px);
+    margin-inline: auto;
+  }
 }
 
 /* Diagrama sem molduras. As duas linhas moravam em caixas com fundo, e a da
