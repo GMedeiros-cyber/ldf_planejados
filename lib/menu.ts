@@ -7,7 +7,7 @@
 
    O <Nav /> é `"use client"`. Um componente de cliente que importa do dados.ts
    arrasta o MÓDULO INTEIRO para o grafo do navegador — os textos dos quatro
-   ambientes, as onze etapas, os quatro estágios, as nove obras, as cinco
+   ambientes, as onze etapas, os quatro estágios, as sete obras, as cinco
    marcas, a ficha técnica. Com o import lá, o conteúdo do dados.ts aparecia em
    TRÊS chunks de cliente; sem ele, em um só (o do formulário de /contato, que
    é cliente e precisa mesmo das opções dos campos).
