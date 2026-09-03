@@ -2,12 +2,12 @@
 
 import { Fragment, useEffect, useState } from "react";
 
-import { heroSlides, heroLarguras, contato } from "@/lib/dados";
+import { heroSlides, heroLarguras, contato, mapaUrl, whatsappUrl } from "@/lib/dados";
 import {
   IconeFacebook,
   IconeInstagram,
   IconeLocal,
-  IconePinterest,
+  IconeWhatsApp,
 } from "./Icones";
 
 /* Capa em três slides que se cruzam por opacidade. Sem efeito de scroll e sem
@@ -16,18 +16,29 @@ import {
 
 const INTERVALO = 6000;
 
-/* Instagram e Facebook são os endereços reais da LDF (lib/dados.ts). Os dois
-   últimos ainda não têm destino, e por isso não abrem em aba nova: mandar
-   alguém para uma aba em branco é pior do que não abrir nada. O target sai
-   de `href !== "#"`, então os dois passam a abrir sozinhos quando o link
-   chegar. */
+/* ══ QUATRO ÍCONES, E OS QUATRO TÊM DESTINO ══
+
+   O Pinterest SAIU. Ele apontava para `href="#"` porque não há conta da LDF
+   documentada em cliente/ — era um link visível, focável pelo teclado, que ao
+   ser clicado só jogava a página para o topo. O `IconePinterest` continua em
+   Icones.tsx de propósito: a saída é temporária, e o desenho volta inteiro
+   quando o perfil existir.
+
+   O WHATSAPP ENTROU no lugar. `whatsappUrl` é o MESMO endereço que o rodapé,
+   o cartão de /contato e o formulário usam, derivado de `contato.whatsapp` —
+   não há segundo número escrito em lugar nenhum.
+
+   "ONDE ESTAMOS" DEIXOU DE SER `href="#"`. `mapaUrl` já existia no dados.ts,
+   montado a partir de `contato.endereco`; o link estava vago só porque nunca
+   foi ligado. Com ele, o segundo TODO desta lista fecha junto com o primeiro.
+
+   Sobrou ZERO `href="#"` nesta fila, e é por isso que a condição de target
+   abaixo virou incondicional: os quatro abrem em aba nova. */
 const sociais = [
-  { rotulo: "LDF no Facebook", href: contato.facebook, Icone: IconeFacebook },
   { rotulo: "LDF no Instagram", href: contato.instagram, Icone: IconeInstagram },
-  /* TODO: perfil da LDF no Pinterest — não há conta documentada em cliente/ */
-  { rotulo: "LDF no Pinterest", href: "#", Icone: IconePinterest },
-  /* TODO: link do Google Maps da fábrica */
-  { rotulo: "Onde estamos", href: "#", Icone: IconeLocal },
+  { rotulo: "LDF no Facebook", href: contato.facebook, Icone: IconeFacebook },
+  { rotulo: "Onde estamos", href: mapaUrl, Icone: IconeLocal },
+  { rotulo: "LDF no WhatsApp", href: whatsappUrl, Icone: IconeWhatsApp },
 ];
 
 const srcSet = (base: string) =>
@@ -123,9 +134,8 @@ export default function Hero() {
               className="hero__social"
               href={href}
               aria-label={rotulo}
-              {...(href !== "#"
-                ? { target: "_blank", rel: "noopener noreferrer" }
-                : {})}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <Icone />
             </a>
