@@ -367,14 +367,33 @@ export const slotsProva = [
    entradas para um caminho só economizaria 47 kB e criaria uma armadilha:
    quando a foto real de lavanderia chegar, ela trocaria os DOIS cards.
 
-   ══ A LISTA HOJE É MISTA: 2 OBRAS REAIS E 8 DE BANCO ══
+   ══ A LISTA HOJE É MISTA: 2 OBRAS REAIS E 7 DE BANCO ══
 
    As duas últimas entradas são obras da LDF, fotografadas e enviadas pelo
-   cliente. As oito primeiras continuam sendo banco de imagem, e a seção que as
+   cliente. As sete primeiras continuam sendo banco de imagem, e a seção que as
    exibe se chama "Trabalho que fala por nós", com aria-label "Obras
-   entregues" — ou seja, oito dos dez cards ainda afirmam na tela algo que não
+   entregues" — ou seja, sete dos nove cards ainda afirmam na tela algo que não
    é verdade. Tirar a requisição externa resolveu a privacidade; a veracidade
    só se resolve trocando foto.
+
+   ══ ERA OITO, E UMA SAIU: A FOTO ESTAVA REPETIDA ══
+
+   "Cozinha planejada" e "Lavanderia" apontavam para arquivos DIFERENTES com o
+   MESMO conteúdo — 0,8 de 255 de diferença média por canal, medido. As duas
+   URLs do Unsplash usavam o mesmo id e o `crop=top` de uma delas não recortou
+   nada, porque o original já era 3:4. A entrada "Cozinha planejada" saiu, e
+   com ela o arquivo `obra-cozinha-planejada.webp`. Ficou a Lavanderia, para a
+   única "Cozinha" do carrossel ser a real.
+
+   ⚠ E A FOTO QUE SOBROU É UM QUARTO. Cama, espelho de corpo inteiro, criado-
+   mudo e um quadro na parede — nada de lavanderia, e nada de marcenaria além
+   do criado-mudo, que é móvel solto. O `nome` é oculto-visual, então ninguém
+   LÊ "Lavanderia" na tela; quem recebe a informação errada é leitor de tela,
+   pelo `alt`. Entra na conta das sete que precisam trocar.
+
+   Não coloquei nada no lugar: o carrossel é gerado por `obras.map()`, então a
+   lista mais curta não deixa buraco — os nove cards se redistribuem e o laço
+   continua fechando, porque a metade é `max-content`.
 
    ⚠ A ORDEM IMPORTA E É PROVISÓRIA. As reais entraram no FIM porque o
    carrossel corre em laço e não tem começo visível — não há posição de honra
@@ -385,15 +404,9 @@ export const slotsProva = [
    nenhum cliente, endereço ou condomínio é citado, porque nenhum foi
    informado. Nas duas reais o nome descreve o ambiente executado.
 
-   TODO: substituir img, nome e alt das OITO PRIMEIRAS por obras da LDF. */
+   TODO: substituir img, nome e alt das SETE PRIMEIRAS por obras da LDF. */
 
 export const obras = [
-  {
-    nome: "Cozinha planejada",
-    sigla: "CZ",
-    img: "/obras/obra-cozinha-planejada.webp",
-    alt: "Ambiente residencial com marcenaria planejada e iluminação embutida.",
-  },
   {
     nome: "Dormitório",
     sigla: "DR",
