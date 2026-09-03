@@ -438,7 +438,10 @@ export const heroSlides = [
     alt: "Ambiente integrado com armários planejados e bancada em tom claro.",
   },
   {
-    titulo: ["Projetos Personalizados", "Que Começam Na Chapa"],
+    /* UMA LINHA SÓ, e é o único slide assim. "Que Começam Na Chapa" saiu por
+       decisão do cliente. O <Hero /> percorre o array, então uma linha ou duas
+       é indiferente para ele — não há <br /> pendurado nem linha vazia. */
+    titulo: ["Projetos Personalizados"],
     destaque: "Personalizados",
     img: "/hero/3",
     alt: "Detalhe de marcenaria sob medida, com prateleiras e nichos em madeira.",
@@ -617,21 +620,49 @@ export const COMERCIAL_ALTURA = 1200;
 
    "Comercial" entra à parte porque não é um ambiente da lista residencial: é a
    seção comercial de /ambientes, que tem obra entregue mas não tem verbete em
-   `ambientes`. Está no fim, depois dos quatro, e é a única string escrita à
-   mão neste grupo. */
+   `ambientes`.
+
+   ══ "OUTRO" É A ÚLTIMA, E ESTAR NESTA LISTA É O QUE O FAZ FUNCIONAR ══
+
+   A action valida REJEITANDO valor fora da lista conhecida — está escrito no
+   `validar()` de app/contato/estado.ts, e é regra deliberada: entrada
+   desconhecida vira erro, não é "ajustada" para o mais parecido. Consequência
+   direta: uma opção que aparece na tela e NÃO está aqui é aceita pelo
+   navegador e recusada pelo servidor. A pessoa marca, envia, e leva "Escolha
+   ao menos um ambiente" sem entender por quê.
+
+   Por isso "Outro" entra no DADO, e não no JSX. As duas pontas — as pastilhas
+   e a validação — leem desta mesma lista, então não há como divergirem.
+
+   Fica no FIM, depois de "Comercial": a ordem é do mais específico para o mais
+   aberto, e "Outro" é a saída de quem não se reconheceu em nenhuma. Posta no
+   meio, ela encerra a leitura antes da hora. */
 export const opcoesAmbiente = [
   ...ambientes.map((a) => a.nome),
   "Comercial",
+  "Outro",
 ] as const;
 
-/* Escolha única. Estes quatro estágios cobrem o funil inteiro que a LDF
-   atende, e a ordem é cronológica — de quem ainda não tem parede a quem já tem
-   móvel e quer trocar. */
+/* Escolha única. Os quatro primeiros cobrem o funil que a LDF atende, e a
+   ordem é cronológica — de quem ainda não tem parede a quem já tem móvel e
+   quer trocar.
+
+   "Outro" fecha a lista, e vale aqui a mesma regra do grupo de ambiente: ele
+   está no DADO porque a action recusa valor fora desta lista. Ver a nota
+   acima, em `opcoesAmbiente`.
+
+   ⚠ NUM GRUPO DE ESCOLHA ÚNICA "Outro" pesa mais que numa múltipla. Quem marca
+   "Outro" aqui está dizendo que o estágio dele não é nenhum dos quatro — e o
+   formulário não pergunta qual é. A informação chega ao WhatsApp como
+   "*Estágio da obra:* Outro", que é honesto mas mudo. Se isso começar a
+   aparecer muito, o conserto é um campo de texto condicional, não um quinto
+   estágio inventado. */
 export const opcoesEstagio = [
   "Na planta",
   "Em obra",
   "Pronto para medir",
   "Trocando móveis",
+  "Outro",
 ] as const;
 
 /* --- Consentimento (LGPD) --------------------------------------------------
