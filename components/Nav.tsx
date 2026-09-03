@@ -113,6 +113,59 @@ export default function Nav() {
     return rota === href || rota.startsWith(href + "/");
   };
 
+  /* ══ CLICAR NA ROTA EM QUE JÁ SE ESTÁ LEVA AO TOPO ══
+
+     O Next rola ao topo quando a rota MUDA. Quando o destino é a rota atual
+     ele não faz nada — e não fazer nada é o que parecia defeito: a pessoa
+     clica no logotipo estando na home, ou em "Ambientes" estando em
+     /ambientes, e a página fica exatamente onde estava.
+
+     ══ UMA REGRA SÓ, TRÊS CONSUMIDORES ══
+
+     O logotipo, os itens do menu e a cápsula usam esta mesma função. Ela
+     decide por `ehAtual`, que já existia para o `aria-current` — o mesmo
+     `usePathname`, nenhum hook novo. Escrever a comparação de rota num
+     segundo lugar é como as duas versões divergem.
+
+     ══ O QUE NÃO SE INTERCEPTA ══
+
+     Clique com Ctrl, Cmd, Shift ou Alt, e botão que não seja o primário:
+     todos abrem em aba ou janela nova, e abrir a página atual noutra aba é
+     pedido legítimo. `preventDefault` ali roubaria um gesto do navegador.
+
+     ⚠ `preventDefault` SEM `stopPropagation`, e a diferença importa: o
+     `onClick` do <nav> mais acima é quem fecha o menu no celular, e ele só
+     roda se o evento continuar subindo. Parar a propagação aqui deixaria o
+     menu aberto por cima da página recém-rolada.
+
+     ══ TECLADO ══
+
+     Enter num link dispara um evento `click`, então este mesmo manipulador
+     cobre o teclado. Não há `onKeyDown` a escrever.
+
+     ══ SEM JAVASCRIPT ══
+
+     Continua sendo um <a href> de verdade. Sem script o manipulador não roda,
+     o navegador faz a navegação nativa, e recarregar a rota atual já leva ao
+     topo por conta própria. Nada aqui é <button>, e nenhum `href` some. */
+  const aoClicarNoDestino =
+    (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!ehAtual(href)) return;
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+      /* Empurrar no histórico uma entrada igual à atual faz o botão Voltar
+         parar de voltar: ele volta para o mesmo lugar. */
+      e.preventDefault();
+
+      /* ⚠ A DECISÃO DE MOVIMENTO É AQUI, NA CHAMADA, e não num
+         `scroll-behavior: smooth` na folha. Global, ele pegaria toda rolagem
+         programática do site — inclusive as âncoras e o `scrollIntoView` — e
+         desligá-lo para movimento reduzido viraria uma regra a mais para
+         manter. Aqui a leitura é pontual e só vale para este gesto. */
+      const suave = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: suave ? "smooth" : "auto" });
+    };
+
   useEffect(() => {
     if (!aberto) return;
     const aoTeclar = (e: KeyboardEvent) => {
@@ -135,6 +188,7 @@ export default function Nav() {
           className="nav__logo"
           href="/"
           aria-label="LDF Móveis Planejados, ir para o início"
+          onClick={aoClicarNoDestino("/")}
         >
           <Logo className="nav__marca" />
         </Link>
@@ -159,13 +213,27 @@ export default function Nav() {
                    indicador era de seção, "true" era o certo — "page" teria
                    mentido sobre uma âncora. */
                 aria-current={ehAtual(l.href) ? "page" : undefined}
+                onClick={aoClicarNoDestino(l.href)}
               >
                 {l.texto}
               </Link>
             ))}
           </nav>
 
-          <Link className="btn-capsula" href="/contato">
+          {/* ⚠ A CÁPSULA ENTRA NA MESMA REGRA, e a decisão tem motivo.
+
+              Ela é um CTA, não um item de índice — o argumento para deixá-la
+              de fora seria esse. Mas o que ela faz HOJE estando em /contato é
+              nada: a pessoa toca no botão mais proeminente da barra e a página
+              não se mexe. Um CTA que visivelmente não responde lê como
+              quebrado, e é pior que qualquer inconsistência de categoria.
+
+              O que ela NÃO faz é rolar até o formulário. Seria o
+              comportamento mais literal para "quero meu projeto", mas é outra
+              regra — precisaria de um alvo próprio, e a rota já foi
+              reorganizada uma vez com os contatos em cima. Fica no topo, como
+              os outros três. */}
+          <Link className="btn-capsula" href="/contato" onClick={aoClicarNoDestino("/contato")}>
             <span className="btn-capsula__texto">
               <span className="btn__longo">Quero meu projeto</span>
               <span className="btn__curto">Projeto 3D</span>
