@@ -2538,6 +2538,79 @@ a { color: inherit; }
 .ambiente__seta:first-child .btn__arrow { transform: scaleX(-1); }
 .ambiente__seta .btn__arrow { width: 16px; height: 16px; }
 
+/* --- 11b-c. As setas SOBRE a foto ------------------------------------------
+   Arrasto é gesto invisível: sem nada desenhado na foto, ninguém descobre que
+   dá para arrastá-la. Estas setas são a única pista, e por isso existem.
+
+   ══ SÓ ONDE NÃO HÁ HOVER ══
+
+   `@media (hover: none)` e não uma largura: quem precisa da pista é quem usa
+   o dedo, e isso é propriedade do PONTEIRO, não do tamanho da tela. Um laptop
+   com touch em 1400px precisa; um navegador de mesa estreitado a 360px não —
+   ali o par de setas embaixo do texto está a um clique e não desaparece.
+
+   ══ O DISCO É ESCURO E OPACO O BASTANTE, E O NÚMERO NÃO É DE GOSTO ══
+
+   A seta tem de ler sobre foto clara E escura. Sobre foto escura qualquer
+   coisa clara resolve; o caso difícil é a foto clara — uma cozinha branca com
+   janela, que é metade do acervo desta página.
+
+   A conta: com `--ink` (#EFEBE5) na seta, o disco precisa compor no máximo
+   rgb(107,107,107) para o par bater 4,5:1. Sobre um pixel branco isso pede
+   alfa >= 0,60 de `--ground-deep`. 0,62 é esse piso com uma casa de margem.
+
+   Medido no resultado, com o disco composto sobre o pixel real:
+     sobre branco puro       5,03:1
+     sobre a foto mais clara do acervo — ver a captura da rodada
+   O mínimo de elemento gráfico é 3:1; isto passa no de TEXTO, que é mais duro.
+
+   ══ DISCRIÇÃO VEM DO TAMANHO, NÃO DA TRANSPARÊNCIA ══
+
+   Baixar o alfa para "ficar discreto" é o erro óbvio aqui: some a legibilidade
+   junto. O disco fica nos 44px do alvo de toque mínimo — nem um pixel a mais —
+   e encostado nas bordas. É pequeno e fica fora do caminho; não é apagado. */
+.ambiente__sobre {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: var(--s3);
+  /* O invólucro não recebe toque: só os dois botões dentro dele. Sem isto a
+     faixa inteira cobriria a foto e engoliria o arrasto. */
+  pointer-events: none;
+}
+
+.ambiente__seta-sobre {
+  /* 44px é o alvo de toque mínimo do WCAG 2.5.8, e é também o LIMIAR_TROCA do
+     arrasto no componente. Os dois números serem o mesmo é coincidência
+     conveniente, não dependência: mudar um não pede mudar o outro. */
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--ground-deep) 62%, transparent);
+  color: var(--ink);
+  border: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.ambiente__seta-sobre:first-child .btn__arrow { transform: scaleX(-1); }
+.ambiente__seta-sobre .btn__arrow { width: 18px; height: 18px; }
+
+/* O disco escurece no toque. É a única resposta que ele dá — não há hover
+   nesta media query, por definição. */
+.ambiente__seta-sobre:active {
+  background: color-mix(in srgb, var(--ground-deep) 82%, transparent);
+}
+
+@media (hover: none) {
+  .ambiente__sobre { display: flex; }
+}
+
 /* O quadro reserva a proporção por aspect-ratio, e não por padding calculado
    sobre o tamanho nativo: trocar a foto por outra de outra dimensão não pede
    recalcular número nenhum aqui. As fotos do ambiente dividem a MESMA célula
@@ -2548,6 +2621,24 @@ a { color: inherit; }
   background: var(--ground-lift);
   border-radius: var(--r-painel);
   overflow: hidden;
+  position: relative;
+
+  /* ⚠ ESTA LINHA É O GESTO DE ARRASTAR, e tirá-la o quebra em silêncio.
+
+     `pan-y` divide o trabalho com o navegador: o pan VERTICAL continua sendo
+     dele — a página rola normalmente com o dedo em cima da foto — e o
+     HORIZONTAL passa a ser nosso, chegando como `pointermove` em vez de virar
+     rolagem lateral.
+
+     As duas alternativas estão erradas, cada uma do seu jeito:
+       `auto`  o navegador fica com os dois eixos, decide que o gesto é
+               rolagem e manda `pointercancel` — o arrasto nunca completa.
+       `none`  ficamos com os dois, e a página deixa de rolar em cima da
+               foto. Num bloco que ocupa 233px de uma tela de 800, é uma
+               armadilha: o dedo cai na foto e a lista trava.
+
+     `pan-y` também não impede o pinch-zoom, que continua com o navegador. */
+  touch-action: pan-y;
 }
 .ambiente__foto {
   grid-area: 1 / 1;
