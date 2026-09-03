@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Seta } from "./Icones";
 import { AMBIENTE_ALTURA, AMBIENTE_LARGURA, type Ambiente } from "@/lib/dados";
@@ -46,10 +46,100 @@ const passo = (i: number, delta: number, total: number) => (i + delta + total) %
 
 const doisDigitos = (n: number) => String(n).padStart(2, "0");
 
+/* ══ O ARRASTO: DOIS LIMIARES, E CADA UM RESOLVE UM PROBLEMA DIFERENTE ══
+
+   LIMIAR_EIXO decide QUEM fica com o gesto. Nos primeiros 10px o movimento
+   ainda não tem direção confiável: um polegar que quer rolar a página começa
+   quase sempre com alguma componente horizontal. Só depois de 10px o
+   componente compara |dx| e |dy| — e se o vertical vencer, ele DESISTE do
+   gesto de vez e deixa a página rolar. Sem essa desistência a lista de
+   ambientes fica travada no telefone.
+
+   LIMIAR_TROCA decide SE a foto muda. 44px é o mesmo número do alvo de toque
+   mínimo: menos que isso é toque acidental ou tremor de mão, não intenção.
+
+   Os dois são independentes. Um arrasto pode passar do LIMIAR_EIXO — e a
+   partir daí a página não rola mais — e mesmo assim voltar sem trocar nada,
+   porque não chegou aos 44px. É o comportamento certo: quem arrasta e devolve
+   está desistindo. */
+const LIMIAR_EIXO = 10;
+const LIMIAR_TROCA = 44;
+
 export default function AmbienteBloco({ amb, indice }: Props) {
   const [foto, setFoto] = useState(0);
   const total = amb.fotos.length;
   const varias = total > 1;
+
+  /* ══ O ESTADO DO ARRASTO VIVE EM REF, NÃO EM useState ══
+
+     Nada do que está aqui é desenhado: são coordenadas de trabalho, lidas e
+     escritas várias vezes por gesto. Em estado, cada `pointermove` agendaria
+     uma renderização da árvore inteira do bloco — e o bloco tem três <img> —
+     para não mudar um pixel. `null` significa "não há gesto em curso". */
+  const arrasto = useRef<{ x: number; y: number; eixo: null | "x" | "y" } | null>(null);
+
+  const aoDescer = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!varias) return;
+    /* Botão do meio, direito e caneta com botão lateral não iniciam gesto. */
+    if (e.button !== 0) return;
+    arrasto.current = { x: e.clientX, y: e.clientY, eixo: null };
+  };
+
+  const aoMover = (e: React.PointerEvent<HTMLDivElement>) => {
+    const a = arrasto.current;
+    if (!a) return;
+
+    const dx = e.clientX - a.x;
+    const dy = e.clientY - a.y;
+
+    /* O eixo se decide UMA vez por gesto e não volta atrás: um arrasto que
+       começa horizontal e curva não devolve a rolagem no meio do caminho, e
+       um que começa vertical não rouba a foto depois. */
+    if (a.eixo === null) {
+      if (Math.abs(dx) < LIMIAR_EIXO && Math.abs(dy) < LIMIAR_EIXO) return;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        /* Vertical: a página rola, e o gesto acaba aqui. */
+        arrasto.current = null;
+        return;
+      }
+      a.eixo = "x";
+      /* ══ A CAPTURA FAZ DUAS COISAS, E A SEGUNDA NÃO É ÓBVIA ══
+
+         A primeira é a esperada: garante que o `pointerup` chegue mesmo se o
+         dedo sair do quadro. Sem ela, arrastar para fora da foto deixa o gesto
+         pendurado.
+
+         A segunda evita um defeito real. As setas sobre a foto são botões, e um
+         arrasto que COMEÇA em cima de uma delas dispararia o gesto e o clique —
+         duas fotos de avanço num gesto só. Com a captura, o `pointerup` passa a
+         mirar o quadro; o navegador dispara o `click` no ancestral comum entre
+         o alvo do down e o do up, que é o próprio quadro, e o `onClick` do botão
+         nunca roda. Testado: arrasto de −120px começando na seta avança UMA. */
+      e.currentTarget.setPointerCapture(e.pointerId);
+    }
+  };
+
+  const aoSubir = (e: React.PointerEvent<HTMLDivElement>) => {
+    const a = arrasto.current;
+    arrasto.current = null;
+    if (!a || a.eixo !== "x") return;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+
+    const dx = e.clientX - a.x;
+    if (Math.abs(dx) < LIMIAR_TROCA) return;
+    /* Arrastar para a ESQUERDA traz a próxima: o conteúdo acompanha o dedo,
+       que é a convenção de toda galeria de telefone. */
+    setFoto((i) => passo(i, dx < 0 ? 1 : -1, total));
+  };
+
+  /* O navegador cancela o ponteiro quando decide rolar a página, e também na
+     troca de aba. Sem isto o gesto ficaria aberto e o próximo toque herdaria
+     coordenadas velhas. */
+  const aoCancelar = () => {
+    arrasto.current = null;
+  };
 
   const aoTeclar = (e: React.KeyboardEvent<HTMLElement>) => {
     if (!varias) return;
@@ -75,7 +165,18 @@ export default function AmbienteBloco({ amb, indice }: Props) {
           mesma propriedade, e uma zeraria a outra. No quadro as duas opacidades
           se multiplicam, que é o que se quer: o quadro surge, e dentro dele as
           fotos trocam. */}
-      <div className="ambiente__quadro rise">
+      {/* ⚠ `touch-action: pan-y` MORA NO CSS e é o que faz este gesto conviver
+          com a rolagem. Ele diz ao navegador: o pan vertical é seu, o
+          horizontal é meu. Sem ele o navegador engole o horizontal também e o
+          `pointermove` chega cancelado; com `none` no lugar dele, a página
+          para de rolar em cima da foto. Ver a seção 11b da folha. */}
+      <div
+        className="ambiente__quadro rise"
+        onPointerDown={aoDescer}
+        onPointerMove={aoMover}
+        onPointerUp={aoSubir}
+        onPointerCancel={aoCancelar}
+      >
         {amb.fotos.map((src, i) => (
           <img
             key={src}
@@ -95,8 +196,53 @@ export default function AmbienteBloco({ amb, indice }: Props) {
                leitura: só uma foto está à vista de cada vez, e as outras
                repetiriam o mesmo alt. */
             aria-hidden={i === foto ? undefined : "true"}
+            /* O arrasto é do quadro. Sem isto o navegador inicia o seu próprio
+               arrasto de imagem no meio do gesto, e no desktop o cursor vira
+               "copiar arquivo". */
+            draggable={false}
           />
         ))}
+
+        {/* ══ AS SETAS SOBRE A FOTO: AFFORDANCE, NÃO UM SEGUNDO CONTROLE ══
+
+            Elas existem porque arrasto é gesto invisível: sem nada na foto,
+            ninguém descobre que dá para arrastar. Aparecem só onde o gesto é o
+            caminho natural — a folha as esconde onde há hover, na seção 11b.
+
+            `aria-hidden` COM `tabIndex={-1}`, e os dois juntos são obrigatórios.
+            As setas de sempre, embaixo do texto, continuam sendo os controles
+            de verdade: são elas que o Tab alcança e que o leitor de tela
+            anuncia. Estas repetiriam os mesmos dois rótulos e fariam a pessoa
+            ouvir "Foto anterior de Cozinha" duas vezes no mesmo bloco.
+
+            `aria-hidden` num elemento focável é violação — por isso o
+            `tabIndex={-1}` não é opcional: ele tira o elemento da ordem do Tab
+            e desfaz a violação. Um sem o outro está errado.
+
+            E SÃO BOTÕES DE VERDADE, não enfeite com `pointer-events: none`.
+            Uma seta desenhada sobre a foto parece tocável; se o toque
+            atravessasse para o quadro, que só responde a arrasto, ela seria uma
+            zona morta que mente sobre o que faz. */}
+        {varias ? (
+          <div className="ambiente__sobre" aria-hidden="true">
+            <button
+              type="button"
+              className="ambiente__seta-sobre"
+              tabIndex={-1}
+              onClick={() => setFoto((i) => passo(i, -1, total))}
+            >
+              <Seta />
+            </button>
+            <button
+              type="button"
+              className="ambiente__seta-sobre"
+              tabIndex={-1}
+              onClick={() => setFoto((i) => passo(i, 1, total))}
+            >
+              <Seta />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="ambiente__texto">
