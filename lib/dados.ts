@@ -332,60 +332,100 @@ export const slotsProva = [
 ] as const;
 
 /* --- Obras entregues -------------------------------------------------------
-   PLACEHOLDER: fotos genéricas do Unsplash até o cliente enviar as reais.
+
+   ══ AS FOTOS SAÍRAM DO UNSPLASH E VIRARAM ARQUIVO LOCAL ══
+
+   Até esta rodada os oito `img` eram URL de `images.unsplash.com`. O carrossel
+   renderiza a lista em DUAS metades para fechar o laço, então eram dezesseis
+   requisições a um servidor de terceiro em toda visita à home.
+
+   O MOTIVO DE TIRAR NÃO É PESO — É O QUE A POLÍTICA PROMETE. A seção "Cookies:
+   este site não usa", em /politica-de-privacidade, afirma com todas as letras
+   que as fontes são servidas do nosso próprio domínio "então nem o Google
+   Fonts recebe uma requisição sua ao abrir estas páginas". Enquanto estas oito
+   vinham de fora, cada abertura da home mandava IP, User-Agent e Referer do
+   visitante para um servidor nos Estados Unidos. Não gravava cookie, então a
+   frase não era falsa — mas um site que se orgulha de não deixar ninguém
+   receber nada estava deixando alguém receber dezesseis vezes. Agora são zero
+   requisições externas, em qualquer rota.
+
+   SÃO OS MESMOS BYTES QUE JÁ ESTAVAM NO AR. Cada URL foi baixada com os
+   parâmetros exatos que estavam aqui — `w`, `h` e `crop` inclusive — e
+   reencodada em WebP q82 só para tirar EXIF e normalizar qualidade. Nada foi
+   reenquadrado: mexer no `crop` durante a migração mudaria o que oito cards
+   mostram sem ninguém ter pedido. 886 kB de origem viraram 503 kB.
+
+   ⚠ "COZINHA PLANEJADA" E "LAVANDERIA" SÃO A MESMA FOTO. Medido na migração:
+   0,8 de 255 de diferença média por canal, ou seja, ruído de reencode. O
+   `crop=top` da lavanderia não recortou nada porque o original já é 3:4, e o
+   pedido devolveu o quadro inteiro — o comentário que morava aqui afirmava que
+   os dois últimos itens tinham "recorte diferente", e para este não tinha. Os
+   outros dois pares reusados são recortes de verdade: o banheiro difere 13,7
+   do dormitório, e a sala difere 28,8 do home office.
+
+   OS DOIS ARQUIVOS FICAM SEPARADOS mesmo sendo iguais hoje. Apontar as duas
+   entradas para um caminho só economizaria 47 kB e criaria uma armadilha:
+   quando a foto real de lavanderia chegar, ela trocaria os DOIS cards.
+
+   ══ CONTINUA PLACEHOLDER, E ISSO A MIGRAÇÃO NÃO RESOLVEU ══
+
+   São fotos de banco de imagem, e a seção que as exibe se chama "Trabalho que
+   fala por nós", com aria-label "Obras entregues". Tirar a requisição externa
+   resolveu a privacidade; não resolveu a veracidade. Enquanto forem estas, a
+   página afirma na tela algo que não é verdade.
+
    Os nomes são tipos de ambiente, não obras específicas — nenhum cliente,
-   endereço ou condomínio é citado, porque nenhum foi informado. Os dois
-   últimos itens reusam fotos anteriores com recorte diferente: só seis ids
-   do Unsplash foram verificados, e id inventado devolve 404.
+   endereço ou condomínio é citado, porque nenhum foi informado.
+
    TODO: substituir img, nome e alt por obras executadas pela LDF. */
 
 export const obras = [
   {
     nome: "Cozinha planejada",
     sigla: "CZ",
-    img: "https://images.unsplash.com/photo-1719368472026-dc26f70a9b76?q=80&w=900&auto=format&fit=crop",
+    img: "/obras/obra-cozinha-planejada.webp",
     alt: "Ambiente residencial com marcenaria planejada e iluminação embutida.",
   },
   {
     nome: "Dormitório",
     sigla: "DR",
-    img: "https://images.unsplash.com/photo-1649265825072-f7dd6942baed?q=80&w=900&auto=format&fit=crop",
+    img: "/obras/obra-dormitorio.webp",
     alt: "Quarto com cabeceira planejada e luminária de apoio.",
   },
   {
     nome: "Sala e living",
     sigla: "SL",
-    img: "https://images.unsplash.com/photo-1729086046027-09979ade13fd?q=80&w=900&h=1200&auto=format&fit=crop&crop=right",
+    img: "/obras/obra-sala-living.webp",
     alt: "Sala de estar com painel e estante planejados.",
   },
   {
     nome: "Home office",
     sigla: "HO",
-    img: "https://images.unsplash.com/photo-1729086046027-09979ade13fd?q=80&w=900&auto=format&fit=crop",
+    img: "/obras/obra-home-office.webp",
     alt: "Bancada de trabalho integrada à marcenaria do ambiente.",
   },
   {
     nome: "Closet",
     sigla: "CL",
-    img: "https://images.unsplash.com/photo-1601568494843-772eb04aca5d?q=80&w=900&auto=format&fit=crop",
+    img: "/obras/obra-closet.webp",
     alt: "Módulos abertos de closet com prateleiras e gaveteiro.",
   },
   {
     nome: "Área gourmet",
     sigla: "AG",
-    img: "https://images.unsplash.com/photo-1585687501004-615dfdfde7f1?q=80&w=900&auto=format&fit=crop",
+    img: "/obras/obra-area-gourmet.webp",
     alt: "Área gourmet com bancada de apoio e armários inferiores.",
   },
   {
     nome: "Lavanderia",
     sigla: "LV",
-    img: "https://images.unsplash.com/photo-1719368472026-dc26f70a9b76?q=80&w=900&h=1200&auto=format&fit=crop&crop=top",
+    img: "/obras/obra-lavanderia.webp",
     alt: "Armário alto de lavanderia com portas lisas.",
   },
   {
     nome: "Banheiro",
     sigla: "BN",
-    img: "https://images.unsplash.com/photo-1649265825072-f7dd6942baed?q=80&w=900&h=1200&auto=format&fit=crop&crop=bottom",
+    img: "/obras/obra-banheiro.webp",
     alt: "Gabinete de banheiro com espelheira e nicho.",
   },
 ] as const;
