@@ -5766,6 +5766,58 @@ main > .chamada:first-child {
    declarar aqui. O que precisaria de regra própria seria transform ou filter,
    e esta seção não usa nenhum dos dois. */
 
+/* ══ O AVISO DE POP-UP BLOQUEADO ══
+
+   Mesmo painel do `.form__resumo` — é a mesma classe de notícia: algo não
+   aconteceu e a pessoa precisa saber agora. O que muda é que este traz uma
+   saída clicável em vez de só nomear o problema.
+
+   A BORDA É `--red-bright` E NÃO `--red`. Não é escolha de tom: a régua fica
+   ao lado de texto, e sobre o campo desta seção o `--red` dá 3,92:1 enquanto o
+   `--red-bright` dá 5,81:1. É o mesmo token que a palavra do herói usa, e pela
+   mesma razão registrada lá. */
+.form__bloqueado {
+  margin-block-end: var(--s5);
+  padding: var(--s4) var(--s5);
+  border-radius: var(--r-campo);
+  background: var(--ground-lift);
+  border-inline-start: 2px solid var(--red-bright);
+}
+
+.form__bloqueado-titulo {
+  margin: 0 0 var(--s2);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.form__bloqueado-texto {
+  margin: 0 0 var(--s4);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  max-width: none;
+}
+
+/* Link em corpo de botão, não em corpo de texto: é a saída do erro, e precisa
+   ser a coisa mais fácil de acertar no bloco. Alvo de 44px de altura pelo
+   padding, que é o mínimo de toque. */
+.form__bloqueado-link {
+  display: inline-block;
+  padding: 0.7rem 1.2rem;
+  border-radius: var(--r-pill);
+  background: var(--red);
+  /* --white sobre --red dá 5,07:1; --ink daria 4,27:1 e reprovaria. É a mesma
+     troca do .btn e da .btn-capsula. */
+  color: var(--white);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 200ms var(--ease);
+}
+@media (hover: hover) {
+  .form__bloqueado-link:hover { background: var(--red-hot); }
+}
+.form__bloqueado-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
 /* A saída para a política, logo abaixo da caixa de consentimento. FORA do
    <label> de propósito — o porquê está em components/FormularioContato.tsx.
    `--t-sm` porque é nota de apoio, não a declaração; o link herda o sublinhado
