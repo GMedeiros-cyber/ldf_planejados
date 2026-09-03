@@ -3727,9 +3727,56 @@ a { color: inherit; }
   .fabrica__texto { justify-content: flex-start; }
   .fabrica .fabrica__texto > .cadeia { margin-block-start: var(--s3); }
 
+  /* ══ NO TELEFONE A CAIXA DEITA: 4:3, QUE É O 3:4 DO DESKTOP VIRADO ══
+
+     Em duas colunas o vídeo é companheiro de altura do texto, e 3:4 é o que
+     faz os dois fecharem juntos. Em uma coluna ele deixa de ser companheiro e
+     vira o fecho da seção — e aí a proporção retrato passa a ser o único
+     elemento que quebra a gramática do bloco. Medido: tudo mais aqui é faixa
+     horizontal de largura cheia (o h2, o lede, o parágrafo, as duas linhas da
+     cadeia, a nota técnica). O vídeo era a coisa MAIS ALTA da seção, com 44%
+     da tela, sendo a MENOS informativa — ele é aria-hidden e não tem legenda.
+
+     4:3 E NÃO 16:10, e a escolha tem dois motivos.
+
+     O primeiro é de vocabulário do projeto. O comentário do card de obra
+     registra a distinção: "obra é fita que se percorre, e o vídeo é bloco que
+     para o olho". 16:10 a 280px dá 175px de altura e começa a ler como fita —
+     colapsaria justamente o contraste com o carrossel que fica logo acima.
+     4:3 dá 210px e continua lendo como placa.
+
+     O segundo é que 4:3 é o RECÍPROCO exato de 3/4. Os mesmos dois números,
+     virados. Isso faz a relação desktop/mobile ler como rotação deliberada, e
+     não como um terceiro número escolhido a esmo.
+
+     ══ O RECORTE É ESPERADO, E NÃO CUSTA NITIDEZ ══
+
+     O arquivo é RETRATO. Numa caixa deitada o `object-fit: cover` escala pela
+     LARGURA e joga fora linhas em cima e embaixo — não tem como mostrar um
+     quadro em pé inteiro numa caixa deitada. A fração visível é
+     `proporção do arquivo ÷ proporção da caixa`: com o arquivo 576×768 (0,75)
+     numa caixa 4:3, sobram 56% da altura do quadro, centrados.
+
+     Conferido no pôster atual: o corte de 56% central pega o fundo do armário
+     superior, a prateleira aberta, o nicho de madeira e o topo das gavetas —
+     ou seja, a marcenaria. O que sai é teto liso em cima e piso embaixo, que
+     é o que não conta nada. `object-position` fica no padrão (centro) porque
+     o centro já é o lugar certo neste quadro.
+
+     ⚠ E A NITIDEZ NÃO MUDA COM A PROPORÇÃO. Como o `cover` amarra pela
+     largura, quem decide quantos pixels de arquivo caem em cada pixel de tela
+     é o `max-width`, não o `aspect-ratio`. Por isso o teto de 280px continua
+     EXATAMENTE onde estava: alargar a caixa seria trocar nitidez por presença,
+     e o comentário do bloco acima já mostra que a margem de retina aqui é de
+     1,03× em DPR 2 e 0,69× em DPR 3 — não há folga para gastar.
+
+     A "margem aproveitada" do pedido vem da própria proporção, e não de
+     alargar: a caixa cai de 373px para 210px de altura em 390px de tela, e a
+     seção inteira sai de 132% para 113% da tela. */
   .fabrica__video {
     max-width: min(80%, 280px);
     margin-inline: auto;
+    --peca-prop: 4 / 3;
   }
 }
 
@@ -3830,7 +3877,15 @@ a { color: inherit; }
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 4;
+  /* ⚠ A PROPORÇÃO É VARIÁVEL, E O PADRÃO CONTINUA 3:4.
+
+     Quem vira a caixa no telefone é `--peca-prop`, escrito no `.fabrica__video`
+     dentro do @media de 991px. Custom property em vez de uma segunda regra
+     `.fabrica__peca` lá dentro por um motivo mecânico: @media NÃO soma
+     especificidade, e esta regra aqui mora DEPOIS do bloco de 991px na folha.
+     Um `aspect-ratio` declarado lá seria sobrescrito por este, em silêncio.
+     A variável herda do invólucro e não disputa cascata com nada. */
+  aspect-ratio: var(--peca-prop, 3 / 4);
   object-fit: cover;
   /* EXCEÇÃO ao sistema, e deliberada. O DESIGN.md documenta rounded como
      none/hairline/pill, e todo componente listado lá é `rounded.none`: a folha
