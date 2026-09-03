@@ -367,17 +367,25 @@ export const slotsProva = [
    entradas para um caminho só economizaria 47 kB e criaria uma armadilha:
    quando a foto real de lavanderia chegar, ela trocaria os DOIS cards.
 
-   ══ CONTINUA PLACEHOLDER, E ISSO A MIGRAÇÃO NÃO RESOLVEU ══
+   ══ A LISTA HOJE É MISTA: 2 OBRAS REAIS E 8 DE BANCO ══
 
-   São fotos de banco de imagem, e a seção que as exibe se chama "Trabalho que
-   fala por nós", com aria-label "Obras entregues". Tirar a requisição externa
-   resolveu a privacidade; não resolveu a veracidade. Enquanto forem estas, a
-   página afirma na tela algo que não é verdade.
+   As duas últimas entradas são obras da LDF, fotografadas e enviadas pelo
+   cliente. As oito primeiras continuam sendo banco de imagem, e a seção que as
+   exibe se chama "Trabalho que fala por nós", com aria-label "Obras
+   entregues" — ou seja, oito dos dez cards ainda afirmam na tela algo que não
+   é verdade. Tirar a requisição externa resolveu a privacidade; a veracidade
+   só se resolve trocando foto.
 
-   Os nomes são tipos de ambiente, não obras específicas — nenhum cliente,
-   endereço ou condomínio é citado, porque nenhum foi informado.
+   ⚠ A ORDEM IMPORTA E É PROVISÓRIA. As reais entraram no FIM porque o
+   carrossel corre em laço e não tem começo visível — não há posição de honra
+   a disputar. Quando as de banco saírem, a ordem passa a ser escolha de
+   edição, e não resto de migração.
 
-   TODO: substituir img, nome e alt por obras executadas pela LDF. */
+   Nos oito de banco, os nomes são tipos de ambiente e não obras específicas —
+   nenhum cliente, endereço ou condomínio é citado, porque nenhum foi
+   informado. Nas duas reais o nome descreve o ambiente executado.
+
+   TODO: substituir img, nome e alt das OITO PRIMEIRAS por obras da LDF. */
 
 export const obras = [
   {
@@ -427,6 +435,31 @@ export const obras = [
     sigla: "BN",
     img: "/obras/obra-banheiro.webp",
     alt: "Gabinete de banheiro com espelheira e nicho.",
+  },
+  /* ══ AS DUAS PRIMEIRAS OBRAS DE VERDADE ══
+
+     Estas duas são LDF: fotografadas em obra entregue, enviadas pelo cliente.
+     As oito acima continuam sendo banco de imagem — a seção segue mista até o
+     resto do material chegar, e é por isso que o TODO no topo deste bloco não
+     foi fechado.
+
+     Vêm em 900×1661, que é 0,5418 contra os 0,5419 do quadro 291:537. Recorte
+     nenhum foi preciso: o `object-fit: cover` do `.obra__quadro img` não tem o
+     que descartar nesta proporção.
+
+     O `alt` descreve o que se vê, e não o que se vende. Quem chega por leitor
+     de tela recebe a mesma informação que quem olha: peças, cores, materiais. */
+  {
+    nome: "Quarto com escritório",
+    sigla: "QE",
+    img: "/obras/obra-quarto-escritorio.webp",
+    alt: "Quarto com guarda-roupa de portas cinzas e escrivaninha integrada sob nicho de madeira.",
+  },
+  {
+    nome: "Cozinha corredor",
+    sigla: "CC",
+    img: "/obras/obra-cozinha-corredor.webp",
+    alt: "Cozinha em corredor com armários de madeira clara, ilha central verde-oliva e coifa embutida.",
   },
 ] as const;
 
