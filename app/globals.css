@@ -1331,10 +1331,43 @@ a { color: inherit; }
   text-wrap: pretty;
 }
 
-/* Abaixo de 768px: uma coluna, empilhada, sem separadores. */
+/* ══ ABAIXO DE 768px OS TRÊS CONTINUAM LADO A LADO ══
+
+   Empilhavam. `grid-template-columns: 1fr` estava aqui e transformava a faixa
+   numa coluna de 361px de altura — três telas de rolagem para ler três
+   números que só significam alguma coisa COMPARADOS entre si. Um abaixo do
+   outro, eles viram três fatos soltos.
+
+   A grade de três colunas é a mesma do desktop, e os separadores voltam junto:
+   com as colunas estreitas eles passam a ser úteis, não decoração.
+
+   ══ O QUE ENCOLHEU, E POR QUE NESTA ORDEM ══
+
+   Em 360px — o pior caso — cada coluna tem ~117px. Três coisas disputam essa
+   largura, e a ordem em que cederam é deliberada:
+
+     1. O PADDING DO ITEM, de --s4 para --s1. É o que menos custa: 24px
+        devolvidos por coluna sem tocar em tipo nenhum.
+     2. O CORPO DO NÚMERO. "+1.200" media 90px a 40px, e não cabia. Desce para
+        `--t-stat`, o degrau "Número de destaque" da rampa — que é literalmente
+        o papel destes três. Dá ~27px no celular, e o mesmo "+1.200" passa a
+        medir ~61px. NÃO invente um clamp aqui: a primeira versão desta regra
+        escrevia `clamp(1.5rem, 7.5vw, 2.25rem)` e o detector reprovou, com
+        razão — pontas fora da rampa do DESIGN.md.
+     3. O RÓTULO, para --t-xs. É o degrau do sistema abaixo do --t-sm, e é o
+        que segura "Projetos entregues e montados" em DUAS linhas. A três
+        linhas a faixa desalinha, porque os outros dois rótulos têm uma só.
+
+   O número cedeu ANTES do rótulo de propósito: número grande é ênfase, e
+   ênfase é o que sobra quando não cabe tudo. Rótulo ilegível não é ênfase
+   nenhuma. */
 @media (max-width: 767px) {
-  .numeros__grade { grid-template-columns: 1fr; gap: var(--s6); }
-  .numeros__item + .numeros__item { border-left: 0; }
+  .numeros__item {
+    padding-inline: var(--s1);
+    gap: var(--s2);
+  }
+  .numeros__valor { font-size: var(--t-stat); }
+  .numeros__rotulo { font-size: var(--t-xs); }
 }
 
 /* --- 8d. História ----------------------------------------------------------
