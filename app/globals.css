@@ -1692,8 +1692,36 @@ a { color: inherit; }
      esticado para alem da direita, e isso inflava o scrollWidth. A borda e
      pintada na caixa de borda, nao rola e nao entra no calculo. */
   border-block: 1px solid var(--edge);
+
+  /* ⚠ `touch-action` FICA NO PADRÃO, E ISSO É DECISÃO CONFERIDA.
+
+     `auto` deixa o navegador escolher o eixo pelo gesto: horizontal rola a
+     pista, vertical rola a PÁGINA. Trocar por `pan-x` aqui tiraria a rolagem
+     vertical de dentro da faixa — quem começasse o gesto em cima de um card
+     ficaria preso nele. O <ObrasArraste /> só captura o ponteiro quando é
+     MOUSE, justamente para não encostar nesse arranjo. */
 }
 .obras__trilho::-webkit-scrollbar { display: none; }
+
+/* O arrasto com mouse não existe de graça: `overflow-x: auto` dá barra e roda,
+   não arrasto. Quem o implementa é o <ObrasArraste />, e estas duas regras são
+   a parte visível — a mão aberta anuncia que dá para pegar, e a fechada
+   confirma que pegou.
+
+   Só com ponteiro: num aparelho de toque não há cursor a mostrar, e a pista já
+   se arrasta sozinha. */
+@media (hover: hover) {
+  .obras__trilho { cursor: grab; }
+  .obras__trilho--arrastando { cursor: grabbing; }
+}
+
+/* Durante o arrasto, nada de selecionar texto nem de o navegador tentar
+   arrastar a foto: os dois roubam o gesto no meio. */
+.obras__trilho--arrastando,
+.obras__trilho--arrastando * {
+  user-select: none;
+  -webkit-user-select: none;
+}
 
 @keyframes obras-desliza {
   from { transform: translate3d(0, 0, 0); }
