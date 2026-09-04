@@ -83,15 +83,17 @@ export default function ProjetoComercial() {
               loading="lazy"
               decoding="async"
             />
-            {/* O <span> existe para o grifo ABRAÇAR AS PALAVRAS. O
-                figcaption é bloco e ocupa a coluna inteira: um fundo nele
-                desenharia uma barra da largura da célula, que é tarja, não
-                marca-texto. O grifo é do texto, então mora num elemento em
-                linha — e é o `box-decoration-break: clone` da folha que faz
-                a segunda linha receber a sua própria marca. */}
-            <figcaption className="comercial__legenda">
-              <span className="comercial__grifo">{f.legenda}</span>
-            </figcaption>
+            {/* ⚠ HAVIA UM <span class="comercial__grifo"> AQUI, e ele saiu.
+
+                Ele desenhava uma marca-texto translúcida atrás da legenda. A
+                premissa continua de pé — a legenda é a ETIQUETA da peça, não
+                uma didascália solta — mas a execução não entregava: na tela
+                aquilo lia como sublinhado vermelho mal acabado.
+
+                O destaque agora vem da TIPOGRAFIA, e por isso não sobrou
+                elemento nenhum para embrulhar o texto: o figcaption carrega o
+                degrau `.label` e o texto vai cru dentro dele. */}
+            <figcaption className="comercial__legenda label">{f.legenda}</figcaption>
           </figure>
         ))}
       </div>
