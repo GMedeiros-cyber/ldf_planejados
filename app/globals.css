@@ -1226,11 +1226,118 @@ a { color: inherit; }
 .hero--capa .hero__social:focus-visible { color: var(--ink); }
 .hero--capa .hero__social svg { width: 40px; height: 40px; }
 
+/* ── O CTA da capa, dentro da própria fila ──────────────────────────────────
+
+   O <CtaCapa />, no lugar que era do ícone de WhatsApp. Ele PERTENCE à fila, e
+   as três coisas que garantem isso são: a mesma altura de alvo dos ícones
+   (--fila-altura), a mesma sombra projetada e a mesma tinta. O que o separa é
+   o rótulo e o contorno.
+
+   ⚠ VAZADO, E NÃO PREENCHIDO. Um botão sólido aqui teria peso de outra tela e
+   pareceria colado depois da foto; os vizinhos são traço sobre fotografia, e
+   ele também é.
+
+   ⚠ font-variation-settings: normal — TERCEIRA VEZ NESTA BASE. A Instrument
+   Serif não é variável, e a rampa desta folha carrega um eixo `wdth`. Sem esta
+   linha o navegador sintetiza um falso-negrito, e o CTA sai mais gordo que a
+   manchete que ele deveria acompanhar. O precedente é o `.hero__titulo`, logo
+   acima, que zera pelo mesmo motivo.
+
+   A SOMBRA É A MESMA DOS ÍCONES, e pelo mesmo motivo registrado lá: sobre os
+   quadros claros das três capas o traço sumia. Texto claro sobre fotografia
+   tem exatamente o mesmo problema — e aqui é pior, porque é texto e não
+   pictograma: quem não enxerga um ícone entende pelo vizinho, quem não lê o
+   rótulo perde a ação. */
+.hero--capa .hero__cta {
+  display: inline-flex;
+  align-items: center;
+  height: var(--fila-altura);
+  padding-inline: var(--s5);
+  border-radius: 999px;
+  font-family: var(--font-serif);
+  font-size: var(--t-lg);
+  font-weight: 400;
+  font-variation-settings: normal;
+  letter-spacing: -0.008em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--ink);
+  text-decoration: none;
+  /* Contorno como box-shadow, e não border: não entra na caixa, então a altura
+     continua sendo exatamente o alvo de 48 dos vizinhos. */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 55%, transparent);
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.55));
+  transition: background 200ms var(--ease), box-shadow 200ms var(--ease),
+    color 200ms var(--ease);
+}
+
+/* Só onde há ponteiro: num aparelho de toque o :hover fica GRUDADO depois do
+   tap, até o próximo toque em outro lugar. Já foi diagnosticado no `.btn` da
+   seção 7, que não tem esta guarda. */
+@media (hover: hover) {
+  .hero--capa .hero__cta:hover {
+    background: var(--ink);
+    color: var(--ground-deep);
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+}
+
+/* O MESMO destaque do hover, e não um anel qualquer: quem navega por teclado
+   vê exatamente o que quem usa ponteiro vê. */
+.hero--capa .hero__cta:focus-visible {
+  background: var(--ink);
+  color: var(--ground-deep);
+  box-shadow: inset 0 0 0 1px var(--ink);
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero--capa .hero__cta { transition: none; }
+}
+
+/* ⚠ A SETA SOME ABAIXO DE 1024, E ANTES SUMIA ABAIXO DE 768.
+
+   O limite mudou porque a FILA CRESCEU: com o <CtaCapa /> ela passou de 288
+   para ~400px, e o ponto em que ela encontra a seta subiu junto. Medido a
+   768px com o limite antigo: a fila começava em x=327 e a seta ocupava
+   375..393 — 540px² de sobreposição, com a seta POR BAIXO do primeiro ícone.
+
+   A seta é decoração declarada (`aria-hidden`), uma dica de rolagem que a
+   própria altura da capa já dá. O CTA é o caminho de conversão. Quando os dois
+   não cabem, quem sai é a dica.
+
+   A 1024, que é onde ela ainda aparece, a folga medida entre fila e seta é de
+   46px. */
+@media (max-width: 1023px) {
+  .hero--capa .hero__seta { display: none; }
+}
+
 @media (max-width: 767px) {
   .hero--capa .hero__titulo { bottom: clamp(5rem, 14vh, 7rem); max-width: none; }
-  /* Medido: a fila de redes tem 224px e o encontro com a seta comeca por
-     volta de 518px de viewport. Some antes disso, com folga. */
-  .hero--capa .hero__seta { display: none; }
+
+  /* ══ NO CELULAR A FILA OCUPA A LARGURA INTEIRA, EM VEZ DE SE AGRUPAR ══
+
+     Com o CTA dentro dela a fila passou a medir ~380px, e a 390 e 360 isso
+     TRANSBORDA: medido, o primeiro ícone começava em x=-11 e x=-40, cortado
+     pela borda esquerda (o `.hero--capa` tem overflow: hidden, então não havia
+     nem barra de rolagem denunciando — o ícone simplesmente sumia).
+
+     A saída é ancorar a fila nas DUAS margens e deixar o espaço livre virar
+     vão. Os alvos de 48px ficam intactos, o CTA continua no canto — que é o
+     lugar dele — e os ícones se espalham em vez de se amontoar.
+
+     ⚠ NADA DE `order` PARA REORGANIZAR ISTO. A alternativa era empilhar o CTA
+     acima dos ícones, e ela cai na mesma armadilha que o `order: -1` de
+     /contato, apagado por desencontrar o que o olho vê do que o Tab percorre.
+     Aqui a ordem visual continua sendo a do DOM: ícones, depois o CTA. */
+  .hero--capa .hero__sociais {
+    left: var(--gutter);
+    justify-content: space-between;
+    /* Piso do vão. O `space-between` distribui o que sobra; isto garante que
+       os alvos não encostem quando não sobra quase nada. */
+    gap: var(--s3);
+  }
 }
 
 /* Movimento reduzido: o setInterval nem começa (ver Hero.tsx) e a seta para.
