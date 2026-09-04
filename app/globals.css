@@ -2584,8 +2584,31 @@ a { color: inherit; }
   background: color-mix(in srgb, var(--ground-deep) 82%, transparent);
 }
 
+/* ══ UMA FILA DE SETAS POR VEZ, E A TROCA ACONTECE AQUI ══
+
+   Onde não há ponteiro, as setas sobre a foto aparecem E as de baixo somem.
+   As duas linhas são a mesma decisão e têm de andar juntas: o bloco precisa
+   ter exatamente UMA fila de controles, nunca duas e nunca nenhuma.
+
+   ⚠ A CONDIÇÃO É `hover: none`, E NÃO UMA LARGURA — o pedido falava em
+   "abaixo de 768px", e largura aqui seria um bug. Quem MOSTRA as de cima
+   sempre foi esta media query, sem componente de largura nenhum. Escondendo as
+   de baixo por `max-width`, uma janela de desktop estreita cairia no vão entre
+   as duas regras: as de cima ocultas porque há ponteiro, as de baixo ocultas
+   pela largura, e o bloco sem controle nenhum além do arrasto. Amarrando as
+   duas à mesma condição, esse vão não existe.
+
+   ⚠ `display: none`, E NÃO `visibility` NEM `opacity`. É o que tira da ordem
+   do Tab e da árvore de acessibilidade junto com a tela. Com as outras duas, o
+   Tab continuaria parando numa fila invisível e o leitor de tela continuaria
+   anunciando os dois pares de rótulos.
+
+   As setas de cima deixaram de ser `aria-hidden` no mesmo commit, porque
+   viraram o controle único onde esta regra vale. O porquê inteiro está no
+   componente, junto delas. */
 @media (hover: none) {
   .ambiente__sobre { display: flex; }
+  .ambiente__setas { display: none; }
 }
 
 /* O quadro reserva a proporção por aspect-ratio, e não por padding calculado
