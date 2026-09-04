@@ -1,8 +1,14 @@
 import { obras } from "@/lib/dados";
+import ObrasArraste from "./ObrasArraste";
 
 /* Carrossel de obras, full-bleed. A pista corre sozinha em loop por
-   animação de transform — nada de requestAnimationFrame nem scrollLeft, e
-   nada de pausa: ela não para com o ponteiro em cima.
+   animação de transform — nada de requestAnimationFrame.
+
+   ⚠ ELA PARA COM O PONTEIRO EM CIMA, e antes não parava. Quem faz isso é o
+   <ObrasArraste />, componente de comportamento montado no fim desta seção:
+   ponteiro pressionado pausa, soltar devolve. Esta seção continua sendo
+   SERVER COMPONENT — os cards são HTML servido, e para o navegador vai só o
+   arquivo de comportamento. O porquê de não bastar pausar está no topo dele.
 
    A lista é renderizada em DUAS METADES idênticas: com duas cópias de
    largura igual, o -50% dos keyframes cai exatamente no início da segunda e
@@ -76,6 +82,8 @@ export default function Obras() {
           <Metade copia />
         </div>
       </div>
+
+      <ObrasArraste />
     </section>
   );
 }
