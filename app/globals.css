@@ -1340,6 +1340,19 @@ a { color: inherit; }
        os alvos não encostem quando não sobra quase nada. */
     gap: var(--s3);
   }
+
+  /* ⚠ O RESPIRO LATERAL DO CTA ENCOLHE NO CELULAR, e é conta, não gosto.
+
+     A 360px a fila tem 320px úteis entre as margens. Três alvos de 48 são 144,
+     e o piso de vão de 12 come mais 36 — sobram 140 para o CTA. Com o respiro
+     de 24 de cada lado ele mede 150, e medido: os filhos passavam 10px além da
+     margem direita, sem barra de rolagem para denunciar, porque o
+     `overflow: hidden` da capa corta em silêncio.
+
+     Com 16, ele cai para 134 e sobra folga em todas as larguras de celular.
+     Foi o rótulo que cresceu — "Começar Projeto" no lugar de "Começar agora" —
+     e a conta acima é a que decide se o próximo rótulo cabe. */
+  .hero--capa .hero__cta { padding-inline: var(--s4); }
 }
 
 /* Movimento reduzido: o setInterval nem começa (ver Hero.tsx) e a seta para.

@@ -36,7 +36,7 @@ import Link from "next/link";
 export default function CtaCapa() {
   return (
     <Link className="hero__cta" href="/contato">
-      Começar agora
+      Começar Projeto
     </Link>
   );
 }
