@@ -2,13 +2,9 @@
 
 import { Fragment, useEffect, useState } from "react";
 
-import { heroSlides, heroLarguras, contato, mapaUrl, whatsappUrl } from "@/lib/dados";
-import {
-  IconeFacebook,
-  IconeInstagram,
-  IconeLocal,
-  IconeWhatsApp,
-} from "./Icones";
+import { heroSlides, heroLarguras, contato, mapaUrl } from "@/lib/dados";
+import CtaCapa from "./CtaCapa";
+import { IconeFacebook, IconeInstagram, IconeLocal } from "./Icones";
 
 /* Capa em três slides que se cruzam por opacidade. Sem efeito de scroll e sem
    biblioteca de animação: um setInterval troca o slide ativo e o CSS faz o
@@ -16,7 +12,7 @@ import {
 
 const INTERVALO = 6000;
 
-/* ══ QUATRO ÍCONES, E OS QUATRO TÊM DESTINO ══
+/* ══ TRÊS ÍCONES, E OS TRÊS TÊM DESTINO ══
 
    O Pinterest SAIU. Ele apontava para `href="#"` porque não há conta da LDF
    documentada em cliente/ — era um link visível, focável pelo teclado, que ao
@@ -24,21 +20,32 @@ const INTERVALO = 6000;
    Icones.tsx de propósito: a saída é temporária, e o desenho volta inteiro
    quando o perfil existir.
 
-   O WHATSAPP ENTROU no lugar. `whatsappUrl` é o MESMO endereço que o rodapé,
-   o cartão de /contato e o formulário usam, derivado de `contato.whatsapp` —
-   não há segundo número escrito em lugar nenhum.
-
    "ONDE ESTAMOS" DEIXOU DE SER `href="#"`. `mapaUrl` já existia no dados.ts,
    montado a partir de `contato.endereco`; o link estava vago só porque nunca
-   foi ligado. Com ele, o segundo TODO desta lista fecha junto com o primeiro.
+   foi ligado.
 
    Sobrou ZERO `href="#"` nesta fila, e é por isso que a condição de target
-   abaixo virou incondicional: os quatro abrem em aba nova. */
+   abaixo é incondicional: os três abrem em aba nova.
+
+   ══ O WHATSAPP ESTEVE AQUI, E SAIU ══
+
+   Por uma rodada ele foi o quarto ícone, no lugar do Pinterest, apontando para
+   `whatsappUrl`. Saiu porque o BOTÃO FLUTUANTE cobre esse canal em todas as
+   rotas — mantê-lo aqui era o mesmo destino duas vezes na mesma tela, e o
+   visitante não ganha nada em escolher entre dois caminhos idênticos.
+
+   ⚠ O `IconeWhatsApp` CONTINUA EM Icones.tsx, e não é sobra: quem o usa agora
+   é o <Zap />. Não apague.
+
+   ══ E O <CtaCapa /> ENTROU NO LUGAR ══
+
+   Ele não é um ícone e por isso não está nesta lista — é um <li> próprio no
+   fim do <ul> abaixo. O porquê de ele morar na fila, e não colado na manchete,
+   está no topo de components/CtaCapa.tsx. */
 const sociais = [
   { rotulo: "LDF no Instagram", href: contato.instagram, Icone: IconeInstagram },
   { rotulo: "LDF no Facebook", href: contato.facebook, Icone: IconeFacebook },
   { rotulo: "Onde estamos", href: mapaUrl, Icone: IconeLocal },
-  { rotulo: "LDF no WhatsApp", href: whatsappUrl, Icone: IconeWhatsApp },
 ];
 
 const srcSet = (base: string) =>
@@ -127,6 +134,9 @@ export default function Hero() {
         ))}
       </ul>
 
+      {/* ⚠ A FILA FICA FORA DO <li> DO SLIDE, como a seta. Dentro dele ela
+          piscaria a cada troca de foto, junto com o crossfade — e o CTA, que
+          agora mora aqui, piscaria junto. */}
       <ul className="hero__sociais">
         {sociais.map(({ rotulo, href, Icone }) => (
           <li key={rotulo}>
@@ -141,6 +151,12 @@ export default function Hero() {
             </a>
           </li>
         ))}
+        {/* Último da fila, e é ordem de foco pensada: quem tabula pela capa
+            passa pelas redes e chega no caminho de conversão por último, que é
+            onde ele deve ficar — a saída, não a primeira parada. */}
+        <li className="hero__sociais-cta">
+          <CtaCapa />
+        </li>
       </ul>
 
       <div className="hero__seta" aria-hidden="true">
