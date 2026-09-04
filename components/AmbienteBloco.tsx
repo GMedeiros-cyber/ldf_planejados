@@ -203,41 +203,49 @@ export default function AmbienteBloco({ amb, indice }: Props) {
           />
         ))}
 
-        {/* ══ AS SETAS SOBRE A FOTO: AFFORDANCE, NÃO UM SEGUNDO CONTROLE ══
+        {/* ══ AS SETAS SOBRE A FOTO: DE PISTA VISUAL A CONTROLE ÚNICO ══
 
-            Elas existem porque arrasto é gesto invisível: sem nada na foto,
-            ninguém descobre que dá para arrastar. Aparecem só onde o gesto é o
-            caminho natural — a folha as esconde onde há hover, na seção 11b.
-
-            `aria-hidden` COM `tabIndex={-1}`, e os dois juntos são obrigatórios.
-            As setas de sempre, embaixo do texto, continuam sendo os controles
-            de verdade: são elas que o Tab alcança e que o leitor de tela
-            anuncia. Estas repetiriam os mesmos dois rótulos e fariam a pessoa
+            Elas nasceram como affordance — arrasto é gesto invisível, e sem
+            nada na foto ninguém descobre que dá para arrastar. Eram
+            `aria-hidden` com `tabIndex={-1}`, porque as setas embaixo do texto
+            eram os controles de verdade e repetir os rótulos faria a pessoa
             ouvir "Foto anterior de Cozinha" duas vezes no mesmo bloco.
 
-            `aria-hidden` num elemento focável é violação — por isso o
-            `tabIndex={-1}` não é opcional: ele tira o elemento da ordem do Tab
-            e desfaz a violação. Um sem o outro está errado.
+            ⚠ ISSO MUDOU, E A MUDANÇA VEIO EM DUAS PARTES QUE NÃO PODEM SER
+            SEPARADAS. Onde não há ponteiro, as setas de baixo agora SOMEM (ver
+            a seção 11b) — e estas passam a ser os únicos controles do bloco.
+            Um controle único não pode ser invisível para o teclado nem para o
+            leitor de tela. Por isso saíram o `aria-hidden` do invólucro e o
+            `tabIndex={-1}` dos botões, e entraram os `aria-label`.
 
-            E SÃO BOTÕES DE VERDADE, não enfeite com `pointer-events: none`.
-            Uma seta desenhada sobre a foto parece tocável; se o toque
-            atravessasse para o quadro, que só responde a arrasto, ela seria uma
-            zona morta que mente sobre o que faz. */}
+            REMOVER AS DE BAIXO SEM ISTO SERIA REGRESSÃO, não simplificação: o
+            bloco ficaria com dois botões sem nome, fora da ordem do Tab, e sem
+            nenhuma outra forma de trocar a foto além do arrasto.
+
+            E NÃO HÁ RÓTULO EM DOBRO. Onde há ponteiro, o invólucro é
+            `display: none` — que tira da ordem de foco E da árvore de
+            acessibilidade de uma vez. As duas filas nunca coexistem para
+            ninguém.
+
+            SÃO BOTÕES DE VERDADE desde sempre, não enfeite com
+            `pointer-events: none`. Uma seta desenhada sobre a foto parece
+            tocável; se o toque atravessasse para o quadro, que só responde a
+            arrasto, ela seria uma zona morta que mente sobre o que faz. */}
         {varias ? (
-          <div className="ambiente__sobre" aria-hidden="true">
+          <div className="ambiente__sobre">
             <button
               type="button"
               className="ambiente__seta-sobre"
-              tabIndex={-1}
               onClick={() => setFoto((i) => passo(i, -1, total))}
+              aria-label={`Foto anterior de ${amb.nome}`}
             >
               <Seta />
             </button>
             <button
               type="button"
               className="ambiente__seta-sobre"
-              tabIndex={-1}
               onClick={() => setFoto((i) => passo(i, 1, total))}
+              aria-label={`Próxima foto de ${amb.nome}`}
             >
               <Seta />
             </button>
