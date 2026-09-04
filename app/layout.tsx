@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Serif, Tinos } from "next/font/google";
 import { siteUrl } from "@/lib/dados";
 import Reveal from "@/components/Reveal";
+import Zap from "@/components/Zap";
 import "./globals.css";
 
 /* Fontes auto-hospedadas pelo Next: sem requisição a terceiro, sem layout shift,
@@ -87,8 +88,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       {/* O `data-fin` saiu do <body> junto com a `.mat` e o <Amostrario />:
           nenhuma regra do CSS lia mais o atributo. O porquê está na seção 4 do
           globals.css. */}
+      {/* O <Zap /> vem DEPOIS do conteúdo de propósito: fixo no canto, ele é a
+          última parada do Tab em vez da primeira. O porquê está no topo do
+          componente. */}
       <body>
         {children}
+        <Zap />
         <Reveal />
       </body>
     </html>
