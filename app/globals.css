@@ -1183,8 +1183,17 @@ a { color: inherit; }
 .hero--capa .hero__sociais {
   position: absolute;
   right: var(--gutter);
-  /* De volta à altura da seta: o botão fixo de WhatsApp, que ocupava este
-     canto e obrigava a fila a subir, deixou de existir. */
+  /* Na altura da seta. O botão fixo de WhatsApp mora neste mesmo canto, e quem
+     desvia é ELE — ver a regra `body:has(.hero--capa) .zap` na seção 17b.
+
+     ⚠ TENTEI O CONTRÁRIO E ESTÁ MEDIDO QUE NÃO SERVE. Subir a fila acima do
+     botão a joga para dentro da manchete: a 390px a base do título fica 46px
+     ABAIXO do topo da fila, e o ícone do Instagram pousa em cima do "b" de
+     "Fábrica". A 360 e 412 o mesmo, por 46 e 24px.
+
+     A razão é de composição, não de aritmética: a fila, a seta e a manchete
+     foram posicionadas juntas, e a folga de 49px entre fila e seta é medida.
+     O botão é o elemento novo. Quem chega depois se acomoda. */
   bottom: var(--s6);
   z-index: 2;
   display: flex;
@@ -1198,11 +1207,14 @@ a { color: inherit; }
 
 .hero--capa .hero__social {
   /* Alvo de 48 para um desenho de 40: acima do mínimo de 44 e com folga
-     visual suficiente para o ícone não encostar na borda da caixa. */
+     visual suficiente para o ícone não encostar na borda da caixa.
+
+     O 48 vem do `--fila-altura`, na seção 17b, porque o <Zap /> desvia a
+     partir dele. Mudar a altura aqui move o botão junto. */
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: var(--fila-altura);
+  height: var(--fila-altura);
   /* Um degrau mais claro que os ícones de 20px: no tamanho grande o traço
      cobre mais área da foto, e em ink-3 ele sumia sobre os quadros claros
      das três capas. A sombra garante o contorno sobre qualquer uma delas. */
@@ -4640,6 +4652,148 @@ main > .chamada:first-child {
     justify-items: start;
     gap: var(--s3);
   }
+}
+
+/* --- 17b. WhatsApp persistente ----------------------------------------------
+
+   O <Zap />, fixo no canto inferior direito das quatro rotas.
+
+   ⚠ ISTO JÁ FOI A SEÇÃO 18, e o número foi reusado. O bloco saiu inteiro no
+   d8632fb; enquanto ele não existia, a rota de contato virou a 18. Renumerar a
+   folha agora quebraria toda referência escrita a "seção 18" nos comentários,
+   então este volta como 17b — junto do rodapé, que é a outra peça de moldura
+   que aparece em todas as rotas.
+
+   ══ AS MEDIDAS SÃO VARIÁVEIS PORQUE OUTRO BLOCO DEPENDE DELAS ══
+
+   A fila de ícones da capa mora exatamente neste canto. Enquanto o botão não
+   existia, ela pôde descer para `bottom: var(--s6)`; com ele de volta, os dois
+   disputam o mesmo lugar — e foi assim que, na primeira versão deste botão, os
+   dois ícones da direita ficaram embaixo da pílula, invisíveis e sem clique.
+
+   O desvio está na seção 8c e é calculado A PARTIR destas três variáveis. Foi
+   por isso que elas viraram tokens em vez de números soltos: mexer na altura
+   do botão sem mexer na fila é o jeito de o bug voltar, e agora não dá — a
+   fila lê a altura daqui. */
+:root {
+  /* Distância do botão até as duas bordas. Herdada do original. */
+  --zap-piso: clamp(1rem, 3vw, 2rem);
+  /* Altura da pílula E diâmetro do círculo do celular. 48 é o mínimo de alvo
+     de toque; o celular usa 56 porque lá o botão é a única affordance do
+     canto e o polegar chega nele em movimento. */
+  --zap-altura: 48px;
+  /* Folga entre o botão e o que estiver acima dele. */
+  --zap-folga: var(--s4);
+  /* Alvo de toque de um ícone da fila da capa. Mora no :root, e não na regra
+     da fila, porque o botão precisa LER este valor — e custom property não
+     atravessa para quem não é descendente. Ver o desvio logo abaixo. */
+  --fila-altura: 48px;
+}
+
+.zap {
+  position: fixed;
+  right: var(--zap-piso);
+  bottom: var(--zap-piso);
+  /* Acima da barra do topo (60), que é a outra peça fixa. Os dois nunca se
+     encontram — uma mora no topo, o outro no pé —, mas se um dia a barra
+     crescer, quem fica por cima é este. */
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  /* min-height, e não height: o alvo de toque tem piso, não teto. Com padding
+     e fonte maiores a pílula cresce, e nunca encolhe abaixo de 48. */
+  min-height: var(--zap-altura);
+  padding: 0 1.15rem;
+  box-sizing: border-box;
+  background: var(--ink);
+  color: var(--ground-deep);
+  text-decoration: none;
+  font-size: var(--t-sm);
+  font-weight: 700;
+  /* ⚠ O ANEL ESCURO NÃO É ENFEITE — É O CONTRASTE, E ESTÁ MEDIDO.
+
+     O botão é claro (--ink) e viaja por cima de qualquer coisa: foto, shader,
+     gradiente, formulário. Sobre fundo escuro ele se destaca sozinho — 13,9:1
+     na capa, 16,9:1 em /ambientes no alto. Mas em /ambientes a 390px ele para
+     em cima da FOTO de uma cozinha clara, piso de madeira pálida em
+     rgb(200,188,169): o preenchimento contra esse fundo dá 1,58:1, e a pílula
+     literalmente some. Um botão de conversão invisível é um botão que não
+     existe.
+
+     O anel resolve os dois casos porque a WCAG 1.4.11 pede 3:1 entre o
+     componente e a cor adjacente — e basta UMA borda cumprir. Sobre escuro
+     quem cumpre é o preenchimento claro, e o anel desaparece no fundo; sobre
+     claro quem cumpre é o anel, que dá 11:1 contra aquele mesmo piso.
+
+     Vem como box-shadow, e não como border: não entra na caixa, não muda o
+     alvo de toque e acompanha o border-radius do círculo sozinho. */
+  box-shadow:
+    0 0 0 2px var(--ground-deep),
+    0 8px 30px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 260ms var(--ease), background 260ms var(--ease);
+}
+
+.zap svg { width: 18px; height: 18px; flex: none; }
+
+/* ══ NA CAPA, O BOTÃO SOBE ACIMA DA FILA DE ÍCONES ══
+
+   Os dois moram no canto inferior direito, e sem isto o botão pousa em cima do
+   último ícone — invisível e sem clique. É exatamente o bug que a primeira
+   versão deste botão teve, registrado no d8632fb.
+
+   ⚠ QUEM DESVIA É O BOTÃO, E A ESCOLHA FOI MEDIDA. O caminho oposto — subir a
+   fila — foi implementado e descartado: a 390px ele empurra a fila para dentro
+   da manchete (base do título 46px abaixo do topo da fila, o ícone do
+   Instagram em cima do "b" de "Fábrica"), e o mesmo a 360 e 412. A fila, a
+   seta e a manchete foram compostas juntas, com folga medida entre elas; o
+   botão é o elemento novo, e é ele que se acomoda.
+
+   `:has()` porque a capa é neta do <body> e o botão é filho — não há
+   combinador de irmão que os ligue. Sem suporte a `:has()` o botão fica no
+   canto e volta a cobrir um ícone: é degradação visual numa rota, não perda de
+   função, e o alcance hoje (Chrome 105+, Safari 15.4+, Firefox 121+) cobre a
+   mesma faixa que o `color-mix` e o `text-wrap: balance` que esta folha já
+   usa sem alternativa. */
+body:has(.hero--capa) .zap {
+  bottom: calc(var(--s6) + var(--fila-altura) + var(--zap-folga));
+}
+
+/* ⚠ O HOVER É CONDICIONADO, e o `.btn` da seção 7 não faz isso. Num aparelho
+   de toque o navegador aplica :hover no tap e SÓ TIRA no próximo toque em
+   outro lugar: o botão fica com o estado de hover grudado depois do clique.
+   Já foi diagnosticado nesta base. */
+@media (hover: hover) {
+  .zap:hover { transform: translateY(-2px); background: var(--white); }
+}
+
+/* O foco recebe o MESMO destaque do hover, e mais um anel: quem navega por
+   teclado precisa enxergar onde está sem depender de uma diferença de tom. */
+.zap:focus-visible {
+  background: var(--white);
+  outline: 2px solid var(--white);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zap { transition: none; }
+  .zap:hover { transform: none; }
+}
+
+/* No celular a pílula vira círculo: o rótulo sai e sobra o desenho, que é
+   universalmente reconhecido. O diâmetro sobe para 56 — acima do mínimo de 48
+   e confortável para o polegar. */
+@media (max-width: 519px) {
+  :root { --zap-altura: 56px; }
+  .zap {
+    width: var(--zap-altura);
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .zap__rotulo { display: none; }
+  .zap svg { width: 24px; height: 24px; }
 }
 
 /* --- 18. Rota de contato ----------------------------------------------------
