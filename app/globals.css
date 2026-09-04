@@ -2912,76 +2912,56 @@ a { color: inherit; }
 
 /* A LEGENDA FICA ABAIXO DA FOTO, nunca sobreposta com véu. Sobre a imagem o
    contraste passaria a depender da fotografia, e /ambientes não tem um só
-   texto por cima de foto — o padrão não nasce no fim da página. Aqui ela é
-   --ink-2 sobre o fundo da seção, contraste que não muda com a foto. */
+   texto por cima de foto — o padrão não nasce no fim da página. Aqui o
+   contraste não muda com a foto.
+
+   ══ O DESTAQUE VEM DA TIPOGRAFIA, E JÁ VEIO DE UM FUNDO ══
+
+   Ela carrega o degrau `.label` — caixa alta, tracking de 0,16em, corpo
+   pequeno —, que é como esta folha marca rótulo em toda parte. É o mesmo
+   tratamento do "FÁBRICA E LOJA" do cartão de contato e dos rótulos dos
+   campos do formulário: a legenda não é frase, é etiqueta, e agora se
+   parece com as outras etiquetas do site em vez de inventar a sua.
+
+   A entrelinha voltou de 1.7 para o 1.2 do `.label`: o 1.7 existia para as
+   duas marcas de uma legenda de duas linhas respirarem, e sem marca ele só
+   afastava a legenda da foto que ela nomeia. */
 .comercial__legenda {
   margin-top: var(--s3);
-  font-family: var(--font-texto);
-  font-size: var(--t-md);
-  /* Solto, a marca-texto encosta na linha de cima. 1.7 abre a entrelinha o
-     bastante para as duas marcas de uma legenda de duas linhas respirarem. */
-  line-height: 1.7;
-  color: var(--ink);
+  color: var(--ink-2);
 }
 
-/* ══ 11d-c. A MARCA-TEXTO DA LEGENDA ══
+/* ══ 11d-c. A MARCA-TEXTO DA LEGENDA — REMOVIDA ══
 
-   As quatro legendas nomeiam as partes de uma operação — fachada, linha de
-   serviço, vitrine, balcão — e são o único texto que diz o que cada foto
-   mostra. Em --ink-2, solto embaixo da imagem, ele lia como didascália. Com a
-   marca ele lê como o que é: a etiqueta da peça.
+   Aqui moravam a variável `--grifo` e a regra `.comercial__grifo`: uma
+   marca-texto translúcida atrás das quatro legendas, feita de `--red` puxado
+   22% para o `--ink-2` e rebaixado a 48% de alfa, com
+   `box-decoration-break: clone` para a legenda de duas linhas ganhar uma marca
+   por linha.
 
-   ══ POR QUE UM TRAÇO TRANSLÚCIDO, E NÃO UM PASTEL DE VERDADE ══
+   ⚠ A PREMISSA CONTINUA VALENDO, E É POR ISSO QUE ELA FICA ESCRITA. As quatro
+   legendas nomeiam as partes de uma operação — fachada, linha de serviço,
+   vitrine, balcão — e são o único texto que diz o que cada foto mostra. Elas
+   são ETIQUETA, não didascália, e precisam parecer etiqueta. O raciocínio
+   sobre o campo quase preto também segue de pé: marca-texto pastel é traço
+   claro com texto escuro, e sobre `--ground-deep` isso obrigaria o glifo a
+   escurecer e sumir — por isso a marca era escura e translúcida, e não um
+   pastel de verdade.
 
-   Marca-texto pastel é rosa claro com texto escuro por cima — é assim no
-   papel. Nesta página não pode ser: o campo é --ground-deep, quase preto, e um
-   traço claro obrigaria o texto a virar escuro. Aí a parte do glifo que sobe
-   ACIMA da marca ficaria escura sobre quase preto, e sumiria. O traço só
-   funciona claro se a página for clara.
+   O QUE FALHOU FOI A EXECUÇÃO. Na tela o traço não lia como marca-texto: lia
+   como um sublinhado vermelho mal acabado, encostado embaixo das palavras.
 
-   A saída é a mesma ideia invertida: marca ESCURA e translúcida, texto claro.
-   "Um pouco pastel" vira dessaturação, não clareamento — o vermelho de marca
-   puxado 22% para o `--ink-2` antes de receber o alfa. O resultado é um tijolo
-   quente em vez do vermelho-sinal, que é o que a palavra pedia aqui.
+   A ETIQUETA AGORA É TIPOGRÁFICA — o degrau `.label`, em `--ink-2`. Mesmo
+   papel, sem inventar um campo de cor para carregá-lo, e usando o tratamento
+   que a folha já dá a todo rótulo.
 
-   ⚠ NÃO USE `--stone` AQUI. Ele é o nome óbvio para este papel, está listado
-   no DESIGN.md como `#AFA99E`, e NÃO EXISTE nesta folha — nunca foi declarado
-   no :root. `var(--stone)` é inválido, e um var inválido dentro de um
-   `color-mix` derruba a declaração inteira: a custom property vira vazia e o
-   `background-image` que a consome cai em `none`. A marca simplesmente não
-   aparecia, sem erro nenhum no console. Foi o primeiro rascunho desta regra.
-   `--ink-2` é #A8A099, praticamente o mesmo cinza quente, e existe.
+   ⚠ E ISSO DESFEZ O QUARTO USO DO VERMELHO. Esta regra era o único lugar da
+   folha que usava `--red` fora dos três papéis que o DESIGN.md lista
+   (instrumento, etiqueta de amostra, ação primária), e estava registrada aqui
+   como exceção a atualizar no documento. A exceção deixou de existir: o
+   documento não precisa mais mudar por causa dela.
 
-   ⚠ ISTO É UM QUARTO USO DO VERMELHO, e o DESIGN.md lista três (instrumento,
-   etiqueta de amostra, ação primária). Está mais perto do segundo — é etiqueta
-   —, mas não é o mesmo componente. Decisão do cliente, registrada aqui para
-   quem for atualizar o documento não achar que foi descuido.
-
-   Contraste medido, com --ink no texto:
-     sobre a marca            10,0:1
-     sobre o campo da seção   16,8:1
-   O traço para antes do topo e da base da linha de propósito: é marca de
-   caneta, não retângulo, e as duas pontas do glifo respiram fora dela. */
-.comercial {
-  --grifo: color-mix(in srgb, var(--red) 78%, var(--ink-2) 22%);
-}
-
-.comercial__grifo {
-  /* `clone` é obrigatório: sem ele a legenda de duas linhas ganha UMA marca só,
-     que começa na primeira e termina na segunda passando por fora do texto. */
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  background-image: linear-gradient(
-    to bottom,
-    transparent 14%,
-    color-mix(in srgb, var(--grifo) 48%, transparent) 14%,
-    color-mix(in srgb, var(--grifo) 48%, transparent) 93%,
-    transparent 93%
-  );
-  padding-inline: 0.3em;
-  /* Um respiro mínimo entre a ponta da marca e a palavra vizinha na quebra. */
-  box-shadow: 0 0 0 0.05em transparent;
-}
+   Está no histórico do git, com o gradiente e as medidas, se a marca voltar. */
 
 /* ══ 11d-b. O FOCO DA GRADE ══
 
