@@ -1183,17 +1183,19 @@ a { color: inherit; }
 .hero--capa .hero__sociais {
   position: absolute;
   right: var(--gutter);
-  /* Na altura da seta. O botão fixo de WhatsApp mora neste mesmo canto, e quem
-     desvia é ELE — ver a regra `body:has(.hero--capa) .zap` na seção 17b.
+  /* Na altura da seta, e o canto é só dela e do <CtaCapa />: o <Zap /> não
+     existe enquanto o herói está na tela (ver a seção 17b).
 
-     ⚠ TENTEI O CONTRÁRIO E ESTÁ MEDIDO QUE NÃO SERVE. Subir a fila acima do
-     botão a joga para dentro da manchete: a 390px a base do título fica 46px
-     ABAIXO do topo da fila, e o ícone do Instagram pousa em cima do "b" de
-     "Fábrica". A 360 e 412 o mesmo, por 46 e 24px.
+     ⚠ ESTA FILA JÁ SUBIU PARA CABER, E VOLTOU. Por uma rodada o botão flutuante
+     aparecia sobre a capa e a fila teve de se desviar dele — o mesmo arranjo
+     que já havia existido antes do d8632fb. Está medido que subir a fila NÃO
+     serve: a 390px isso a joga para dentro da manchete, com o ícone do
+     Instagram em cima do "b" de "Fábrica" (base do título 46px abaixo do topo
+     da fila; a 360 e 412 o mesmo, por 46 e 24px).
 
      A razão é de composição, não de aritmética: a fila, a seta e a manchete
-     foram posicionadas juntas, e a folga de 49px entre fila e seta é medida.
-     O botão é o elemento novo. Quem chega depois se acomoda. */
+     foram posicionadas juntas, com folga medida entre elas. Quem chega depois
+     se acomoda — e no fim quem chegou depois saiu de cena. */
   bottom: var(--s6);
   z-index: 2;
   display: flex;
@@ -4761,39 +4763,50 @@ main > .chamada:first-child {
   }
 }
 
-/* --- 17b. WhatsApp persistente ----------------------------------------------
+/* --- 17b. WhatsApp flutuante -------------------------------------------------
 
-   O <Zap />, fixo no canto inferior direito das quatro rotas.
+   O <Zap />, no canto inferior direito das quatro rotas.
 
-   ⚠ ISTO JÁ FOI A SEÇÃO 18, e o número foi reusado. O bloco saiu inteiro no
-   d8632fb; enquanto ele não existia, a rota de contato virou a 18. Renumerar a
-   folha agora quebraria toda referência escrita a "seção 18" nos comentários,
-   então este volta como 17b — junto do rodapé, que é a outra peça de moldura
-   que aparece em todas as rotas.
+   ⚠ ISTO JÁ FOI A SEÇÃO 18, e o número foi reusado enquanto o bloco não
+   existia — hoje a 18 é a rota de contato. Renumerar a folha quebraria toda
+   referência escrita a "seção 18" nos comentários, então este volta como 17b,
+   junto do rodapé, que é a outra peça de moldura presente em todas as rotas.
 
-   ══ AS MEDIDAS SÃO VARIÁVEIS PORQUE OUTRO BLOCO DEPENDE DELAS ══
+   ══ ELE NÃO EXISTE SOBRE A CAPA, E ISSO DISPENSA A ACROBACIA ANTERIOR ══
 
-   A fila de ícones da capa mora exatamente neste canto. Enquanto o botão não
-   existia, ela pôde descer para `bottom: var(--s6)`; com ele de volta, os dois
-   disputam o mesmo lugar — e foi assim que, na primeira versão deste botão, os
-   dois ícones da direita ficaram embaixo da pílula, invisíveis e sem clique.
+   Por uma rodada este botão apareceu em todas as rotas o tempo todo, e para
+   caber precisava desviar da fila de ícones do herói — havia aqui um
+   `body:has(.hero--capa) .zap { bottom: ... }` calculado a partir da altura da
+   fila. Essa regra SAIU: quem some agora é o botão, até o herói deixar a tela.
+   Com ele fora da capa, o canto é da fila e do <CtaCapa />, e ninguém precisa
+   se desviar de ninguém.
 
-   O desvio está na seção 8c e é calculado A PARTIR destas três variáveis. Foi
-   por isso que elas viraram tokens em vez de números soltos: mexer na altura
-   do botão sem mexer na fila é o jeito de o bug voltar, e agora não dá — a
-   fila lê a altura daqui. */
+   ⚠ O `--fila-altura` CONTINUA AQUI e não é sobra: quem o lê é o
+   `.hero__social` e o `.hero__cta`, na seção 8c. Ele ficou nesta seção porque
+   nasceu aqui, quando o desvio ainda existia.
+
+   ══ O VERDE É COR DE MARCA DE TERCEIRO, E NÃO ENTRA NA PALETA ══
+
+   `#25D366` é o verde do WhatsApp. Está CRAVADO aqui de propósito, sem virar
+   token, pelo mesmo motivo que o `#df0100` do <Logo /> e as cores do
+   <FundoAuralis /> estão cravadas nos seus arquivos: token é vocabulário do
+   sistema, e um verde que não é nosso não pode ser oferecido como escolha para
+   a próxima tela. Quem precisar dele que copie daqui e saiba por quê.
+
+   ⚠ O CONTRASTE DO GLIFO BRANCO SOBRE ESSE VERDE É 1,98:1, e reprova o 3:1 da
+   WCAG 1.4.11 se medido como objeto gráfico. Fica assim mesmo, e a razão é
+   normativa: o critério ISENTA logotipos ("part of a logo or brand name has no
+   minimum contrast requirement"), e isto é o símbolo do WhatsApp sobre o verde
+   do WhatsApp — mexer em qualquer um dos dois é descaracterizar a marca que o
+   visitante precisa reconhecer de relance. O que NÃO é isento é a borda do
+   botão contra a página, e disso cuida o anel branco abaixo. */
 :root {
   /* Distância do botão até as duas bordas. Herdada do original. */
   --zap-piso: clamp(1rem, 3vw, 2rem);
-  /* Altura da pílula E diâmetro do círculo do celular. 48 é o mínimo de alvo
-     de toque; o celular usa 56 porque lá o botão é a única affordance do
-     canto e o polegar chega nele em movimento. */
-  --zap-altura: 48px;
-  /* Folga entre o botão e o que estiver acima dele. */
-  --zap-folga: var(--s4);
-  /* Alvo de toque de um ícone da fila da capa. Mora no :root, e não na regra
-     da fila, porque o botão precisa LER este valor — e custom property não
-     atravessa para quem não é descendente. Ver o desvio logo abaixo. */
+  /* Diâmetro. 56 e não 48: o mínimo de alvo de toque é 48, e este é um botão
+     que o polegar procura em movimento, sem olhar. */
+  --zap-alvo: 56px;
+  /* Alvo de toque de um ícone da fila da capa. Lido pela seção 8c. */
   --fila-altura: 48px;
 }
 
@@ -4801,107 +4814,113 @@ main > .chamada:first-child {
   position: fixed;
   right: var(--zap-piso);
   bottom: var(--zap-piso);
-  /* Acima da barra do topo (60), que é a outra peça fixa. Os dois nunca se
-     encontram — uma mora no topo, o outro no pé —, mas se um dia a barra
-     crescer, quem fica por cima é este. */
+  /* Acima da barra do topo (60), que é a outra peça fixa. */
   z-index: 80;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  /* min-height, e não height: o alvo de toque tem piso, não teto. Com padding
-     e fonte maiores a pílula cresce, e nunca encolhe abaixo de 48. */
-  min-height: var(--zap-altura);
-  padding: 0 1.15rem;
-  box-sizing: border-box;
-  background: var(--ink);
-  color: var(--ground-deep);
+  display: grid;
+  place-items: center;
+  width: var(--zap-alvo);
+  height: var(--zap-alvo);
+  border-radius: 50%;
+  /* impeccable-disable-next-line design-system-color -- verde de marca do WhatsApp, cor de terceiro; cravada de propósito para não virar token, como o #df0100 do <Logo /> */
+  background: #25D366;
+  color: #FFFFFF;
   text-decoration: none;
-  font-size: var(--t-sm);
-  font-weight: 700;
-  /* ⚠ O ANEL ESCURO NÃO É ENFEITE — É O CONTRASTE, E ESTÁ MEDIDO.
 
-     O botão é claro (--ink) e viaja por cima de qualquer coisa: foto, shader,
-     gradiente, formulário. Sobre fundo escuro ele se destaca sozinho — 13,9:1
-     na capa, 16,9:1 em /ambientes no alto. Mas em /ambientes a 390px ele para
-     em cima da FOTO de uma cozinha clara, piso de madeira pálida em
-     rgb(200,188,169): o preenchimento contra esse fundo dá 1,58:1, e a pílula
-     literalmente some. Um botão de conversão invisível é um botão que não
-     existe.
+  /* ⚠ O ANEL ESCURO É CONTRASTE MEDIDO, NÃO ENFEITE — E JÁ FOI BRANCO.
 
-     O anel resolve os dois casos porque a WCAG 1.4.11 pede 3:1 entre o
-     componente e a cor adjacente — e basta UMA borda cumprir. Sobre escuro
-     quem cumpre é o preenchimento claro, e o anel desaparece no fundo; sobre
-     claro quem cumpre é o anel, que dá 11:1 contra aquele mesmo piso.
+     O verde tem luminância média (0,48), o pior tipo de cor para um elemento
+     que viaja por cima de tudo: ele se vira sobre fundo escuro e some sobre
+     fundo claro. A WCAG 1.4.11 pede 3:1 entre o componente e a cor adjacente,
+     e basta UMA borda cumprir — então o anel existe para cobrir o caso que o
+     verde não cobre.
 
-     Vem como box-shadow, e não como border: não entra na caixa, não muda o
-     alvo de toque e acompanha o border-radius do círculo sozinho. */
+     A PRIMEIRA VERSÃO DESTE ANEL FOI BRANCA, e a medição reprovou em três dos
+     seis casos: sobre a foto de madeira clara de /ambientes a 1440
+     (rgb(220,181,130)) o branco dava 1,91:1, e o verde 1,04:1 — os dois somindo
+     ao mesmo tempo. Branco não serve porque erra junto com o verde: os dois
+     falham exatamente sobre fundo claro.
+
+     Escuro acerta na divisão certa: sobre fundo claro quem define a forma é o
+     anel (10,4:1 naquela mesma madeira), sobre fundo escuro quem define é o
+     verde (9,7:1 na política). Nenhum fundo derruba os dois.
+
+     Vem como box-shadow, e não border: não entra na caixa, então o alvo de
+     toque continua sendo exatamente os 56px. */
   box-shadow:
     0 0 0 2px var(--ground-deep),
     0 8px 30px rgba(0, 0, 0, 0.55),
     0 2px 8px rgba(0, 0, 0, 0.4);
-  transition: transform 260ms var(--ease), background 260ms var(--ease);
+
+  /* ══ O ESTADO DE PARTIDA É ESCONDIDO ══
+
+     `visibility: hidden` e não `display: none`: ele precisa poder transicionar.
+     E não é só estética — `visibility: hidden` tira o elemento da ordem de foco
+     E da árvore de acessibilidade, então enquanto invisível ele não é uma
+     parada fantasma de Tab nem é anunciado. O porquê de isto valer mais que um
+     `aria-hidden` está no topo de components/Zap.tsx. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  /* A visibilidade só troca no FIM da saída, senão o elemento sumiria antes de
+     a opacidade terminar de cair. */
+  transition:
+    opacity 260ms var(--ease),
+    transform 260ms var(--ease),
+    visibility 0s linear 260ms;
 }
 
-.zap svg { width: 18px; height: 18px; flex: none; }
-
-/* ══ NA CAPA, O BOTÃO SOBE ACIMA DA FILA DE ÍCONES ══
-
-   Os dois moram no canto inferior direito, e sem isto o botão pousa em cima do
-   último ícone — invisível e sem clique. É exatamente o bug que a primeira
-   versão deste botão teve, registrado no d8632fb.
-
-   ⚠ QUEM DESVIA É O BOTÃO, E A ESCOLHA FOI MEDIDA. O caminho oposto — subir a
-   fila — foi implementado e descartado: a 390px ele empurra a fila para dentro
-   da manchete (base do título 46px abaixo do topo da fila, o ícone do
-   Instagram em cima do "b" de "Fábrica"), e o mesmo a 360 e 412. A fila, a
-   seta e a manchete foram compostas juntas, com folga medida entre elas; o
-   botão é o elemento novo, e é ele que se acomoda.
-
-   `:has()` porque a capa é neta do <body> e o botão é filho — não há
-   combinador de irmão que os ligue. Sem suporte a `:has()` o botão fica no
-   canto e volta a cobrir um ícone: é degradação visual numa rota, não perda de
-   função, e o alcance hoje (Chrome 105+, Safari 15.4+, Firefox 121+) cobre a
-   mesma faixa que o `color-mix` e o `text-wrap: balance` que esta folha já
-   usa sem alternativa. */
-body:has(.hero--capa) .zap {
-  bottom: calc(var(--s6) + var(--fila-altura) + var(--zap-folga));
+.zap[data-visivel] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  /* Na entrada a visibilidade vale imediatamente. */
+  transition:
+    opacity 260ms var(--ease),
+    transform 260ms var(--ease),
+    visibility 0s;
 }
 
-/* ⚠ O HOVER É CONDICIONADO, e o `.btn` da seção 7 não faz isso. Num aparelho
-   de toque o navegador aplica :hover no tap e SÓ TIRA no próximo toque em
-   outro lugar: o botão fica com o estado de hover grudado depois do clique.
-   Já foi diagnosticado nesta base. */
+.zap svg { width: 30px; height: 30px; }
+
+/* Só onde há ponteiro: num aparelho de toque o :hover fica GRUDADO depois do
+   tap, até o próximo toque em outro lugar. Já diagnosticado no `.btn` da
+   seção 7, que não tem esta guarda. */
 @media (hover: hover) {
-  .zap:hover { transform: translateY(-2px); background: var(--white); }
+  /* impeccable-disable-next-line design-system-color -- um degrau mais escuro do mesmo verde de marca; ver a nota no topo da seção */
+  .zap:hover { background: #1FBF5A; }
 }
 
-/* O foco recebe o MESMO destaque do hover, e mais um anel: quem navega por
-   teclado precisa enxergar onde está sem depender de uma diferença de tom. */
 .zap:focus-visible {
-  background: var(--white);
-  outline: 2px solid var(--white);
-  outline-offset: 3px;
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
 }
 
+/* Movimento reduzido: ele APARECE, e aparece direto no estado final. Tirar a
+   animação não pode virar tirar o botão. */
 @media (prefers-reduced-motion: reduce) {
-  .zap { transition: none; }
-  .zap:hover { transform: none; }
+  .zap { transform: none; transition: none; }
+  .zap[data-visivel] { transition: none; }
 }
 
-/* No celular a pílula vira círculo: o rótulo sai e sobra o desenho, que é
-   universalmente reconhecido. O diâmetro sobe para 56 — acima do mínimo de 48
-   e confortável para o polegar. */
-@media (max-width: 519px) {
-  :root { --zap-altura: 56px; }
-  .zap {
-    width: var(--zap-altura);
-    padding: 0;
-    justify-content: center;
-    border-radius: 50%;
-  }
-  .zap__rotulo { display: none; }
-  .zap svg { width: 24px; height: 24px; }
+/* ══ SEM JAVASCRIPT ══
+
+   O observador não roda, o `data-visivel` nunca chega, e sem esta regra o
+   botão ficaria escondido para sempre. Ele volta — mas NÃO na home.
+
+   Na capa o canto é da fila de ícones e do <CtaCapa />, e o botão pousaria em
+   cima do CTA. Quem está sem script não fica sem o canal: a capa tem o CTA
+   para /contato, o rodapé de todas as rotas tem o WhatsApp, e o formulário de
+   /contato entrega no WhatsApp com ou sem script.
+
+   ALCANCE: `scripting` é media feature de Media Queries 5 — Chrome 120+,
+   Firefox 113+, Safari 17+. Em navegador mais antigo com JS desligado a regra
+   é ignorada e o botão fica ausente, que é o mesmo desfecho de antes desta
+   rodada. Ver também a seção 21. */
+@media (scripting: none) {
+  .zap { opacity: 1; visibility: visible; transform: none; }
+  body:has(.hero--capa) .zap { display: none; }
 }
+
 
 /* --- 18. Rota de contato ----------------------------------------------------
    Só o que é DESTA ROTA. O palco de madeira que ficava aqui saiu inteiro para
