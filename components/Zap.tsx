@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 import { whatsappUrl } from "@/lib/dados";
 import { IconeWhatsApp } from "./Icones";
@@ -29,6 +30,31 @@ import { IconeWhatsApp } from "./Icones";
    quadro, no thread principal, para responder uma pergunta que o observer
    responde sozinho, fora dele.
 
+   ══ A ARMADILHA QUE ESTE ARQUIVO JÁ CAIU — A MESMA DO <Reveal /> ══
+
+   `useEffect` com DEPENDÊNCIA VAZIA dentro de um LAYOUT QUE NÃO REMONTA.
+
+   Este componente é montado em app/layout.tsx, duas linhas acima do
+   <Reveal />, e no App Router o layout é o MESMO nó React do começo ao fim da
+   sessão: só `children` troca. Com `[]`, o efeito rodava uma vez, na primeira
+   rota carregada, e nunca mais.
+
+   O caminho que quebrava, medido: entrando por /ambientes, /contato ou a
+   política — nenhuma tem `.hero` —, o efeito caía no `if (!heroi)`, marcava
+   `true` e NÃO criava observador nenhum. Navegando dali para a home, o efeito
+   não rodava de novo, `visivel` seguia `true`, e o botão pousava sobre a capa,
+   em cima do <CtaCapa />. Carga direta na home funcionava, e era isso que
+   fazia o defeito parecer intermitente.
+
+   O <Reveal /> teve exatamente este bug e foi consertado com `usePathname()`
+   na lista de dependências. Aqui é a mesma forma, pelo mesmo motivo: a cada
+   pathname novo o cleanup desconecta o observador da rota anterior e o efeito
+   reavalia se a rota nova tem herói.
+
+   Se um dia este componente sair do layout e passar a viver dentro da página,
+   ele volta a remontar sozinho e a dependência deixa de ser necessária. Até
+   lá, ela é o que faz o efeito acompanhar a rota.
+
    ══ AS ROTAS SEM HERÓI SÃO O CASO QUE PRECISA DE CUIDADO ══
 
    `/ambientes`, `/contato` e a política NÃO têm `.hero`. Se o observer
@@ -56,16 +82,43 @@ import { IconeWhatsApp } from "./Icones";
    O que o JavaScript faz é só ligar o `data-visivel`. Ver a seção 17b. */
 
 export default function Zap() {
+  const rota = usePathname();
   const [visivel, setVisivel] = useState(false);
+
+  /* ⚠ O RESET ACONTECE NA RENDERIZAÇÃO, E NÃO NO EFEITO — E ISSO É O CONSERTO
+     DO PISCO.
+
+     `useEffect` é efeito PASSIVO: roda depois da pintura. Zerar o estado lá
+     dentro chega tarde — entre o commit da rota nova (com a capa já no DOM) e
+     o efeito, existe pelo menos um quadro PINTADO com o botão ainda visível
+     por herança da rota anterior. Medido antes desta mudança: vindo de
+     /ambientes, de /contato e de /ambientes-depois-da-home, o botão aparecia
+     sobre a capa e só então começava a sumir — e como a saída tem 260ms de
+     transição, o pisco durava o suficiente para ser visto em cima do
+     <CtaCapa />.
+
+     Ajustar estado durante a renderização quando uma entrada muda é o padrão
+     do próprio React para isto: ele descarta a renderização em curso e refaz
+     na hora, sem pintar o estado intermediário. */
+  const [rotaAnterior, setRotaAnterior] = useState(rota);
+  if (rota !== rotaAnterior) {
+    setRotaAnterior(rota);
+    setVisivel(false);
+  }
 
   useEffect(() => {
     const heroi = document.querySelector(".hero");
 
-    /* Rota sem herói: nada a observar, e o botão vale desde o primeiro quadro. */
-    if (!heroi) {
-      setVisivel(true);
-      return;
-    }
+    /* ⚠ ROTA SEM HERÓI: O EFEITO NÃO FAZ NADA, E É DE PROPÓSITO.
+
+       Quem mostra o botão nessas rotas é o CSS, com
+       `body:not(:has(.hero)) .zap` — ver a seção 17b. Marcar `data-visivel`
+       aqui reabriria o bug pelo outro lado: o atributo sobreviveria à troca de
+       rota e a home herdaria um botão visível sobre a capa.
+
+       De quebra, isso faz as três rotas sem herói funcionarem sem JavaScript
+       nenhum, sem depender de `@media (scripting: none)`. */
+    if (!heroi) return;
 
     /* `threshold: 0` é o que queremos: a virada acontece quando o herói deixa
        de tocar a viewport, nem um pixel antes. Como a fila de ícones e o CTA
@@ -76,7 +129,8 @@ export default function Zap() {
     );
     observador.observe(heroi);
     return () => observador.disconnect();
-  }, []);
+    /* ⚠ `[rota]`, E NUNCA `[]` — VER O BLOCO NO TOPO DESTE ARQUIVO. */
+  }, [rota]);
 
   return (
     <a

@@ -4861,14 +4861,43 @@ main > .chamada:first-child {
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px);
-  /* A visibilidade só troca no FIM da saída, senão o elemento sumiria antes de
-     a opacidade terminar de cair. */
-  transition:
-    opacity 260ms var(--ease),
-    transform 260ms var(--ease),
-    visibility 0s linear 260ms;
+
+  /* ⚠ A SAÍDA É INSTANTÂNEA, E SÓ A ENTRADA É ANIMADA. NÃO É DESLEIXO.
+
+     Numa transição de CSS quem manda é o estado de DESTINO: `transition: none`
+     aqui torna o esconder imediato, e a regra de baixo continua animando o
+     aparecer. A assimetria existe por um motivo medido.
+
+     Com a saída animada em 260ms, navegar de /ambientes para a home fazia o
+     botão ATRAVESSAR a capa desaparecendo: medido, 6 a 8 amostras de 30ms com
+     ele ainda visível por cima do <CtaCapa />. Não era estado errado — o
+     estado já virava antes da primeira pintura da rota nova —, era a própria
+     animação de saída rodando no lugar errado.
+
+     E não se perde nada: ninguém precisa ver um botão indo embora. */
+  transition: none;
 }
 
+/* ══ QUEM MOSTRA O BOTÃO SÃO DUAS REGRAS, E A DIVISÃO É PROPOSITAL ══
+
+   1. ROTA SEM HERÓI — CSS puro, sem passar por JavaScript. `/ambientes`,
+      `/contato` e a política não têm `.hero`, e ali o botão vale desde o
+      primeiro quadro. O `:has()` reavalia no próprio commit da rota, então a
+      troca é instantânea e não há um quadro sequer de atraso.
+
+      ⚠ E É POR ISSO QUE O EFEITO NÃO MARCA `data-visivel` NESSAS ROTAS. Se
+      marcasse, o atributo sobreviveria à navegação e a home herdaria um botão
+      visível sobre a capa — que é exatamente o bug que esta rodada conserta,
+      entrando pela outra porta.
+
+      De quebra, estas três rotas passam a funcionar sem JavaScript sem
+      precisar de `@media (scripting: none)`: a regra é CSS e vale sempre.
+
+   2. ROTA COM HERÓI — só o observador manda, pelo `data-visivel`. Sem script
+      o atributo nunca chega e o botão não aparece na capa, que é o desfecho
+      certo: ali o canto é do <CtaCapa />, e quem está sem JS tem o CTA, o
+      rodapé e o formulário como caminhos para o mesmo lugar. */
+body:not(:has(.hero)) .zap,
 .zap[data-visivel] {
   opacity: 1;
   visibility: visible;
@@ -4902,24 +4931,20 @@ main > .chamada:first-child {
   .zap[data-visivel] { transition: none; }
 }
 
-/* ══ SEM JAVASCRIPT ══
+/* ══ SEM JAVASCRIPT — E AQUI NÃO PRECISA DE REGRA NENHUMA ══
 
-   O observador não roda, o `data-visivel` nunca chega, e sem esta regra o
-   botão ficaria escondido para sempre. Ele volta — mas NÃO na home.
+   Havia um `@media (scripting: none)` neste ponto, e ele SAIU: o
+   `body:not(:has(.hero))` acima já entrega o comportamento certo sem script,
+   e entrega em qualquer navegador com `:has()` — faixa mais larga que a do
+   media feature `scripting`, que é de Media Queries 5.
 
-   Na capa o canto é da fila de ícones e do <CtaCapa />, e o botão pousaria em
-   cima do CTA. Quem está sem script não fica sem o canal: a capa tem o CTA
-   para /contato, o rodapé de todas as rotas tem o WhatsApp, e o formulário de
-   /contato entrega no WhatsApp com ou sem script.
+   Sem JS, portanto: nas três rotas sem herói o botão aparece normalmente,
+   porque a regra é CSS puro; na home ele não aparece, porque o `data-visivel`
+   depende do observador. E não aparecer na home é o desfecho certo, não uma
+   perda — ali o canto é do <CtaCapa />, e o WhatsApp continua no rodapé de
+   todas as rotas e no destino do formulário.
 
-   ALCANCE: `scripting` é media feature de Media Queries 5 — Chrome 120+,
-   Firefox 113+, Safari 17+. Em navegador mais antigo com JS desligado a regra
-   é ignorada e o botão fica ausente, que é o mesmo desfecho de antes desta
-   rodada. Ver também a seção 21. */
-@media (scripting: none) {
-  .zap { opacity: 1; visibility: visible; transform: none; }
-  body:has(.hero--capa) .zap { display: none; }
-}
+   Uma regra a menos para manter em sincronia com a de cima. */
 
 
 /* --- 18. Rota de contato ----------------------------------------------------
