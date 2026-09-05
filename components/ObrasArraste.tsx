@@ -31,14 +31,26 @@ import { useEffect } from "react";
                 `scrollLeft` existe e o limite dele é o fim da pista.
 
      AO SOLTAR   o caminho inverso: o `scrollLeft` vira fase da animação, e a
-                rolagem volta a zero. Com a rolagem em zero, o transform tem os
-                2261px inteiros de curso pela frente e nunca passa do fim.
+                rolagem volta para a borda da faixa de repouso. Dali o
+                transform tem uma cópia inteira de curso pela frente e nunca
+                passa do fim.
 
    ⚠ O RESTO `% cópia` É O QUE FAZ ISSO SER INVISÍVEL. As duas metades são
    idênticas, então deslocar por exatamente uma cópia mostra o mesmo pixel. É
-   isso que permite normalizar a rolagem de volta para dentro de uma cópia sem
-   que nada salte na tela — e é a mesma propriedade que faz o `-50%` dos
-   keyframes fechar o laço sem costura.
+   isso que permite normalizar a rolagem sem que nada salte na tela — e é a
+   mesma propriedade que faz o `-50%` dos keyframes fechar o laço sem costura.
+
+   ══ E A NORMALIZAÇÃO VALE DURANTE O GESTO, NÃO SÓ NAS PONTAS ══
+
+   Por uma rodada ela existia só na transferência, ao soltar. Durante o arrasto
+   não havia nenhuma, e o `scrollLeft` nativo é LIMITADO: arrastando rápido, ou
+   continuando a arrastar, ele encostava em `scrollWidth - clientWidth`, o
+   conteúdo acabava de verdade e a área ficava preta.
+
+   Agora a rolagem é mantida dentro de uma faixa que não toca nenhuma das duas
+   pontas — ver `piso()` e `normalizar()` abaixo. Cruzar a borda vira um salto
+   de uma cópia, invisível, e o arrasto segue indefinidamente nos dois
+   sentidos.
 
    ══ POR QUE O GATILHO TAMBÉM É O `scroll`, E NÃO SÓ O PONTEIRO ══
 
@@ -85,6 +97,40 @@ export default function ObrasArraste() {
 
     /* Uma cópia. As duas metades são idênticas, então é metade da pista. */
     const umaCopia = () => pista.offsetWidth / 2;
+
+    /* ══ A FAIXA DE REPOUSO, E POR QUE ELA NÃO COMEÇA NO ZERO ══
+
+       A rolagem nativa é LIMITADA: vai de 0 a `scrollWidth - clientWidth`. Ao
+       encostar numa das pontas o conteúdo acaba de verdade e sobra o fundo da
+       seção — a faixa preta. Dar a volta é manter a rolagem SEMPRE longe das
+       duas pontas, saltando uma cópia inteira quando ela se aproxima.
+
+       O salto é invisível pela mesma razão que o `-50%` fecha o laço: as duas
+       metades são idênticas, então somar ou subtrair exatamente uma cópia
+       mostra o mesmo pixel no mesmo lugar.
+
+       ⚠ O PISO NÃO É ZERO, E ISSO É O QUE FAZ A VOLTA VALER PARA OS DOIS
+       LADOS. Com a faixa em [0, C) o lado esquerdo encostaria no limite
+       nativo: `scrollLeft` não vai abaixo de zero, então um gesto para a
+       direita pararia seco em vez de dar a volta. Centrando a faixa dentro do
+       curso disponível, sobra margem igual dos dois lados — medido, 416px a
+       1440 e 617px a 390 —, e é nessa margem que a rolagem entra antes de a
+       gente reposicionar.
+
+       A conta que decide se isto funciona é V ≤ C: a janela tem de caber
+       inteira dentro de uma cópia, senão duas cópias não dão a volta e seria
+       preciso uma terceira. Medido nas sete larguras, a folga C−V vai de
+       831px (1440) a 1503px (768). Sobra. */
+    const piso = () => Math.max(0, (umaCopia() - trilho.clientWidth) / 2);
+
+    /* Traz qualquer rolagem para dentro da faixa [piso, piso + C), somando ou
+       subtraindo cópias inteiras. */
+    function normalizar(x: number) {
+      const copia = umaCopia();
+      if (copia <= 0) return x;
+      const p = piso();
+      return p + ((((x - p) % copia) + copia) % copia);
+    }
 
     let pausado = false;
     let arrastando = false;
@@ -134,7 +180,9 @@ export default function ObrasArraste() {
       const desloc = deslocamentoDaAnimacao();
       a.pause();
       a.currentTime = 0;
-      rolarSeco(trilho!.scrollLeft + desloc);
+      /* Normalizado ja aqui: a fase transferida pode jogar a rolagem para fora
+         da faixa de repouso, e ela precisa entrar no gesto ja dentro dela. */
+      rolarSeco(normalizar(trilho!.scrollLeft + desloc));
       pausado = true;
     }
 
@@ -142,11 +190,16 @@ export default function ObrasArraste() {
       const a = animacao();
       if (!a || !pausado || arrastando) return;
       const copia = umaCopia();
-      /* O resto por uma cópia: mesma imagem na tela, e a rolagem volta para
-         dentro do primeiro trecho, deixando o curso inteiro do transform
-         livre. */
-      const fase = ((trilho!.scrollLeft % copia) + copia) % copia;
-      rolarSeco(0);
+      const p = piso();
+      /* O resto por uma cópia, medido A PARTIR DO PISO: mesma imagem na tela, e
+         a rolagem volta para a borda da faixa de repouso, deixando o curso
+         inteiro do transform livre pela frente.
+
+         ⚠ ANTES ISTO VOLTAVA PARA ZERO. Com a faixa de repouso deslocada, zero
+         deixou de ser o ponto neutro — voltar para lá gastaria de saída a
+         margem esquerda que existe para o gesto seguinte poder dar a volta. */
+      const fase = ((((trilho!.scrollLeft - p) % copia) + copia) % copia);
+      rolarSeco(p);
       a.currentTime = (fase / copia) * DURACAO_MS;
       a.play();
       pausado = false;
@@ -187,7 +240,15 @@ export default function ObrasArraste() {
        lugar certo. */
     function aoMover(e: PointerEvent) {
       if (!arrastando) return;
-      rolarSeco(rolagemInicial - (e.clientX - xInicial));
+      /* ⚠ NORMALIZADO A CADA QUADRO, e nao so nas pontas. Sem isto o gesto
+         empurra a rolagem ate o limite nativo e a pista acaba: era esse o
+         defeito. Com a normalizacao, cruzar a borda da faixa vira um salto de
+         uma copia — invisivel — e o arrasto segue indefinidamente.
+
+         A conta continua saindo da posicao ABSOLUTA do ponteiro, entao o
+         salto nao desalinha o gesto: `rolagemInicial` e `xInicial` seguem
+         valendo, e o proximo evento recalcula tudo de novo. */
+      rolarSeco(normalizar(rolagemInicial - (e.clientX - xInicial)));
     }
 
     function aoSoltar(e: PointerEvent) {
@@ -203,12 +264,30 @@ export default function ObrasArraste() {
        sai da tela — nenhuma delas passa por pointerdown. */
     function aoRolar() {
       /* Rolagem que nós mesmos escrevemos não conta como gesto do visitante.
-         Ver o porquê de a guarda ser um VALOR, lá em cima. */
+         Ver o porquê de a guarda ser um VALOR, lá em cima.
+
+         ⚠ E TODA escrita da normalização passa por `rolarSeco`, então cada uma
+         delas arma esta guarda. Era o risco de reabrir o bug do b1fed40: a
+         normalização escreve com frequência, e sem a guarda cada escrita seria
+         lida como gesto e mataria a animação no quadro seguinte. */
       if (rolagemEscrita !== null && Math.abs(trilho!.scrollLeft - rolagemEscrita) < 1) {
         rolagemEscrita = null;
         return;
       }
+
       pausar();
+
+      /* ══ A VOLTA DA ROLAGEM NATIVA ══
+
+         Quem rola aqui é o navegador — o dedo, a inércia depois dele, a roda
+         do mouse, as setas do teclado. Nenhum desses passa pelo `aoMover`, e
+         todos podem empurrar a rolagem até a ponta. Reposicionar só quando ela
+         sai da faixa mantém a escrita rara: uma vez por cópia percorrida, e
+         não uma por quadro. */
+      const atual = trilho!.scrollLeft;
+      const dentro = normalizar(atual);
+      if (Math.abs(dentro - atual) > 0.5) rolarSeco(dentro);
+
       agendarRetomada();
     }
 
