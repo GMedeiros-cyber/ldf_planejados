@@ -36,8 +36,15 @@ export const whatsappUrl = `https://wa.me/${contato.whatsapp}`;
    SEM BARRA NO FIM. O `new URL()` do metadataBase e o sitemap montam as rotas
    concatenando "/algo"; uma barra aqui viraria "//algo".
 
+   ⚠ COM `www`, E ISSO NÃO É DETALHE. Na Vercel o domínio de produção é
+   www.ldfplanejados.com.br; o apex ldfplanejados.com.br responde 308 para ele.
+   Enquanto esta constante estava sem o `www`, cada rota se declarava canônica
+   num endereço que redireciona para outro — o buscador seguia o 308 e recebia
+   um sinal contraditório de qual é a página verdadeira. O valor daqui tem de
+   ser o endereço que RESPONDE 200, não o que encaminha.
+
    ⚠ TROCAR AQUI SE O DOMÍNIO MUDAR. É o único lugar. */
-export const siteUrl = "https://ldfplanejados.com.br";
+export const siteUrl = "https://www.ldfplanejados.com.br";
 
 /* --- O menu do site --------------------------------------------------------
    MORA EM lib/menu.ts, e não aqui. O <Nav /> é "use client", e importar deste
