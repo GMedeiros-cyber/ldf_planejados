@@ -7,12 +7,18 @@ import ProjetoComercial from "@/components/ProjetoComercial";
 import Fechamento from "@/components/Fechamento";
 import FundoAuralis from "@/components/FundoAuralis";
 import { ambientes } from "@/lib/dados";
+import { metadataDaRota } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Ambientes planejados — LDF Planejados",
-  description:
+/* O `metadataDaRota()` monta a canônica, o Open Graph e o Twitter desta rota.
+   O que é comum às quatro mora no lib/metadata.ts; o que está aqui é só o que
+   é desta página. Não declare `openGraph` nem `alternates` à mão — o porquê
+   está naquele arquivo. */
+export const metadata: Metadata = metadataDaRota({
+  caminho: "/ambientes",
+  titulo: "Ambientes planejados — LDF Planejados",
+  descricao:
     "Cozinha, dormitório e sala planejados, de fábrica própria, com foto de obra entregue. Closet, home office, área gourmet, lavanderia e banheiro entram no mesmo projeto do ambiente vizinho. E uma loja comercial inteira, da fachada à linha de serviço.",
-};
+});
 
 /* Quatro tempos: abertura → lista → projeto comercial → CTA.
 

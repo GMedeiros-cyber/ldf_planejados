@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Serif, Tinos } from "next/font/google";
 import { siteUrl } from "@/lib/dados";
+import { metadataDaRota } from "@/lib/metadata";
 import Reveal from "@/components/Reveal";
 import Zap from "@/components/Zap";
 import "./globals.css";
@@ -35,8 +36,7 @@ const tinos = Tinos({
   variable: "--ff-tinos",
 });
 
-/* METADATA DA RAIZ. Cada rota declara o title e a description dela; o que mora
-   aqui é o que vale para todas.
+/* METADATA DA RAIZ — E ELA É A DA HOME, não um molde para as outras.
 
    ══ POR QUE O metadataBase NÃO PODE FALTAR ══
 
@@ -46,35 +46,38 @@ const tinos = Tinos({
    nenhuma. Um link de WhatsApp sem foto é o formato em que este site mais
    circula.
 
-   O endereço vem do lib/dados.ts, junto do resto dos dados da empresa. */
+   O endereço vem do lib/dados.ts, junto do resto dos dados da empresa. Ele é o
+   ÚNICO campo que fica só aqui: o metadataBase é herdado pelas quatro rotas, e
+   nenhuma delas precisa repeti-lo.
+
+   ══⚠══ O RESTO VEM DO metadataDaRota(), E NÃO PODE VOLTAR A SER ESCRITO AQUI ══
+
+   O que estava neste bloco — `openGraph` e `twitter` completos, mais
+   `alternates: { canonical: "/" }` — VAZAVA PARA AS OUTRAS TRÊS ROTAS. O merge
+   de metadata do Next é shallow: o que a filha não declara, ela herda. E
+   nenhuma das três declarava.
+
+   O resultado era /ambientes, /contato e /politica-de-privacidade emitindo a
+   home como canônica DELAS: uma instrução ao buscador para não indexar três
+   das quatro rotas. Cada uma também mostrava o título e a descrição da home na
+   prévia de link.
+
+   ⚠ Se alguém puser `openGraph` ou `alternates` de volta neste objeto, o bug
+   volta inteiro e continua invisível — as páginas seguem abrindo normalmente.
+   O que é comum às rotas mora no lib/metadata.ts. */
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "LDF Planejados — Móveis planejados de fábrica em Guarulhos",
-  description:
-    "Fábrica própria de móveis planejados em Guarulhos. Projeto 3D antes do orçamento, garantia de 5 anos e produção em até 45 dias úteis.",
-  /* O Next resolve a canônica de cada rota a partir desta raiz. Sem ela, a
-     mesma página em www e sem www conta como duas para o buscador. */
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: "pt_BR",
-    siteName: "LDF Planejados",
-    url: "/",
-    title: "LDF Planejados — Móveis planejados de fábrica em Guarulhos",
-    description:
+  ...metadataDaRota({
+    caminho: "/",
+    titulo: "LDF Planejados — Móveis planejados de fábrica em Guarulhos",
+    descricao:
+      "Fábrica própria de móveis planejados em Guarulhos. Projeto 3D antes do orçamento, garantia de 5 anos e produção em até 45 dias úteis.",
+    /* A home é a única rota com descrição social própria, e é assim desde
+       antes do helper: a versão curta cabe na prévia de link sem truncar. O
+       porquê do campo está no lib/metadata.ts. */
+    descricaoSocial:
       "Fábrica própria em Guarulhos. Projeto 3D antes do orçamento, garantia de 5 anos e produção em até 45 dias úteis.",
-    /* 1200×630 é a medida que WhatsApp e Facebook recortam sem cortar nada.
-       JPEG, e não WebP: o WebP passa no navegador, mas os leitores de link
-       ainda tratam mal — e este é o formato em que o site mais circula. */
-    images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Cozinha planejada da LDF" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "LDF Planejados — Móveis planejados de fábrica em Guarulhos",
-    description:
-      "Fábrica própria em Guarulhos. Projeto 3D antes do orçamento, garantia de 5 anos e produção em até 45 dias úteis.",
-    images: ["/og.jpg"],
-  },
+  }),
 };
 
 export const viewport: Viewport = {

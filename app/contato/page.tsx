@@ -5,12 +5,18 @@ import FormularioContato from "@/components/FormularioContato";
 import CartaoEndereco from "@/components/CartaoEndereco";
 import FundoContato from "@/components/FundoContato";
 import { contato, whatsappUrl } from "@/lib/dados";
+import { metadataDaRota } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Contato — LDF Planejados",
-  description:
+/* O `metadataDaRota()` monta a canônica, o Open Graph e o Twitter desta rota.
+   O que é comum às quatro mora no lib/metadata.ts; o que está aqui é só o que
+   é desta página. Não declare `openGraph` nem `alternates` à mão — o porquê
+   está naquele arquivo. */
+export const metadata: Metadata = metadataDaRota({
+  caminho: "/contato",
+  titulo: "Contato — LDF Planejados",
+  descricao:
     "Fale com a fábrica: endereço em Guarulhos, e-mail e WhatsApp da LDF Planejados. Formulário de projeto em breve.",
-};
+});
 
 /* A ROTA COMEÇA NO FORMULÁRIO. Não há capa.
 

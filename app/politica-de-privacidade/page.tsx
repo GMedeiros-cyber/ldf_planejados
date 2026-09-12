@@ -3,12 +3,24 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { contato, empresa, politica } from "@/lib/dados";
+import { metadataDaRota } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Política de Privacidade — LDF Planejados",
-  description:
+/* O `metadataDaRota()` monta a canônica, o Open Graph e o Twitter desta rota.
+   O que é comum às quatro mora no lib/metadata.ts; o que está aqui é só o que
+   é desta página. Não declare `openGraph` nem `alternates` à mão — o porquê
+   está naquele arquivo.
+
+   ⚠ A DESCRIÇÃO TERMINA EM "Este site não usa cookies." — e essa frase cai
+   junto com a seção "Cookies" do corpo da página quando o Google Analytics
+   entrar. Ela é parte do mesmo TODO descrito logo abaixo, e é fácil de
+   esquecer porque não está no texto visível da página, e sim no resultado de
+   busca. */
+export const metadata: Metadata = metadataDaRota({
+  caminho: "/politica-de-privacidade",
+  titulo: "Política de Privacidade — LDF Planejados",
+  descricao:
     "Quem trata os seus dados, o que o formulário coleta, para quê, por quanto tempo e como exercer seus direitos. Este site não usa cookies.",
-};
+});
 
 /* A política de privacidade. Um documento, não uma página de campanha.
 
