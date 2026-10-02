@@ -58,7 +58,20 @@ export const contato = {
     fecha: "18:00",
   },
   instagram: "https://www.instagram.com/ldfplanejados",
-  facebook: "https://web.facebook.com/LojadeFabricaMoveisPlanejados/",
+  /* ⚠ `www.` E NÃO `web.`, E ISSO FOI MEDIDO. O valor aqui era
+     web.facebook.com, e aquele host REDIRECIONA PARA O MURO DE LOGIN:
+     navegando de verdade, ele para em
+     facebook.com/login/?next=... com o título "Facebook". Quem clicava no
+     rodapé era levado a um formulário de entrada, não à página da LDF.
+
+     Com `www.`, a mesma página abre direto — título "LDF Móveis Planejados |
+     Facebook", sem redirecionamento.
+
+     Passou a importar o dobro desde que esta URL entrou no `sameAs` do
+     JSON-LD: ali ela afirma "esta é outra página oficial da mesma empresa", e
+     apontar para uma tela de login enfraquece exatamente o vínculo de
+     identidade que a marcação existe para criar. */
+  facebook: "https://www.facebook.com/LojadeFabricaMoveisPlanejados/",
   google: "https://www.google.com/search?q=ldf+planejados",
 } as const;
 
@@ -877,32 +890,34 @@ export const consentimento = {
    um lugar só para editar. O texto corrido vive na rota, em
    app/politica-de-privacidade/page.tsx — o que não pode viver lá é dado.
 
-   ⚠⚠⚠ TODO GRANDE — GOOGLE ANALYTICS ⚠⚠⚠
+   ══ O TODO DO GOOGLE ANALYTICS ESTÁ FECHADO ══
 
-   HOJE O SITE NÃO GRAVA COOKIE NENHUM, e a política afirma isso com todas as
-   letras. A afirmação foi verificada, não suposta: não há analytics, tag
-   manager, pixel nem terceiro em nenhuma rota, e as fontes entram por
-   next/font/google, que BAIXA os arquivos no build e os serve do próprio
-   domínio — nenhuma requisição ao Google em execução.
+   Ele exigia que três coisas entrassem no MESMO commit no dia em que a
+   medição subisse: o banner com recusa tão fácil quanto o aceite, a seção de
+   cookies da política reescrita, e a correção da afirmação "este site não usa
+   cookies". Entraram as três, mais a `description` da rota, que também
+   terminava naquela frase e não aparece no corpo da página.
 
-   O CLIENTE VAI INSTALAR GOOGLE ANALYTICS depois da revisão do site. No dia em
-   que isso acontecer, TRÊS COISAS ENTRAM NO MESMO COMMIT:
+   O que está no ar: Google Tag Manager (GTM-KGBMCM4F), carregado SOMENTE
+   depois do aceite, por components/Consentimento.tsx. O ID vem de
+   NEXT_PUBLIC_GTM_ID — variável vazia, nada carrega.
 
-     1. o banner de consentimento de cookies, com recusa tão fácil quanto o
-        aceite, e o script do GA só disparando depois do aceite;
-     2. a seção de cookies da política, dizendo quais cookies, de quem, para
-        quê e por quanto tempo;
-     3. a CORREÇÃO da afirmação "este site não usa cookies", que passa a ser
-        falsa no segundo em que o script subir.
+   ⚠ A `atualizadaEm` ABAIXO É PARTE DO CONTRATO, e não enfeite. A própria
+   política diz, na seção "Se esta política mudar", que mudança no que é
+   coletado vem acompanhada de nova data. Mexeu no que a medição faz, mexeu
+   nesta linha no mesmo commit.
 
-   GA NO AR COM ESTA PÁGINA DIZENDO "NÃO USAMOS COOKIES" É DECLARAÇÃO FALSA EM
-   DOCUMENTO LEGAL. Não é dívida técnica, não é detalhe de rodada seguinte, e
-   não se resolve depois: ou os três entram juntos, ou o GA não sobe. */
+   ⚠ E A REGRA VALE AO CONTRÁRIO TAMBÉM: se a medição for REMOVIDA, a seção
+   de cookies volta a mentir — dizendo que há cookies onde não há mais. Tirar
+   o GTM é reescrever a política no mesmo commit. */
 export const politica = {
   /* ISO, e uma só. A exibição em português é DERIVADA desta string na rota —
-     escrever "2 de setembro de 2026" num segundo campo criaria duas fontes
-     para a mesma data, e a que ninguém olha é a que envelhece. */
-  atualizadaEm: "2026-09-02",
+     escrever "2 de outubro de 2026" num segundo campo criaria duas fontes
+     para a mesma data, e a que ninguém olha é a que envelhece.
+
+     Subiu de 2026-09-02 para 2026-10-02 porque a seção de cookies mudou: o
+     site passou a carregar o Google Tag Manager depois do consentimento. */
+  atualizadaEm: "2026-10-02",
 
   /* Retenção, em unidades de tempo cheias.
 

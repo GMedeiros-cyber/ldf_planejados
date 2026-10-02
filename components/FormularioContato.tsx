@@ -5,6 +5,7 @@ import { useActionState, useEffect, useId, useRef, useState } from "react";
 
 import BotaoRevelar from "./BotaoRevelar";
 import { consentimento, opcoesAmbiente, opcoesEstagio, whatsappUrl } from "@/lib/dados";
+import { empurrarEvento } from "@/lib/dataLayer";
 import { enviarContato } from "@/app/contato/actions";
 import {
   ESTADO_INICIAL,
@@ -224,6 +225,29 @@ export default function FormularioContato() {
     }
 
     setUrlBloqueada(null);
+
+    /* ══ `form_lead` DISPARA AQUI, E SÓ AQUI ══
+
+       Depois da validação, depois do antispam e depois de a janela do WhatsApp
+       ter ABERTO de verdade — a checagem acima já descartou o pop-up
+       bloqueado. É o único ponto do caminho com JavaScript em que o pedido
+       realmente saiu.
+
+       ⚠ NÃO SUBA ESTA LINHA. Disparar antes do `window.open` contaria como
+       lead todo envio que o bloqueador de pop-up matou, e esses são
+       exatamente os que NÃO chegaram na LDF — o relatório mostraria
+       conversão onde houve perda.
+
+       ⚠ E NÃO DISPARA `whatsapp_click` AQUI. O ouvinte global do
+       MedicaoCliques.tsx cobre os três links de WhatsApp do site; este envio
+       é o `form_lead`. Contar os dois faria cada lead aparecer duas vezes, e
+       a soma dos eventos deixaria de ser o total de contatos.
+
+       O CAMINHO SEM JAVASCRIPT NÃO É MEDIDO: lá a Server Action responde com
+       `redirect()`, o navegador troca de página e nenhum script roda. Está
+       registrado no topo de lib/dataLayer.ts. */
+    empurrarEvento("form_lead");
+
     setEstadoTeste({ estado: "sucesso", erros: {}, resumo: null, valores: ESTADO_INICIAL.valores });
   }
 

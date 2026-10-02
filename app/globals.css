@@ -4857,7 +4857,17 @@ main > .chamada:first-child {
 .zap {
   position: fixed;
   right: var(--zap-piso);
-  bottom: var(--zap-piso);
+  /* ⚠ O `--banner-altura` É O QUE EVITA A COLISÃO COM O BANNER DE
+     CONSENTIMENTO (seção 22), e o fallback é o que faz isso não custar nada.
+
+     Quem escreve a variável é o Consentimento.tsx, com a altura MEDIDA da
+     barra, e só enquanto ela está na tela. Fora disso a variável não existe,
+     `0px` entra no lugar e este `bottom` é exatamente o que sempre foi.
+
+     Não é por breakpoint de propósito: a barra tem o dobro da altura a 360px
+     do que tem a 1440, porque o texto reflui, e um número cravado erraria
+     justamente na tela mais apertada. */
+  bottom: calc(var(--zap-piso) + var(--banner-altura, 0px));
   /* Acima da barra do topo (60), que é a outra peça fixa. */
   z-index: 80;
   display: grid;
@@ -6133,6 +6143,154 @@ body:not(:has(.hero)) .zap,
 .paragrafo-secundario { margin-top: var(--s5); color: var(--ink-2); }
 
 
+
+/* --- 22. Banner de consentimento -------------------------------------------
+
+   A pergunta sobre medição, fixa na base, em todas as rotas.
+
+   ══ BARRA NA BASE, E NÃO CARTÃO NO CANTO ══
+
+   O canto inferior direito JÁ TEM DONO: é do <Zap />, o botão verde flutuante
+   (seção 17b). Um cartão de consentimento ali nasceria em cima dele — e nas
+   rotas sem herói (/ambientes, /contato e a política) o botão aparece de
+   imediato, então a colisão seria na primeira dobra, não num caso de borda.
+
+   A barra atravessa a base inteira e o botão SOBE para ficar acima dela. O
+   mecanismo é uma variável só, e está na seção 17b: o `.zap` calcula o
+   `bottom` como `var(--zap-piso) + var(--banner-altura, 0px)`. Sem banner na
+   tela a variável não existe, o fallback é zero e nada muda.
+
+   ⚠ A ALTURA É MEDIDA PELO COMPONENTE, não escrita aqui por breakpoint. O
+   texto reflui — a 360px a barra tem duas vezes a altura que tem a 1440 —, e
+   um número cravado erraria exatamente onde a tela é mais apertada. O
+   ResizeObserver do Consentimento.tsx reescreve a variável enquanto a janela
+   muda.
+
+   ══ POSITION FIXED, E NÃO EMPURRAR O CORPO ══
+
+   A barra flutua sobre o conteúdo em vez de reservar espaço com
+   `padding-block-end` no <body>. É decisão de CLS: reservar espaço move a
+   página inteira no instante em que o banner aparece, e aparecer é o que ele
+   faz em toda primeira visita. Sobreposto, o deslocamento é zero.
+
+   O preço é cobrir o pé da página enquanto está aberto. Aceito: ele sai no
+   primeiro clique e não volta.
+
+   ══ SEM JAVASCRIPT NÃO EXISTE REGRA AQUI PORQUE NÃO EXISTE BANNER ══
+
+   O componente é de cliente e nasce com a pergunta fechada: o HTML servido
+   não traz a barra. Sem script ela nunca aparece — o que é coerente, porque
+   sem script também não há GTM para consentir. Não há `@media (scripting:
+   none)` a escrever. */
+.consent {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  /* Acima do <Zap /> (80) e da barra do topo (60). É a única peça da tela que
+     pede uma resposta, então é a que fica na frente. */
+  z-index: 90;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4) var(--s5);
+  padding: var(--s4) var(--gutter);
+
+  background: var(--ground-lift);
+  border-top: 1px solid var(--edge-2);
+  color: var(--ink-2);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+}
+
+/* O painel recebe o foco quando aparece (ver o componente), e foco em
+   contêiner desenha um anel do tamanho da barra. Sem o `outline: none` a tela
+   ganha uma moldura de ponta a ponta que não comunica nada — o anel que
+   importa é o dos botões, logo abaixo, e esses mantêm o deles. */
+.consent:focus { outline: none; }
+
+/* 24rem de base: abaixo disso o texto quebra em linhas curtas demais e as
+   ações descem para a própria linha, que é o comportamento desejado no
+   celular. */
+.consent__texto { flex: 1 1 24rem; }
+.consent__texto p { margin: 0; }
+
+.consent__titulo {
+  margin-bottom: var(--s1);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.consent__texto a { color: var(--ink); text-decoration: underline; }
+.consent__texto a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.consent__acoes {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--s3);
+}
+
+/* ══⚠══ OS DOIS BOTÕES SÃO IDÊNTICOS, E ISSO É REQUISITO, NÃO ESTILO ══⚠══
+
+   Mesma classe, mesmo tamanho, mesma borda, mesma cor, mesmo hover. Não há
+   botão primário aqui.
+
+   Consentimento só é válido se for livre, e uma interface que pinta "Aceitar"
+   de verde e deixa "Recusar" como texto cinza não está perguntando, está
+   conduzindo. A igualdade visual é o que torna a escolha real — é também o que
+   as autoridades de proteção de dados olham primeiro.
+
+   ⚠ NÃO DÊ DESTAQUE A UM DOS DOIS. Nem cor de marca, nem peso maior, nem
+   tamanho. Se alguém pedir para "destacar o aceitar", a resposta está neste
+   comentário.
+
+   44px de altura mínima: alvo de toque confortável sem chegar aos 56 do botão
+   flutuante, que é um alvo procurado sem olhar. */
+.consent__botao {
+  min-height: 44px;
+  padding-inline: var(--s5);
+  /* ⚠ `--ink-3`, E NÃO `--edge-3`. A primeira versão usou a aresta mais clara
+     da paleta e REPROVOU na medição: #5A524A sobre o #1C1A18 desta barra dá
+     2,26:1, e a WCAG 1.4.11 pede 3:1 entre o componente e o fundo adjacente.
+
+     Não é detalhe teórico aqui. O botão tem fundo transparente, então a BORDA
+     é a única coisa que desenha o alvo — sem ela em contraste suficiente, quem
+     tem baixa visão vê duas palavras soltas e não dois botões, num banner que
+     existe para receber um clique.
+
+     `--ink-3` mede 4,59:1 no mesmo fundo. Aresta não serve para contorno de
+     controle; as arestas da paleta são para separar superfícies, onde não há
+     critério de contraste a cumprir. */
+  border: 1px solid var(--ink-3);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.consent__botao:hover { background: var(--ground-paper); color: var(--ink-on-paper); border-color: var(--ground-paper); }
+.consent__botao:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* A entrada. Sobe 100% da própria altura, então a distância é sempre a altura
+   da barra — não precisa saber quanto o texto refluiu. */
+@keyframes consent-entra {
+  from { transform: translateY(100%); }
+  to   { transform: none; }
+}
+
+.consent { animation: consent-entra 280ms ease-out both; }
+
+/* Quem pede menos movimento recebe a barra já no lugar. Não é "mais rápido":
+   é sem deslocamento nenhum, porque o incômodo é o movimento, não a duração.
+   Ela continua aparecendo, e continua pedindo a mesma resposta. */
+@media (prefers-reduced-motion: reduce) {
+  .consent { animation: none; }
+  .consent__botao { transition: none; }
+}
 
 /* --- 21. Sem JavaScript ----------------------------------------------------
    A revelação é o Reveal.tsx quem faz: ele acrescenta `in` a cada .rise que

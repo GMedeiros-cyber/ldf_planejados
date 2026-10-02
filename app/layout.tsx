@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Serif, Tinos } from "next/font/google";
 import { siteUrl } from "@/lib/dados";
 import { jsonLdNegocioLocal, metadataDaRota } from "@/lib/metadata";
+import Consentimento from "@/components/Consentimento";
+import MedicaoCliques from "@/components/MedicaoCliques";
 import Reveal from "@/components/Reveal";
 import Zap from "@/components/Zap";
 import "./globals.css";
@@ -127,6 +129,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <Zap />
         <Reveal />
+
+        {/* ══ A MEDIÇÃO, E A ORDEM DOS DOIS IMPORTA POUCO — MAS O LUGAR IMPORTA ══
+
+            Os dois são os ÚLTIMOS do <body> pelo mesmo motivo do <Zap />: o
+            banner é fixo na base, e nascendo no fim do documento ele é a
+            última parada do Tab, não a primeira. Quem navega por teclado
+            percorre a página e encontra a pergunta no fim — e o próprio
+            componente move o foco para lá quando aparece, então ninguém tem de
+            tabular até o fim para respondê-la.
+
+            O <MedicaoCliques /> não desenha nada: é o ouvinte de clique que
+            empurra `whatsapp_click` na fila. Ele entra SEM depender de
+            consentimento, porque empilhar num array em memória não grava
+            cookie nem fala com ninguém — o porquê está no lib/dataLayer.ts.
+
+            ⚠ O <Consentimento /> É O ÚNICO LUGAR DE ONDE O GTM ENTRA. Não
+            acrescente o snippet do Google ao <head> deste arquivo: ele
+            carregaria antes da pergunta, e tanto a LGPD quanto a seção
+            "Cookies" da nossa própria política dizem o contrário. */}
+        <MedicaoCliques />
+        <Consentimento />
       </body>
     </html>
   );

@@ -4,22 +4,26 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { contato, empresa, politica } from "@/lib/dados";
 import { metadataDaRota } from "@/lib/metadata";
+import { BotaoRevogarConsentimento } from "@/components/Consentimento";
 
 /* O `metadataDaRota()` monta a canônica, o Open Graph e o Twitter desta rota.
    O que é comum às quatro mora no lib/metadata.ts; o que está aqui é só o que
    é desta página. Não declare `openGraph` nem `alternates` à mão — o porquê
    está naquele arquivo.
 
-   ⚠ A DESCRIÇÃO TERMINA EM "Este site não usa cookies." — e essa frase cai
-   junto com a seção "Cookies" do corpo da página quando o Google Analytics
-   entrar. Ela é parte do mesmo TODO descrito logo abaixo, e é fácil de
-   esquecer porque não está no texto visível da página, e sim no resultado de
-   busca. */
+   ⚠ A DESCRIÇÃO DESTA ROTA É TEXTO LEGAL, mesmo não aparecendo na página.
+
+   Ela dizia "Este site não usa cookies." e foi trocada no mesmo commit que
+   instalou o Google Tag Manager — porque no segundo em que o GTM subiu, a
+   frase virou declaração falsa num resultado de busca que a empresa publica.
+
+   Quase passou batido: o corpo da página a gente relê, e esta linha não está
+   no corpo. Quem for mexer na medição outra vez, releia ESTA string também. */
 export const metadata: Metadata = metadataDaRota({
   caminho: "/politica-de-privacidade",
   titulo: "Política de Privacidade — LDF Planejados",
   descricao:
-    "Quem trata os seus dados, o que o formulário coleta, para quê, por quanto tempo e como exercer seus direitos. Este site não usa cookies.",
+    "Quem trata os seus dados, o que o formulário coleta, para quê, por quanto tempo e como exercer seus direitos. Cookies só com o seu aceite.",
 });
 
 /* A política de privacidade. Um documento, não uma página de campanha.
@@ -42,27 +46,34 @@ export const metadata: Metadata = metadataDaRota({
    alguma coisa. No rodapé eram duas linhas de cadastro; aqui são a resposta à
    pergunta "quem é que está com os meus dados".
 
-   ══⚠══ TODO GRANDE — GOOGLE ANALYTICS ══⚠══
+   ══ O TODO DO GOOGLE ANALYTICS ESTÁ FECHADO ══
 
-   A SEÇÃO "Cookies" DESTA PÁGINA AFIRMA QUE O SITE NÃO GRAVA NENHUM COOKIE.
-   Hoje é verdade, e foi verificado: nenhuma rota carrega analytics, tag
-   manager, pixel ou script de terceiro, e as fontes entram por
-   next/font/google, que baixa os arquivos no build e os serve do próprio
-   domínio — sem requisição ao Google em execução.
+   Ele dizia que a seção "Cookies" afirmava que o site não grava cookie
+   nenhum, que isso era verdade e verificado, e que no dia em que a medição
+   entrasse TRÊS COISAS teriam de entrar no mesmo commit: o banner com recusa
+   tão fácil quanto o aceite, a reescrita de #cookies, e a remoção da
+   afirmação "este site não usa cookies".
 
-   O CLIENTE VAI INSTALAR GOOGLE ANALYTICS depois da revisão do site. No dia em
-   que isso acontecer, TRÊS COISAS ENTRAM NO MESMO COMMIT:
+   AS TRÊS ENTRARAM JUNTAS, mais uma quarta que o TODO não previa: a `description`
+   desta rota também terminava em "Este site não usa cookies." — frase que não
+   aparece no corpo da página, só no resultado de busca, e por isso quase
+   sobreviveu à revisão.
 
-     1. o banner de consentimento, com recusa tão fácil quanto o aceite, e o
-        script do GA disparando SÓ depois do aceite;
-     2. a reescrita da seção #cookies aqui, dizendo quais cookies, de quem,
-        para quê e por quanto tempo;
-     3. a remoção da afirmação "este site não usa cookies", que passa a ser
-        falsa no segundo em que o script subir.
+   O QUE ENTROU, e onde:
 
-   GA NO AR COM ESTA PÁGINA DIZENDO "NÃO USAMOS COOKIES" É DECLARAÇÃO FALSA EM
-   DOCUMENTO LEGAL. Ou os três entram juntos, ou o GA não sobe. O mesmo aviso
-   está em lib/dados.ts, junto de `politica`.
+     o banner          components/Consentimento.tsx, montado no layout. O GTM
+                       carrega SÓ depois do aceite — não antes, "esperando".
+     a revogação       um botão de verdade na seção #cookies, que apaga a
+                       escolha E os cookies do GA. Não é frase.
+     a seção #cookies  reescrita abaixo: quais cookies, de quem, para quê,
+                       por quanto tempo.
+     a description     trocada no metadataDaRota() desta rota.
+     a data            `politica.atualizadaEm` em lib/dados.ts.
+
+   ⚠ A REGRA QUE O TODO ESTABELECEU CONTINUA VALENDO AO CONTRÁRIO. Se a
+   medição for REMOVIDA um dia, esta seção volta a mentir — na direção oposta,
+   dizendo que há cookies onde não há mais. Tirar o GTM é tirar esta seção no
+   mesmo commit.
 
    ══ HIERARQUIA ══
 
@@ -349,21 +360,61 @@ export default function PaginaPolitica() {
             </section>
 
             <section className="legal__secao" id="cookies">
-              <h2 className="h3">Cookies: este site não usa</h2>
+              <h2 className="h3">Cookies: só se você deixar</h2>
               <p className="legal__destaque">
-                Este site não grava nenhum cookie no seu navegador. Nenhum, nem os chamados
-                &ldquo;essenciais&rdquo;.
+                Nada é gravado no seu navegador antes de você responder ao aviso que aparece na
+                primeira visita. Se você recusar, nada é gravado nunca — e o Google não recebe
+                uma única requisição sua.
               </p>
               <p>
-                Não há Google Analytics, não há gerenciador de tags, não há pixel de rede social
-                e não há script de terceiro em nenhuma página. As fontes tipográficas são
-                baixadas na hora em que o site é publicado e servidas do nosso próprio domínio —
-                então nem o Google Fonts recebe uma requisição sua ao abrir estas páginas.
+                Usamos o Google Analytics, pelo Google Tag Manager, para saber quantas pessoas
+                chegam ao site e quais páginas elas procuram. É medição de audiência: a LDF quer
+                saber se vale a pena anunciar e o que as pessoas vêm ver. Nenhum dado desses é
+                vendido e nenhum é cruzado com o formulário de contato.
               </p>
               <p>
-                É por isso que você não vê banner de cookies aqui. Não existe um porque não há o
-                que consentir. Se isso mudar, esta seção muda junto e no mesmo dia, e o banner
-                aparece antes de qualquer script novo rodar.
+                <strong>Se você aceitar</strong>, estes cookies são gravados pelo Google, no seu
+                navegador:
+              </p>
+              <ul className="legal__lista">
+                <li>
+                  <strong>_ga</strong> — distingue um visitante do outro, sem saber quem você é.
+                  Dura <strong>2 anos</strong>.
+                </li>
+                <li>
+                  <strong>_ga_</strong> seguido do código da nossa conta — guarda em que ponto da
+                  visita você está. Dura <strong>2 anos</strong>.
+                </li>
+                <li>
+                  <strong>_gid</strong> — mesma função do <strong>_ga</strong>, em janela curta.
+                  Dura <strong>24 horas</strong>.
+                </li>
+              </ul>
+              <p>
+                <strong>Enquanto você não responder</strong>, nenhum script do Google é carregado.
+                Não é o caso comum de carregar primeiro e pedir permissão depois: aqui o arquivo
+                do Google só é buscado depois do seu aceite, porque pedir depois de gravar não é
+                pedir.
+              </p>
+              <p>
+                <strong>Se você recusar</strong>, não perguntamos de novo. Nada do Google entra no
+                site, e o aviso não volta a aparecer.
+              </p>
+              <p>
+                <strong>Mudou de ideia depois de aceitar?</strong> O botão abaixo apaga a sua
+                escolha e os cookies acima agora, nesta página, sem precisar mexer nas
+                configurações do navegador.
+              </p>
+              {/* ⚠ ELE SÓ APARECE PARA QUEM ACEITOU. Sem medição configurada, ou
+                  para quem recusou, o componente devolve null — oferecer
+                  "revogar" a quem não consentiu é oferecer botão sem efeito. O
+                  porquê está no topo de components/Consentimento.tsx. */}
+              <BotaoRevogarConsentimento />
+              <p>
+                O site não usa cookie de publicidade, não tem pixel de rede social e não
+                compartilha a sua navegação com anunciante nenhum. As fontes tipográficas
+                continuam sendo baixadas na hora em que o site é publicado e servidas do nosso
+                próprio domínio — então nem o Google Fonts recebe uma requisição sua.
               </p>
             </section>
 
