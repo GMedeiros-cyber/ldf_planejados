@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-import { whatsappUrl } from "@/lib/dados";
+import { whatsappUrlComMensagem } from "@/lib/dados";
 import { IconeWhatsApp } from "./Icones";
 
 /* WhatsApp flutuante, fixo no canto inferior direito de todas as rotas.
@@ -14,9 +14,23 @@ import { IconeWhatsApp } from "./Icones";
    original: o <a> com `whatsappUrl`, o `aria-label`, o `target`/`rel` e o
    lugar no canto. O que mudou está abaixo.
 
-   O destino é `whatsappUrl` — o mesmo endereço do rodapé, do cartão de
-   /contato e do formulário, derivado de `contato.whatsapp`. Não há segundo
-   número escrito em lugar nenhum, e trocar o da empresa troca este junto.
+   ══ O DESTINO É A ÚNICA COISA QUE ESTE BOTÃO NÃO COMPARTILHA ══
+
+   Ele aponta para `whatsappUrlComMensagem`, e não para a `whatsappUrl` que o
+   rodapé, o cartão de /contato e o formulário usam. A diferença é um `?text=`
+   com uma frase já rascunhada: quem toca aqui chega na conversa com "Olá,
+   estava no Site e tenho interesse em Móveis Planejados!" digitado, em vez de
+   uma caixa vazia.
+
+   ⚠ NÃO TROQUE DE VOLTA PARA `whatsappUrl`, e não mova a mensagem para cá. As
+   duas constantes existem separadas porque o formulário monta o próprio
+   `?text=` com os campos preenchidos — uma constante só faria a URL dele sair
+   com dois parâmetros de texto. O porquê inteiro está no lib/dados.ts, ao lado
+   das duas.
+
+   O NÚMERO continua sendo um só: `whatsappUrlComMensagem` é derivada da
+   `whatsappUrl`, que vem de `contato.whatsapp`. Não há segundo número escrito
+   em lugar nenhum, e trocar o da empresa troca este junto.
 
    ══ ELE SÓ APARECE DEPOIS QUE O HERÓI SAI DA TELA ══
 
@@ -138,7 +152,7 @@ export default function Zap() {
       /* Atributo sem valor: o CSS casa com `[data-visivel]` e o React o omite
          inteiro quando é `undefined`. */
       data-visivel={visivel ? "" : undefined}
-      href={whatsappUrl}
+      href={whatsappUrlComMensagem}
       target="_blank"
       rel="noopener"
       aria-label="Falar com a LDF no WhatsApp"

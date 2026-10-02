@@ -4,7 +4,6 @@ import Footer from "@/components/Footer";
 import FormularioContato from "@/components/FormularioContato";
 import CartaoEndereco from "@/components/CartaoEndereco";
 import FundoContato from "@/components/FundoContato";
-import { contato, whatsappUrl } from "@/lib/dados";
 import { metadataDaRota } from "@/lib/metadata";
 
 /* O `metadataDaRota()` monta a canônica, o Open Graph e o Twitter desta rota.

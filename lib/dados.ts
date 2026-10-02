@@ -16,14 +16,107 @@ export const contato = {
     rua: "Av. Brigadeiro Faria Lima, 114",
     bairro: "Jardim Cocaia — Guarulhos/SP",
     cep: "CEP 07130-000",
+
+    /* ══⚠══ OS TRÊS ABAIXO SÃO OS MESMOS DADOS, EM FORMA DE MÁQUINA ══⚠══
+
+       Os de cima são PARA LER: o rodapé e o <CartaoEndereco /> imprimem
+       exatamente aquelas strings, com o travessão e o "CEP" na frente. Os de
+       baixo são PARA O JSON-LD, que precisa de `addressRegion`, `postalCode` e
+       `addressCountry` separados e sem enfeite.
+
+       ⚠ SE UM MUDAR, O OUTRO MUDA JUNTO. Não há nada que force isso: são
+       campos irmãos, e editar só a linha de exibição deixa o schema declarando
+       um CEP que não existe mais, em silêncio, sem erro de build.
+
+       POR QUE NÃO SE EXTRAI UM DO OUTRO com regex: porque a string de exibição
+       é redação. Trocar "Jardim Cocaia — Guarulhos/SP" por "Jardim Cocaia,
+       Guarulhos - SP" é uma decisão de texto perfeitamente razoável, e faria a
+       extração devolver lixo ou vazio — de novo em silêncio. Campo explícito
+       erra alto; regex sobre texto humano erra baixo.
+
+       NÃO HÁ `cidade` AQUI de propósito: ela já existe em `empresa.cidade`, e
+       é o mesmo Guarulhos. O JSON-LD lê de lá. */
+    uf: "SP",
+    cepNumero: "07130-000",
+    /* ISO 3166-1 alfa-2, que é o que o schema.org espera em addressCountry. */
+    pais: "BR",
   },
   horario: "Segunda a sábado, 9h–18h",
+
+  /* O MESMO horário da linha de cima, em forma de máquina — mesma regra e
+     mesmo cuidado dos campos de endereço: se um mudar, o outro muda junto.
+
+     OS DIAS SÃO NÚMEROS ISO-8601 (1 = segunda ... 7 = domingo), e não os nomes
+     que o schema.org usa. O vocabulário do schema mora no lib/metadata.ts,
+     junto do resto da montagem; aqui fica só o dado. A faixa é contínua —
+     segunda a sábado é de 1 a 6 —, e um dia de folga no meio da semana
+     exigiria trocar isto por uma lista. */
+  horarioEstruturado: {
+    diaInicio: 1,
+    diaFim: 6,
+    abre: "09:00",
+    fecha: "18:00",
+  },
   instagram: "https://www.instagram.com/ldfplanejados",
   facebook: "https://web.facebook.com/LojadeFabricaMoveisPlanejados/",
   google: "https://www.google.com/search?q=ldf+planejados",
 } as const;
 
 export const whatsappUrl = `https://wa.me/${contato.whatsapp}`;
+
+/* --- O botão flutuante abre com mensagem rascunhada -------------------------
+
+   ══⚠══ SÃO DUAS CONSTANTES DE PROPÓSITO. NÃO UNIFIQUE ══⚠══
+
+   A de cima é o endereço LIMPO, e é o que quase todo mundo quer. Esta é a
+   mesma com um `?text=` grudado, e tem UM consumidor só: o <Zap />, o botão
+   verde fixo no canto.
+
+   Parece desperdício e não é. Botar o `?text=` na `whatsappUrl` vazaria a
+   mensagem para os outros pontos de contato do site, e um deles quebra de
+   verdade:
+
+     components/Zap.tsx                    botão flutuante  → QUER a mensagem
+     components/Footer.tsx:90              link do rodapé   → sem mensagem
+     components/CartaoEndereco.tsx:91      cartão de /contato → sem mensagem
+     components/FormularioContato.tsx:202  envio do formulário → ⚠ QUEBRA
+     app/contato/actions.ts:144            envio do formulário → ⚠ QUEBRA,
+                                           E É O CAMINHO QUE ESTÁ NO AR HOJE
+
+   ⚠ OS DOIS ÚLTIMOS SÃO O MOTIVO REAL, E O DE actions.ts NÃO É HIPOTÉTICO.
+
+   Os dois montam a mensagem com os campos que a pessoa preencheu e a
+   concatenam no MESMO parâmetro:
+
+     `${whatsappUrl}?text=${encodeURIComponent(mensagemWhatsApp(valores))}`
+
+   Se a constante de base já trouxesse um `?text=`, a URL final ficaria com
+   DOIS — `?text=Olá...?text=Nome:%20...` — e o WhatsApp abriria com o texto
+   errado, ou com o pedido do projeto truncado no primeiro `?`.
+
+   ⚠ O de actions.ts é o caminho ATIVO EM PRODUÇÃO, e não uma alternativa que
+   talvez alguém acione um dia. Ele roda exatamente quando a `LEAD_WEBHOOK_URL`
+   está vazia — e ela está vazia por decisão do cliente, inclusive na Vercel: a
+   automação foi adiada e o formulário entrega no WhatsApp. Ou seja, unificar
+   as constantes quebraria o envio do formulário NO CAMINHO QUE ESTÁ VALENDO,
+   não num ramo adormecido. O dia em que o webhook for ligado, o de
+   FormularioContato.tsx continua lá, com o mesmo defeito à espera.
+
+   Quem usa o endereço limpo não usa por descuido: usa porque acrescenta o
+   próprio texto depois. E o estrago da unificação seria SILENCIOSO — sem erro
+   de tipo, sem falha de build, sem nada no console. A URL sairia montada e o
+   WhatsApp abriria; só o texto estaria errado.
+
+   ⚠ O TEXTO PRECISA DE encodeURIComponent. Ele tem vírgula, exclamação e
+   acento — sem codificar, o WhatsApp recebe a mensagem cortada ou com os
+   acentos embaralhados.
+
+   A mensagem não é exportada: ela é conteúdo desta constante, e não um texto
+   solto que outro componente deva reaproveitar. Editar a frase é editar a
+   linha abaixo. */
+const mensagemDoBotaoFlutuante = "Olá, estava no Site e tenho interesse em Móveis Planejados!";
+
+export const whatsappUrlComMensagem = `${whatsappUrl}?text=${encodeURIComponent(mensagemDoBotaoFlutuante)}`;
 
 /* --- O endereço do site ----------------------------------------------------
 
