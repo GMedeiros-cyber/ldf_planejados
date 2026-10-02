@@ -16,8 +16,23 @@ import { metadataDaRota } from "@/lib/metadata";
 export const metadata: Metadata = metadataDaRota({
   caminho: "/ambientes",
   titulo: "Ambientes planejados — LDF Planejados",
+  /* 152 caracteres, e o número é o ponto. A versão anterior tinha 248 e
+     truncava NOS DOIS lugares onde aparece: o Google corta perto de 155, e a
+     prévia de link do WhatsApp mostra menos ainda. O fim da frase — justamente
+     a loja comercial, que é o que diferencia esta página — nunca era lido.
+
+     NÃO PRECISA de `descricaoSocial`. O campo existe para quando busca e
+     prévia querem textos diferentes; cabendo em 155, um texto só serve aos
+     dois, e o segundo seria mais uma string para manter em sincronia à toa.
+
+     O QUE FOI PRESERVADO, porque é o concreto da página: os três ambientes com
+     bloco de foto, a fábrica própria, a prova ("foto de obra entregue") e a
+     loja comercial. O que saiu foi a lista longa de ambientes secundários —
+     área gourmet, lavanderia e banheiro —, que só cabia à custa do resto e
+     ficava depois do corte de qualquer jeito. Eles continuam no corpo da
+     página, que é onde são lidos. */
   descricao:
-    "Cozinha, dormitório e sala planejados, de fábrica própria, com foto de obra entregue. Closet, home office, área gourmet, lavanderia e banheiro entram no mesmo projeto do ambiente vizinho. E uma loja comercial inteira, da fachada à linha de serviço.",
+    "Cozinha, dormitório e sala planejados, de fábrica própria, com foto de obra entregue. Closet e home office no mesmo projeto. E a loja comercial inteira.",
 });
 
 /* Quatro tempos: abertura → lista → projeto comercial → CTA.
