@@ -99,6 +99,30 @@ export default function Hero() {
             {...(i === ativo ? { "data-ativo": "" } : {})}
             aria-hidden={i === ativo ? undefined : true}
           >
+            {/* ══ O PRELOAD DO SLIDE 1 É GERADO PELO REACT, E JÁ BATE COM ESTE <img> ══
+
+                Não há `<link rel="preload">` escrito em lugar nenhum. O React 19,
+                ao renderizar no servidor um <img> com `fetchPriority="high"`,
+                emite sozinho o preload no <head> — e copia o `srcSet` e o
+                `sizes` daqui para `imageSrcSet` e `imageSizes`. Preload e
+                imagem escolhem a mesma largura porque o Chrome usa o mesmo
+                algoritmo para os dois, com os mesmos atributos.
+
+                MEDIDO no `next build && next start` e em produção: 1366, 1536 e
+                1920 a 1x; 1366 e 1536 a 1,25x; 1920 a 2x; cinco aparelhos
+                móveis emulados; carregamento direto e via menu. UM download do
+                slide 1 em todos, zero aviso — e o teste enxerga o aviso quando
+                ele existe (controle positivo com um preload sobrando).
+
+                O aviso "preloaded but not used" só aparece se a VIEWPORT MUDAR
+                durante o carregamento — DevTools abrindo de lado, modo
+                responsivo, janela redimensionada: o preload já escolheu pela
+                largura antiga e o <img> reescolhe pela nova. Nenhuma marcação
+                evita isso.
+
+                ⚠ NÃO ACRESCENTE `ReactDOM.preload()` NEM <link> À MÃO para esta
+                imagem. Aí sim haveria dois preloads — e um deles sem o srcset,
+                baixando uma largura fixa que o <img> não usa. */}
             <img
               className="hero__foto"
               src={`${slide.img}-1920.webp`}
