@@ -225,9 +225,35 @@ export default function ObrasArraste() {
       pausado = true;
     }
 
+    /* ══ PARADA ENQUANTO HÁ ALGUÉM OLHANDO — E POR QUE ISSO É DAQUI, E NÃO SÓ DO CSS ══
+
+       A folha pausa a pista em `:hover` e `:focus-within`, como faz com a faixa
+       de avaliações. Só que esta animação também é controlada por SCRIPT — o
+       `pausar()` e o `retomar()` deste arquivo —, e um `play()` de script passa
+       por cima do `animation-play-state`. Medido: antes do primeiro gesto o
+       hover pausava; depois de rodar a roda com o mouse em cima, o `retomar()`
+       soltava a faixa DEBAIXO do cursor, e daí em diante o CSS nunca mais
+       pausava — nem no hover, nem no foco. A regra da folha vale até o
+       primeiro gesto (e sem JavaScript); depois dele, quem decide é aqui.
+
+       ⚠ O HOVER É UMA BANDEIRA DE MOUSE, E NÃO `:hover`. No celular o `:hover`
+       GRUDA depois de um toque e só sai quando se toca em outro lugar — com
+       ele, a faixa congelaria após qualquer toque nela. `pointerenter` e
+       `pointerleave` só contam quando o ponteiro é mouse.
+
+       ⚠ O FOCO É SÓ O DE TECLADO (`:focus-visible`), e não `:focus-within`. O
+       trilho tem tabIndex 0, e um TOQUE nele o foca — medido no Pixel 7:
+       depois de um toque, `:focus-within` verdadeiro e `:focus-visible` falso.
+       Com `:focus-within`, a faixa ficaria parada depois de qualquer toque,
+       até a pessoa tocar em outro lugar. (O mouse não foca: o `aoDescer` faz
+       `preventDefault()` no pointerdown de mouse.) */
+    let sobMouse = false;
+    const focoDeTeclado = () =>
+      trilho!.matches(":focus-visible") || trilho!.querySelector(":focus-visible") !== null;
+
     function retomar() {
       const a = animacao();
-      if (!a || !pausado || arrastando) return;
+      if (!a || !pausado || arrastando || sobMouse || focoDeTeclado()) return;
       const copia = umaCopia();
       const p = piso();
       /* O resto por uma cópia, medido A PARTIR DO PISO: mesma imagem na tela, e
@@ -346,6 +372,34 @@ export default function ObrasArraste() {
       agendarRetomada();
     }
 
+    function aoEntrar(e: PointerEvent) {
+      if (e.pointerType !== "mouse") return;
+      sobMouse = true;
+      window.clearTimeout(ocioso);
+      pausar();
+    }
+
+    function aoSair(e: PointerEvent) {
+      if (e.pointerType !== "mouse") return;
+      sobMouse = false;
+      agendarRetomada();
+    }
+
+    function aoFocar() {
+      if (!focoDeTeclado()) return;
+      window.clearTimeout(ocioso);
+      pausar();
+    }
+
+    /* Não precisa checar nada: o `retomar()` agendado reavalia o foco e o
+       mouse quando roda, e o foco que só pulou para dentro da faixa continua
+       segurando a pausa. */
+    const aoDesfocar = () => agendarRetomada();
+
+    trilho.addEventListener("pointerenter", aoEntrar);
+    trilho.addEventListener("pointerleave", aoSair);
+    trilho.addEventListener("focusin", aoFocar);
+    trilho.addEventListener("focusout", aoDesfocar);
     trilho.addEventListener("pointerdown", aoDescer);
     trilho.addEventListener("pointermove", aoMover);
     trilho.addEventListener("pointerup", aoSoltar);
@@ -360,6 +414,10 @@ export default function ObrasArraste() {
       trilho.removeEventListener("pointerup", aoSoltar);
       trilho.removeEventListener("pointercancel", aoSoltar);
       trilho.removeEventListener("scroll", aoRolar);
+      trilho.removeEventListener("pointerenter", aoEntrar);
+      trilho.removeEventListener("pointerleave", aoSair);
+      trilho.removeEventListener("focusin", aoFocar);
+      trilho.removeEventListener("focusout", aoDesfocar);
       /* Sai deixando a pista correndo, e não parada num estado nosso. */
       animacao()?.play();
       trilho.classList.remove("obras__trilho--arrastando");

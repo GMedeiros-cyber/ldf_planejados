@@ -1780,6 +1780,23 @@ a { color: inherit; }
   will-change: transform;
 }
 
+/* A faixa PARA enquanto o ponteiro está sobre ela ou o foco está dentro dela
+   — o mesmo gesto da .avaliacoes__faixa. Quem para o mouse num card para ler
+   o nome da obra não pode ver o card sair andando debaixo do cursor, e quem
+   chega pelo Tab precisa da faixa parada para saber onde está.
+
+   ⚠ ESTA REGRA SOZINHA NÃO BASTA, por causa do <ObrasArraste />. Ele pausa e
+   retoma esta mesma animação pela Web Animations API, e um `play()` de script
+   passa por cima do `animation-play-state`: medido, depois do primeiro gesto
+   o hover e o foco deixavam de pausar para sempre. Esta regra vale até o
+   primeiro gesto, e sem JavaScript; daí em diante quem segura a pausa é o
+   script — mouse sobre a faixa ou foco de teclado dentro dela. O porquê de
+   lá não usar `:hover` nem `:focus-within` está naquele arquivo. */
+.obras__trilho:hover .obras__pista,
+.obras__trilho:focus-within .obras__pista {
+  animation-play-state: paused;
+}
+
 .obras__metade {
   display: flex;
   flex: 0 0 auto;
