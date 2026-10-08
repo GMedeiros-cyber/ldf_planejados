@@ -222,14 +222,47 @@ export default function FundoAuralis() {
       raf = 0;
     };
 
-    /* Proteção 1: fora da viewport o laço não roda. */
+    /* Proteção 1: o laço só roda com a seção DE FATO na tela.
+
+       ══ 15%, E NÃO "UM PIXEL" ══
+
+       Com threshold 0, bastava uma fresta da seção na borda da viewport para
+       o shader rodar a 60fps. Uma fresta no canto não é fundo que alguém
+       esteja vendo.
+
+       MEDIDO, rolando a home de 200 em 200px e contando desenhos WebGL por
+       canvas:
+
+                          shader rodando com      2+ shaders juntos
+                          menos de 15% visível
+         768×1024           4 → 0                   4 → 2
+         1440×2560          1 → 0                  16 → 16
+
+       ⚠ O LIMIAR NÃO IMPEDE DOIS JUNTOS EM TELA MUITO ALTA, e não deve. A
+       2560px de altura duas destas seções cabem inteiras na tela ao mesmo
+       tempo — as duas estão DE FATO visíveis, e parar uma congelaria um fundo
+       que alguém está vendo. "Um por vez" exigiria coordenação entre as
+       instâncias, e é outra decisão. O que o limiar elimina é o desperdício:
+       shader rodando por causa de uma fresta.
+
+       ⚠ A DECISÃO LÊ `intersectionRatio`, E NÃO `isIntersecting`. O
+       `isIntersecting` diz se há QUALQUER interseção, e continua verdadeiro
+       abaixo do limiar: o threshold só decide QUANDO o callback dispara. Com
+       ele, a seção que desce de 20% para 10% dispararia o callback e seguiria
+       "visível" — trocar só o número não mudaria nada.
+
+       O limiar é alcançável em todas as seções: a maior razão possível
+       (viewport ÷ altura da seção) mediu 0,84 no pior caso, a 768×1024. Uma
+       seção muitas vezes mais alta que a tela nunca chegaria a 15% — se
+       alguma crescer assim, este número tem de cair junto. */
+    const LIMIAR = 0.15;
     const obs = new IntersectionObserver(
       ([entrada]) => {
-        visivel = entrada.isIntersecting;
+        visivel = entrada.intersectionRatio >= LIMIAR;
         if (visivel) tocar();
         else parar();
       },
-      { threshold: 0 },
+      { threshold: LIMIAR },
     );
     obs.observe(alvo);
 
