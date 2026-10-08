@@ -632,9 +632,33 @@ a { color: inherit; }
     box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
     clip-path: inset(0 0 100% 0 round 10px);
     pointer-events: none;
-    transition: clip-path 360ms var(--ease);
+    /* ⚠ FECHADO PRECISA SER `visibility: hidden`, E NÃO SÓ RECORTADO.
+
+       O clip-path esconde o PIXEL e o pointer-events tira o CLIQUE, mas
+       nenhum dos dois tira o FOCO: com o painel fechado, os quatro links
+       continuavam na ordem do Tab — o teclado entrava num menu invisível, e o
+       leitor de tela anunciava itens que não estavam na tela.
+       `visibility: hidden` tira da ordem de foco e da árvore de
+       acessibilidade de uma vez, como no <Zap /> (seção 17b).
+
+       O ATRASO DE 360ms NO visibility é o que deixa a saída animar: ao
+       fechar, o clip-path recolhe primeiro e só no fim o painel some. Sem
+       ele, o `hidden` cortaria a animação no primeiro quadro. Ao abrir, o
+       [data-open] zera o atraso — o painel fica visível no ato, para o
+       clip-path ter o que revelar.
+
+       O movimento reduzido continua certo sem regra nova: o `transition:
+       none` da seção de movimento reduzido derruba os dois, e a troca vira
+       instantânea nos dois sentidos. */
+    visibility: hidden;
+    transition: clip-path 360ms var(--ease), visibility 0s linear 360ms;
   }
-  .nav__links[data-open] { clip-path: inset(0 0 0 0 round 10px); pointer-events: auto; }
+  .nav__links[data-open] {
+    clip-path: inset(0 0 0 0 round 10px);
+    pointer-events: auto;
+    visibility: visible;
+    transition-delay: 0s;
+  }
   .nav__link { padding-block: var(--s4); border-bottom: 1px solid var(--edge); }
   .nav__link:last-child { border-bottom: 0; }
   .nav__link::after { display: none; }

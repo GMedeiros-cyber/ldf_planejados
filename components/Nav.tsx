@@ -194,6 +194,10 @@ export default function Nav() {
         </Link>
 
         <div className="nav__direita">
+          {/* Fechado (≤900px), o painel sai da ordem do Tab pelo CSS —
+              `visibility: hidden` com atraso para a saída animar. Não precisa
+              de tabIndex nem de `inert` aqui; o porquê está na regra
+              .nav__links do globals.css. */}
           <nav
             className="nav__links"
             id="menu"
