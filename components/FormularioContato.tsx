@@ -235,12 +235,13 @@ export default function FormularioContato() {
 
     setUrlBloqueada(null);
 
-    /* ══ `form_lead` DISPARA AQUI, E SÓ AQUI ══
+    /* ══ `form_lead` DISPARA AQUI — E NO LINK DE RECUPERAÇÃO, MAIS NADA ══
 
        Depois da validação, depois do antispam e depois de a janela do WhatsApp
        ter ABERTO de verdade — a checagem acima já descartou o pop-up
-       bloqueado. É o único ponto do caminho com JavaScript em que o pedido
-       realmente saiu.
+       bloqueado. Quando o pop-up é bloqueado, o pedido sai pelo outro ponto:
+       o link "Abrir o WhatsApp" do aviso, que empurra o mesmo `form_lead` no
+       clique. São os dois únicos lugares em que o pedido realmente sai.
 
        ⚠ NÃO SUBA ESTA LINHA. Disparar antes do `window.open` contaria como
        lead todo envio que o bloqueador de pop-up matou, e esses são
@@ -340,11 +341,21 @@ export default function FormularioContato() {
             O navegador bloqueou a janela. Seu pedido está pronto — abra a conversa pelo link
             abaixo, com a mensagem já escrita.
           </p>
+          {/* ⚠ ESTE CLIQUE É UM LEAD, NÃO UM `whatsapp_click`.
+
+              É o mesmo pedido que o envio teria entregado, só que pela mão da
+              pessoa em vez da janela que o navegador bloqueou. Por isso ele
+              empurra `form_lead` — e o `data-medicao="form"` é o que faz o
+              ouvinte global do MedicaoCliques.tsx IGNORAR este link, que
+              senão o contaria como clique avulso de WhatsApp, por ser um
+              <a> de wa.me como os outros três. */}
           <a
             className="form__bloqueado-link"
             href={urlBloqueada}
             target="_blank"
             rel="noopener noreferrer"
+            data-medicao="form"
+            onClick={() => empurrarEvento("form_lead")}
           >
             Abrir o WhatsApp
           </a>

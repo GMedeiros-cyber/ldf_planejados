@@ -17,12 +17,24 @@ import { empurrarEvento } from "@/lib/dataLayer";
    dentro dele: o <svg> do botão flutuante é o alvo real do clique, e sem o
    `closest` o evento passaria batido.
 
-   ⚠ O ENVIO DO FORMULÁRIO NÃO PASSA POR AQUI, e não deve passar. Ele abre o
-   WhatsApp com `window.open()`, sem clique em <a> nenhum — então este ouvinte
-   não o vê. O evento dele é o `form_lead`, disparado no próprio
-   FormularioContato.tsx. Contar o envio como `whatsapp_click` TAMBÉM inflaria
-   o funil: cada lead apareceria duas vezes, uma em cada evento, e a soma dos
-   dois deixaria de ser o total de contatos.
+   ⚠ O ENVIO DO FORMULÁRIO NÃO É CONTADO AQUI, e não deve ser. O evento dele é
+   o `form_lead`, disparado no próprio FormularioContato.tsx. Contar o envio
+   como `whatsapp_click` TAMBÉM inflaria o funil: cada lead apareceria duas
+   vezes, uma em cada evento, e a soma dos dois deixaria de ser o total de
+   contatos.
+
+   Ele chega por dois caminhos, e só um deles escapa sozinho deste ouvinte:
+
+     envio normal     `window.open()`, sem clique em <a> — o ouvinte não vê.
+     pop-up bloqueado o aviso oferece um LINK "Abrir o WhatsApp", que é um
+                      <a href="https://wa.me/..."> como os outros três. Este o
+                      veria, e por isso o link carrega `data-medicao="form"`:
+                      o ouvinte ignora qualquer <a> com esse atributo, e o
+                      próprio link empurra `form_lead` no onClick.
+
+   ⚠ NÃO TIRE O FILTRO DO `data-medicao`. Sem ele, todo lead recuperado de
+   pop-up bloqueado seria contado como clique avulso — e um contato
+   completo, com nome e projeto, sumiria do total de leads.
 
    ══ O PUSH FUNCIONA ANTES DO GTM EXISTIR ══
 
@@ -44,7 +56,9 @@ export default function MedicaoCliques() {
     const aoClicar = (e: MouseEvent) => {
       const alvo = e.target as Element | null;
       const link = alvo?.closest?.('a[href*="wa.me"], a[href*="api.whatsapp.com"]');
-      if (!link) return;
+      /* `data-medicao="form"` é o link de recuperação do formulário, que
+         mede a si mesmo como `form_lead` — ver o topo deste arquivo. */
+      if (!link || link.matches('[data-medicao="form"]')) return;
 
       empurrarEvento("whatsapp_click");
     };
