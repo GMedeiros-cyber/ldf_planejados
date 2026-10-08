@@ -36,7 +36,12 @@ jobs:
 
       - run: npm ci
       - run: npm run tipos
-      - run: npm run lint
+      # ⚠ SEM LINT, POR ENQUANTO. O typescript-eslint, que o eslint-config-next
+      # carrega já na config base, não roda com TypeScript 7 — sai com
+      # "typescript-eslint does not support TS 7.0". A alternativa documentada
+      # (instalar o TS 6 sob o nome `typescript` e o 7 como @typescript/native)
+      # foi RECUSADA: ela muda a versão que o `next build` usa para checar os
+      # tipos. O lint volta quando o typescript-eslint suportar o TS 7.
       # Sem NEXT_PUBLIC_GTM_ID e sem LEAD_WEBHOOK_URL, de propósito: o build
       # tem de passar com as duas vazias, que é o estado de desenvolvimento.
       - run: npm run build
