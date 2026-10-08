@@ -358,6 +358,25 @@ a { color: inherit; }
 /* -120% e não -100%: a sombra do painel também precisa sair de vista. */
 .nav[data-oculta] { transform: translateY(-120%); }
 
+/* A barra recolhida VOLTA quando algo dentro dela recebe foco PELO TECLADO.
+
+   Sem isto, quem navega por teclado depois de rolar a página tabulava para o
+   logo, os links e o menu com a barra fora da tela — o foco existia, mas em
+   elementos que ninguém via.
+
+   ⚠ `:has(:focus-visible)`, E NÃO `:focus-within`. A primeira versão foi
+   `:focus-within` e a medição reprovou: no celular, abrir e fechar o menu
+   pelo toque deixa o foco no burger, e a barra PARAVA DE RECOLHER — medido no
+   Pixel 7, `data-oculta` ligado e o painel ainda na tela depois de rolar
+   1800px. O toque dá foco, mas não dá `:focus-visible`; o Tab dá os dois.
+   É a distinção exata entre "alguém está navegando por teclado aqui" e
+   "alguém tocou num botão".
+
+   Mesma especificidade da regra de cima (0,2,0 — o `:has()` herda a do seu
+   argumento), e por isso vem DEPOIS: a cascata decide pela ordem. O `:has()`
+   já é usado por esta folha na regra do <Zap /> (seção 17b). */
+.nav:has(:focus-visible) { transform: none; }
+
 /* -130% porque quem se move agora é o painel: ele precisa vencer a própria
    altura MAIS o afastamento do topo para sumir de vez.
 
