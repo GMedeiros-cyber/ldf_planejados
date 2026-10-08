@@ -11,6 +11,7 @@ import {
   ESTADO_INICIAL,
   mensagemWhatsApp,
   resumoDeErros,
+  TETO_CRU,
   validar,
   type EstadoContato,
   type ValoresContato,
@@ -199,7 +200,7 @@ export default function FormularioContato() {
     };
 
     /* A MESMA validação da action. Ver app/contato/estado.ts. */
-    const erros = validar(valores, { ambientes: opcoesAmbiente, estagios: opcoesEstagio });
+    const erros = validar(valores, { ambientes: opcoesAmbiente, estagios: opcoesEstagio }, dados);
     const resumo = resumoDeErros(erros);
     if (resumo) {
       setEstadoTeste({ estado: "erro", erros, resumo, valores });
@@ -361,7 +362,12 @@ export default function FormularioContato() {
           type="text"
           autoComplete="name"
           required
-          maxLength={80}
+          /* O TETO CRU, e não o máximo de conteúdo (80). A folga deixa caber
+             um nome colado com espaço nas pontas — o trim tira, e o servidor
+             segue exigindo 2..80 no que sobra. Os três `maxLength` deste
+             formulário leem a MESMA constante que o `validar()` usa no
+             servidor, para não poderem divergir. */
+          maxLength={TETO_CRU.nome}
           defaultValue={v.nome}
           aria-invalid={erro.nome ? true : undefined}
           aria-describedby={erro.nome ? erroId("nome") : undefined}
@@ -387,6 +393,7 @@ export default function FormularioContato() {
           inputMode="tel"
           autoComplete="tel"
           required
+          maxLength={TETO_CRU.whatsapp}
           placeholder="(11) 90000-0000"
           defaultValue={v.whatsapp}
           aria-invalid={erro.whatsapp ? true : undefined}
@@ -411,6 +418,7 @@ export default function FormularioContato() {
           inputMode="email"
           autoComplete="email"
           required
+          maxLength={TETO_CRU.email}
           defaultValue={v.email}
           aria-invalid={erro.email ? true : undefined}
           aria-describedby={erro.email ? erroId("email") : undefined}

@@ -62,9 +62,29 @@ export type EstadoContato = {
                        colagem de outro formato, e é melhor devolver erro do
                        que adivinhar onde cortar.
      mensagem 0..1000  opcional, e o teto existe para o webhook não receber um
-                       romance colado. */
+                       romance colado.
+
+   ── O teto da string CRUA, antes do trim e de qualquer limpeza ──
+
+   Os limites de cima medem o CONTEÚDO, depois do `trim()` e, no WhatsApp,
+   depois do `soDigitos()`. Nenhum deles mede o que de fato chegou. O telefone
+   era o caso grave: "11999998888" seguido de um megabyte de letras passava
+   — os onze dígitos estão lá —, e o texto inteiro seguia para a mensagem do
+   WhatsApp e para o webhook. O e-mail não tinha teto nenhum.
+
+     nome 120      folga de 40 sobre o máximo de 80: espaço e lixo de colagem
+                   nas pontas, que o trim tiraria.
+     whatsapp 30   "(11) 99999-8888" tem 15; 30 cobre qualquer máscara com +55
+                   e espaços, e nada além disso.
+     email 254     o máximo de um endereço pela RFC 5321.
+
+   ⚠ OS MESMOS NÚMEROS ESTÃO NO `maxLength` DOS TRÊS CAMPOS, em
+   components/FormularioContato.tsx, e é para estar: o navegador corta na
+   digitação e o servidor recusa o que chegar sem passar pelo navegador. Mudou
+   aqui, muda lá. */
 export const LIMITE_NOME = { min: 2, max: 80 };
 export const LIMITE_MENSAGEM = 1000;
+export const TETO_CRU = { nome: 120, whatsapp: 30, email: 254 } as const;
 
 /* E-mail: verificação SIMPLES, e é decisão. A regex "completa" do RFC 5322
    tem centenas de caracteres, rejeita endereços válidos e aceita inválidos —
@@ -79,9 +99,15 @@ export const soDigitos = (v: string) => v.replace(/\D+/g, "");
    conhecidas vira erro, e não é "ajustado" para o mais parecido. Normalizar
    entrada desconhecida é aceitar que alguém decidiu por nós o que o campo
    significa. */
+/* `crus` é o FormData como chegou. `valores` já vem aparado pelos dois
+   leitores (a action e o envio com JS), e por isso não serve para medir o
+   tamanho do que foi enviado — o trim já correu. Os dois chamadores têm o
+   FormData em mãos; passar os dois é o que mantém UMA validação para os dois
+   caminhos. */
 export function validar(
   valores: ValoresContato,
   opcoes: { ambientes: readonly string[]; estagios: readonly string[] },
+  crus: FormData,
 ): EstadoContato["erros"] {
   const erros: EstadoContato["erros"] = {};
 
@@ -98,9 +124,18 @@ export function validar(
     erros.email = "Informe um e-mail válido, no formato nome@dominio.com.";
   }
 
+  /* REPETIÇÃO É RECUSADA, E NÃO DEDUPLICADA EM SILÊNCIO. Caixas de seleção
+     não repetem valor, então lista com repetição é sempre requisição montada
+     à mão — e era assim que se mandava cem mil "Cozinha" para dentro da
+     mensagem. Recusar segue a regra do topo desta função (rejeitar, não
+     normalizar) e limita a lista ao tamanho de `opcoes.ambientes` sem que o
+     validador precise alterar o que recebeu. */
   if (valores.ambiente.length === 0) {
     erros.ambiente = "Escolha ao menos um ambiente.";
-  } else if (!valores.ambiente.every((a) => opcoes.ambientes.includes(a))) {
+  } else if (
+    !valores.ambiente.every((a) => opcoes.ambientes.includes(a)) ||
+    new Set(valores.ambiente).size !== valores.ambiente.length
+  ) {
     erros.ambiente = "Escolha ao menos um ambiente.";
   }
 
@@ -114,6 +149,16 @@ export function validar(
 
   if (!valores.consentimento) {
     erros.consentimento = "Precisamos da sua autorização para entrar em contato.";
+  }
+
+  /* Por ÚLTIMO de propósito: o teto cru vence o erro de conteúdo do mesmo
+     campo. Um nome de 500 caracteres com 60 de texto passaria no 2..80 depois
+     do trim, e é este teto que o recusa. */
+  for (const campo of ["nome", "whatsapp", "email"] as const) {
+    const cru = crus.get(campo);
+    if (typeof cru === "string" && cru.length > TETO_CRU[campo]) {
+      erros[campo] = `Passa de ${TETO_CRU[campo]} caracteres.`;
+    }
   }
 
   return erros;

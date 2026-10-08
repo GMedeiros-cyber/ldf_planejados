@@ -93,10 +93,11 @@ export async function enviarContato(
 
   /* ══ VALIDAÇÃO ══
      A MESMA função que o formulário usa no modo de teste. Ver ./estado.ts. */
-  const erros: EstadoContato["erros"] = validar(valores, {
-    ambientes: opcoesAmbiente,
-    estagios: opcoesEstagio,
-  });
+  const erros: EstadoContato["erros"] = validar(
+    valores,
+    { ambientes: opcoesAmbiente, estagios: opcoesEstagio },
+    dados,
+  );
 
   const resumo = resumoDeErros(erros);
   if (resumo) {
