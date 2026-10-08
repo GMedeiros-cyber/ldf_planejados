@@ -158,6 +158,27 @@ export default function FormularioContato() {
      Nula quando não há nada pendente. */
   const [urlBloqueada, setUrlBloqueada] = useState<string | null>(null);
 
+  /* ══ UM PEDIDO CONTA UMA VEZ ══
+
+     `form_lead` sai de dois pontos — o envio normal e o link de recuperação do
+     pop-up bloqueado —, e os dois podem ser acionados de novo com o MESMO
+     pedido: dois cliques no link, ou o link seguido de outro Enviar. Sem esta
+     guarda, cada um virava um lead no relatório, e um contato aparecia dois ou
+     três.
+
+     A IDENTIDADE DO PEDIDO É A URL. Ela carrega a mensagem inteira, montada
+     dos campos preenchidos: mesmos dados, mesma URL, mesmo pedido. Mudou um
+     campo, mudou a URL — e aí é pedido novo, que conta.
+
+     Ref, e não estado: lembrar o que já foi medido não muda nada na tela, e
+     não pode custar uma renderização. */
+  const leadMedido = useRef<string | null>(null);
+  const medirLead = (url: string) => {
+    if (leadMedido.current === url) return;
+    leadMedido.current = url;
+    empurrarEvento("form_lead");
+  };
+
   /* Quem manda na tela: o teste, quando houve tentativa; a action, senão. */
   const visivel = estadoTeste ?? estado;
 
@@ -255,8 +276,11 @@ export default function FormularioContato() {
 
        O CAMINHO SEM JAVASCRIPT NÃO É MEDIDO: lá a Server Action responde com
        `redirect()`, o navegador troca de página e nenhum script roda. Está
-       registrado no topo de lib/dataLayer.ts. */
-    empurrarEvento("form_lead");
+       registrado no topo de lib/dataLayer.ts.
+
+       Passa por `medirLead`, e não direto por `empurrarEvento`: se este mesmo
+       pedido já saiu pelo link de recuperação, ele não conta de novo. */
+    medirLead(url);
 
     setEstadoTeste({ estado: "sucesso", erros: {}, resumo: null, valores: ESTADO_INICIAL.valores });
   }
@@ -355,7 +379,7 @@ export default function FormularioContato() {
             target="_blank"
             rel="noopener noreferrer"
             data-medicao="form"
-            onClick={() => empurrarEvento("form_lead")}
+            onClick={() => medirLead(urlBloqueada)}
           >
             Abrir o WhatsApp
           </a>
