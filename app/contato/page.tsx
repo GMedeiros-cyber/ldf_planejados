@@ -13,8 +13,12 @@ import { metadataDaRota } from "@/lib/metadata";
 export const metadata: Metadata = metadataDaRota({
   caminho: "/contato",
   titulo: "Contato — LDF Planejados",
+  /* "Formulário de projeto em breve" SAIU: o formulário existe e é o topo
+     desta rota. A promessa de resposta em um dia útil é a mesma do lede e da
+     tela de sucesso do formulário — a descrição não promete nada que a página
+     não promete. 133 caracteres, dentro do corte de ~155 da busca. */
   descricao:
-    "Fale com a fábrica: endereço em Guarulhos, e-mail e WhatsApp da LDF Planejados. Formulário de projeto em breve.",
+    "Preencha o formulário de projeto e a fábrica responde em até um dia útil. Endereço em Guarulhos, e-mail e WhatsApp da LDF Planejados.",
 });
 
 /* A ROTA COMEÇA NO FORMULÁRIO. Não há capa.
