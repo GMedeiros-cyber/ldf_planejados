@@ -689,13 +689,13 @@ export const historia = {
 } as const;
 
 /* --- Marcas atendidas ------------------------------------------------------
-   AS CINCO SÃO CLIENTES REAIS, e o uso das marcas está autorizado. Saiu daqui
+   AS QUATRO SÃO CLIENTES REAIS, e o uso das marcas está autorizado. Saiu daqui
    o bloco PLACEHOLDER que dizia que as empresas não existiam — ele passou a
    ser falso no momento em que estes nomes entraram.
 
-   UMA ENTRA SÓ COM O NOME, e é decisão de desenho, não descuido. O porquê está
-   ao lado dela, logo abaixo — é específico daquela marca, e não uma regra
-   geral sobre marca de terceiro. */
+   TODAS ENTRAM COM SÍMBOLO. Já houve uma só com o nome (o Espaço Harmony), e
+   ela saiu da lista por decisão do cliente; o porquê de o campo continuar
+   opcional está no tipo, logo abaixo. */
 export type Marca = {
   readonly nome: string;
   /* ⚠ CONTINUA OPCIONAL, e hoje NENHUMA marca usa a opção.

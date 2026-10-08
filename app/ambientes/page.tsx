@@ -253,9 +253,10 @@ export default function PaginaAmbientes() {
             um item da lista, sob o mesmo h1. */}
         <ProjetoComercial />
 
-        {/* O mesmo componente que fecha a home, com o id="contato" junto. Ver
-            o bloco no topo do arquivo para a reversão que trouxe ele de volta
-            e para por que o id em duas páginas não quebra âncora nenhuma. */}
+        {/* O mesmo componente que fecha a home. O id="contato" que ele trazia
+            de carona SAIU — as âncoras migraram para a rota /contato. Ver o
+            bloco no topo do arquivo para a reversão que trouxe o componente de
+            volta e para a saída do id. */}
         <Fechamento />
       </main>
       <Footer />

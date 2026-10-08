@@ -29,10 +29,10 @@ História, Processo e Fábrica — com a faixa de marcas chapada entre as duas
 5. Processo   Os quatro estágios, com o orçamento no terceiro. Responde
               "como funciona" antes de "por que em vocês".
 6. Marcas     Faixa de logos em carrossel, sobre o escuro chapado. É o liso
-              entre os dois blocos de argumento que ela separa.
-              PLACEHOLDER: as cinco marcas são fictícias E a headline afirma
-              relação comercial com elas. A seção NÃO vai ao ar como está —
-              ver o aviso em components/Marcas.tsx.
+              entre os dois blocos de argumento que ela separa. As quatro
+              marcas são clientes reais, com uso autorizado — a seção saiu de
+              placeholder e está no ar; o histórico está em
+              components/Marcas.tsx.
 7. Fabrica    Não tem revenda no meio: a cadeia da franquia contra a nossa.
               Vem DEPOIS do processo de propósito — é a razão estrutural de
               o processo poder ser aquele, e só faz sentido depois de a

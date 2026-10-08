@@ -21,16 +21,25 @@ import {
 
    ══ FUNCIONA SEM JAVASCRIPT, E ISSO É O EIXO DO ARQUIVO ══
 
-   `useActionState` com uma Server Action é o único arranjo que dá as duas
-   coisas ao mesmo tempo: sem JS o navegador faz o POST nativo e o servidor
-   devolve a página já com o resultado; com JS o mesmo estado volta sem
-   navegação e sem recarregar. Não há dois caminhos de código — há um, e o
-   script só melhora o que já funcionava.
+   `useActionState` com uma Server Action é o que mantém o formulário de pé
+   sem JS: o navegador faz o POST nativo, a action valida e o servidor devolve
+   a página já com o resultado (ou redireciona para o WhatsApp).
 
-   É por isso que este componente é `"use client"` e mesmo assim não exige
-   cliente nenhum. O `"use client"` existe para o `useActionState` e para o
-   carimbo de tempo; tirar o script de cena não quebra nada, só apaga o resumo
-   ao vivo e o estado "enviando".
+   ⚠ COM JS, A ACTION SAIU DO CAMINHO. O `aoEnviar` faz `preventDefault`, valida
+   no cliente com a MESMA `validar()` e abre o WhatsApp direto — o porquê está
+   no bloco A ENTREGA É POR WHATSAPP, mais abaixo. Hoje são, portanto, dois
+   caminhos: a action só roda sem JS.
+
+   ⚠ E POR ISSO O ESTADO "Enviando…" NÃO APARECE HOJE EM NENHUM DOS DOIS. O
+   rótulo vem do `pendente` do `useActionState`, que só vira verdadeiro quando
+   a action roda. Com JS ela não roda; sem JS ela roda, mas não há React na
+   página para trocar o rótulo — o navegador só espera a próxima página.
+   Medido: com JS, nenhum POST para a action e o rótulo nunca muda; sem JS, o
+   POST acontece e a página é substituída. A ligação com `pendente` fica para
+   o dia em que a action voltar a ser o caminho com JS (o webhook).
+
+   O `"use client"` existe para o `useActionState`, o carimbo de tempo e o
+   envio com JS; sem script, o formulário continua funcionando pela action.
 
    ══ OS VALORES SOBREVIVEM AO ERRO ══
 
