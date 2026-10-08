@@ -225,6 +225,13 @@ export default function FormularioContato() {
     const resumo = resumoDeErros(erros);
     if (resumo) {
       setEstadoTeste({ estado: "erro", erros, resumo, valores });
+      /* ⚠ O LINK DE RECUPERAÇÃO SAI JUNTO. Se um envio anterior teve o pop-up
+         bloqueado, o aviso guarda a URL DAQUELE pedido. A pessoa corrige o
+         telefone, erra outro campo e envia: sem esta linha, o aviso ficava na
+         tela com o link montado com o telefone ANTIGO — e quem clicasse
+         mandaria para a LDF um pedido que já não é o que está no formulário.
+         Com erro, não há pedido válido para oferecer. */
+      setUrlBloqueada(null);
       return;
     }
 
