@@ -234,11 +234,22 @@ export const jsonLdNegocioLocal = {
      a ficha a uma pessoa jurídica real. */
   taxID: empresa.cnpj,
   url: siteUrl,
-  /* O logotipo é o app/icon.svg — o mesmo vetor vermelho que serve de ícone da
-     aba. Não há arquivo de logotipo em public/: o <Logo /> do site é SVG
-     inline, e vetor dentro de componente não tem endereço que um rastreador
-     consiga buscar. */
-  logo: `${siteUrl}/icon.svg`,
+  /* O logotipo é public/logo-ldf.png: PNG quadrado de 512×512, rasterizado do
+     app/icon.svg (o mesmo vetor vermelho do ícone da aba) com o `sharp` que já
+     é devDependency.
+
+     POR QUE PNG E NÃO O SVG: o Google pede no mínimo 112×112 e trata raster
+     com mais segurança que vetor no `logo`. E POR QUE EM public/: arquivo em
+     public/ é servido no caminho literal, sem depender da convenção de
+     metadata do app/ — o `/icon.svg` responde hoje porque o Next gera essa
+     rota, e isso é detalhe do framework, não contrato.
+
+     ⚠ SE O ÍCONE MUDAR, REGERE O PNG. São duas cópias do mesmo desenho:
+       node -e "require('sharp')('app/icon.svg',{density:384}).resize(512,512).png().toFile('public/logo-ldf.png')"
+
+     O <Logo /> do site não serve: é SVG inline, e vetor dentro de componente
+     não tem endereço que um rastreador consiga buscar. */
+  logo: `${siteUrl}/logo-ldf.png`,
   image: `${siteUrl}/og.jpg`,
   /* E.164, que é o formato que o schema espera: o `contato.whatsapp` já é
      55 + DDD + número, então o que falta é o "+". Sem segundo número escrito
