@@ -57,14 +57,19 @@ jobs:
           prompt: |
             Revise este PR e comente em português do Brasil.
 
-            Este repositório acompanha um site feito no Framer. As mudanças
-            costumam ser de duas naturezas:
+            Este repositório é o site da LDF Planejados: Next.js 16 (App
+            Router) com React 19 e TypeScript em modo strict. O CSS é escrito
+            à mão em app/globals.css, sem framework de componentes. O conteúdo
+            mora em lib/dados.ts. As decisões de projeto ficam registradas em
+            comentários longos no próprio código. As mudanças costumam ser de
+            duas naturezas:
 
-            1. Documentos de projeto e design (PRODUCT.md, DESIGN.md, README).
+            1. Documentação: README e os comentários que explicam decisões.
                Avalie clareza, contradição com o que já estava escrito, e
-               decisões registradas sem justificativa.
+               comentário que afirma algo que o código deixou de fazer.
 
-            2. Código (code components do Framer, scripts, configuração).
+            2. Código: componentes React (server e client), rotas do App
+               Router, a Server Action do formulário, o CSS e a configuração.
                Avalie corretude, casos de borda, acessibilidade e performance.
 
             Priorize poucos achados de alta confiança em vez de uma lista longa.

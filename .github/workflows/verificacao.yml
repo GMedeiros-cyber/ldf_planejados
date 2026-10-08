@@ -1,0 +1,42 @@
+# Verificação: tipos, lint e build em todo PR e em todo push na main.
+#
+# É a mesma sequência que a Vercel precisa ver passar para publicar. Rodar
+# aqui antes avisa no PR, em vez de avisar com um deploy quebrado.
+#
+# ⚠ A VERSÃO DO NODE TEM DE SER A MESMA DA VERCEL. Ela é configurada no
+# painel do projeto (Settings → Build and Deployment → Node.js Version), e
+# não neste repositório: não há `engines` no package.json nem .nvmrc. Se o
+# painel mudar, este número muda junto.
+
+name: Verificação
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Um push novo no mesmo PR cancela a verificação anterior, que já ficou velha.
+concurrency:
+  group: verificacao-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npm run tipos
+      - run: npm run lint
+      # Sem NEXT_PUBLIC_GTM_ID e sem LEAD_WEBHOOK_URL, de propósito: o build
+      # tem de passar com as duas vazias, que é o estado de desenvolvimento.
+      - run: npm run build
