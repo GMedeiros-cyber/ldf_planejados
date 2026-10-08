@@ -161,13 +161,34 @@ export default function CarrosselMarcas() {
       const centro = larguraCSS / 2;
 
       if (semMovimento) {
-        /* Fila única, centrada, sem desfoque e com opacidade cheia. */
+        /* Fila única, centrada, sem desfoque e com opacidade cheia.
+
+           ⚠ A FILA ENCOLHE ATÉ CABER, e só ela. Parada, ela não tem o
+           movimento para mostrar o que está fora da tela — e medido, a 360 e a
+           390 os logos saíam pelas DUAS bordas do canvas, e a 768 encostavam
+           na direita. Quem pediu menos movimento ficava sem ver metade das
+           marcas.
+
+           `k` reduz largura, altura e espaço juntos, então a proporção de cada
+           logo se mantém, e a fila fica centrada também na vertical. Nunca
+           AUMENTA (teto 1): no desktop o desenho é exatamente o de antes.
+
+           A folga é um `espaco` inteiro, meio de cada lado, para o primeiro e
+           o último logo não encostarem na borda.
+
+           O CANVAS NÃO MUDA DE TAMANHO e a seção não muda position, height
+           nem display: movimento reduzido desliga o movimento, não o layout.
+           Só o desenho dentro do quadro é que encolhe. */
         ctx.filter = "none";
         ctx.globalAlpha = 1;
-        let x = centro - (conjunto - espaco) / 2;
+        const fila = conjunto - espaco;
+        const k = Math.min(1, (larguraCSS - espaco) / fila);
+        const altura = alturaCSS * k;
+        const y = (alturaCSS - altura) / 2;
+        let x = centro - (fila * k) / 2;
         for (const p of pecas) {
-          ctx.drawImage(p.tela, x, 0, p.largura, alturaCSS);
-          x += p.largura + espaco;
+          ctx.drawImage(p.tela, x, y, p.largura * k, altura);
+          x += (p.largura + espaco) * k;
         }
         return;
       }
