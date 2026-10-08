@@ -132,6 +132,7 @@ export default function FormularioContato() {
   const erroId = (n: string) => `${id}-${n}-erro`;
 
   const resumoRef = useRef<HTMLDivElement>(null);
+  const sucessoRef = useRef<HTMLDivElement>(null);
 
   /* O CARIMBO É ESCRITO NO CLIENTE, na montagem. Não pode vir do servidor: a
      rota é estática, então o valor seria a hora do build — igual para todo
@@ -162,9 +163,16 @@ export default function FormularioContato() {
   /* FOCO NO RESUMO quando o envio falha. Sem isto o leitor de tela não fica
      sabendo de nada: a página não navegou, e o texto novo apareceu longe do
      ponto de foco. O resumo tem tabIndex -1 para poder receber foco por
-     script sem entrar na ordem do Tab. */
+     script sem entrar na ordem do Tab.
+
+     E FOCO NA CONFIRMAÇÃO quando dá certo, pelo mesmo motivo e com a mesma
+     técnica. No sucesso o <form> DESMONTA — e o elemento que tinha o foco (o
+     botão de enviar) some junto. Sem este foco, ele caía no <body>: o
+     próximo Tab recomeçava do topo da página, e quem usa leitor de tela
+     ficava sem saber onde estava. */
   useEffect(() => {
     if (visivel.estado === "erro" || visivel.estado === "falha") resumoRef.current?.focus();
+    else if (visivel.estado === "sucesso") sucessoRef.current?.focus();
   }, [visivel]);
 
   /* ⚠ PROVISÓRIO — ver o bloco A ENTREGA É POR WHATSAPP no topo do arquivo.
@@ -254,27 +262,45 @@ export default function FormularioContato() {
   const v = visivel.valores;
   const erro = visivel.erros;
 
-  /* ══ SUCESSO: o formulário SAI e a confirmação entra no lugar ══
-
-     Em região `aria-live="polite"` com `role="status"`, para o leitor de tela
-     anunciar sem interromper. Nada de navegar para outra rota — a pessoa
-     perderia o contexto e o botão Voltar reenviaria o formulário — e nada de
-     alert(), que é um diálogo do navegador e não parte da página. */
-  if (visivel.estado === "sucesso") {
-    return (
-      <div className="form__sucesso" role="status" aria-live="polite">
-        <p className="form__sucesso-titulo">Projeto recebido!</p>
-        <p className="form__sucesso-texto">
-          A gente responde em até um dia útil. Se for urgente, chama no WhatsApp — o número
-          está logo abaixo.
-        </p>
-      </div>
-    );
-  }
-
+  const enviado = visivel.estado === "sucesso";
   const falhou = visivel.estado === "erro" || visivel.estado === "falha";
 
+  /* ══ SUCESSO: o formulário SAI e a confirmação entra no lugar ══
+
+     Nada de navegar para outra rota — a pessoa perderia o contexto e o botão
+     Voltar reenviaria o formulário — e nada de alert(), que é um diálogo do
+     navegador e não parte da página.
+
+     ⚠ A REGIÃO VIVA ESTÁ SEMPRE MONTADA, E SÓ O CONTEÚDO DELA TROCA.
+
+     A versão anterior devolvia um <div role="status"> que NASCIA já com o
+     texto dentro. Região viva que nasce cheia não é anunciada de forma
+     confiável: o leitor de tela registra a região quando ela aparece e só
+     fala o que MUDA depois disso — e ali nada mudava, tudo chegava junto. O
+     contêiner abaixo existe desde a primeira renderização, vazio, e o que
+     entra nele no sucesso é uma mudança de verdade.
+
+     Vazio e sem classe, ele não ocupa espaço: a coluna do formulário é bloco
+     simples, sem `gap`, e um <div> sem conteúdo tem altura zero.
+
+     O FOCO vai para o bloco de dentro (`sucessoRef`, tabIndex -1), não para
+     o contêiner: é o bloco que tem desenho, e é o anel dele que quem enxerga
+     precisa ver. */
   return (
+    <>
+      <div role="status" aria-live="polite">
+        {enviado ? (
+          <div className="form__sucesso" tabIndex={-1} ref={sucessoRef}>
+            <p className="form__sucesso-titulo">Projeto recebido!</p>
+            <p className="form__sucesso-texto">
+              A gente responde em até um dia útil. Se for urgente, chama no WhatsApp — o número
+              está logo abaixo.
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      {enviado ? null : (
     <form className="form" action={acao} onSubmit={aoEnviar} noValidate>
       {/* ══ HONEYPOT ══
           Fora da tela pela classe, invisível para leitor de tela pelo
@@ -516,5 +542,7 @@ export default function FormularioContato() {
         rotulo={pendente ? NOME_DO_ESTADO_ENVIANDO : "Enviar projeto"}
       />
     </form>
+      )}
+    </>
   );
 }

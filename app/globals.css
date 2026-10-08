@@ -5926,6 +5926,12 @@ body:not(:has(.hero)) .zap,
   border-radius: var(--r-campo);
   background: var(--ground-lift);
 }
+/* Recebe foco por script no envio bem-sucedido — mesma razão e mesmo anel do
+   .form__resumo: sem ele, quem enxerga não veria para onde o foco foi. */
+.form__sucesso:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
 
 .form__sucesso-titulo {
   margin: 0;
