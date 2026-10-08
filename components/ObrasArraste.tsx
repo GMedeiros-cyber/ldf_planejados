@@ -124,13 +124,16 @@ export default function ObrasArraste() {
     const piso = () => Math.max(0, (umaCopia() - trilho.clientWidth) / 2);
 
     /* Traz qualquer rolagem para dentro da faixa [piso, piso + C), somando ou
-       subtraindo cópias inteiras. */
-    function normalizar(x: number) {
-      const copia = umaCopia();
+       subtraindo cópias inteiras.
+
+       A CONTA É PURA e recebe as medidas prontas: o arrasto passa as que leu
+       uma vez no pointerdown (ver `gesto`, abaixo). `normalizar` mede na hora
+       e serve aos caminhos que rodam raramente — pausar, rolagem nativa. */
+    function normalizarCom(x: number, copia: number, p: number) {
       if (copia <= 0) return x;
-      const p = piso();
       return p + ((((x - p) % copia) + copia) % copia);
     }
+    const normalizar = (x: number) => normalizarCom(x, umaCopia(), piso());
 
     let pausado = false;
     let arrastando = false;
@@ -139,6 +142,7 @@ export default function ObrasArraste() {
     /* Onde o dedo/mouse pegou, e onde a rolagem estava naquele instante. */
     let xInicial = 0;
     let rolagemInicial = 0;
+
 
     /* ⚠ A ÚLTIMA ROLAGEM QUE NÓS ESCREVEMOS, e não um booleano.
 
@@ -164,6 +168,41 @@ export default function ObrasArraste() {
       /* O que o navegador de fato aceitou, já limitado pelas pontas. */
       rolagemEscrita = trilho!.scrollLeft;
       trilho!.style.scrollBehavior = antes;
+    }
+
+    /* ══ AS MEDIDAS DO GESTO, LIDAS UMA VEZ NO POINTERDOWN ══
+
+       A largura de uma cópia, o piso da faixa de repouso e o `scroll-behavior`
+       do trilho NÃO MUDAM durante um arrasto. Antes eram relidos a cada
+       pointermove: `normalizar` lia `offsetWidth` duas vezes e `clientWidth`
+       uma, e o `rolarSeco` escrevia `scrollLeft` e o lia de volta. Leitura de
+       layout intercalada com escrita, evento após evento, é o padrão que obriga
+       o navegador a refazer o layout no meio do quadro — medido, 40 movimentos
+       custavam 80 leituras de offsetWidth, 40 de clientWidth e 40 escritas.
+
+       Ficam guardadas aqui, como `xInicial` e `rolagemInicial` ao lado — o
+       mesmo papel de um ref, no idioma do resto deste efeito. */
+    const gesto = { copia: 0, piso: 0, comportamento: "" };
+
+    /* ══ UMA ESCRITA POR QUADRO ══
+
+       Um mouse de alta frequência dispara vários pointermove por quadro, e
+       escrever a rolagem em cada um é trabalho que ninguém vê: só o último
+       valor do quadro chega à tela. O move guarda o alvo; o
+       requestAnimationFrame escreve uma vez. */
+    let quadroPendente = 0;
+    let alvoPendente = 0;
+
+    /* A escrita do arrasto. Não lê nada de volta: o alvo já vem normalizado
+       para dentro da faixa [piso, piso + C), e a faixa cabe inteira no curso
+       nativo (V ≤ C, ver o bloco da faixa de repouso) — o navegador não tem o
+       que limitar. O arredondamento do scrollLeft fica dentro da tolerância de
+       1px da guarda em `aoRolar`. */
+    function escreverGesto(x: number) {
+      trilho!.style.scrollBehavior = "auto";
+      trilho!.scrollLeft = x;
+      rolagemEscrita = x;
+      trilho!.style.scrollBehavior = gesto.comportamento;
     }
 
     /* Quanto o transform já andou, em pixels. */
@@ -220,6 +259,9 @@ export default function ObrasArraste() {
       arrastando = true;
       xInicial = e.clientX;
       rolagemInicial = trilho!.scrollLeft;
+      gesto.copia = umaCopia();
+      gesto.piso = Math.max(0, (gesto.copia - trilho!.clientWidth) / 2);
+      gesto.comportamento = trilho!.style.scrollBehavior;
       trilho!.setPointerCapture(e.pointerId);
       trilho!.classList.add("obras__trilho--arrastando");
       /* Impede o navegador de iniciar o arrasto nativo de imagem, que
@@ -248,11 +290,24 @@ export default function ObrasArraste() {
          A conta continua saindo da posicao ABSOLUTA do ponteiro, entao o
          salto nao desalinha o gesto: `rolagemInicial` e `xInicial` seguem
          valendo, e o proximo evento recalcula tudo de novo. */
-      rolarSeco(normalizar(rolagemInicial - (e.clientX - xInicial)));
+      alvoPendente = normalizarCom(rolagemInicial - (e.clientX - xInicial), gesto.copia, gesto.piso);
+      if (!quadroPendente) {
+        quadroPendente = requestAnimationFrame(() => {
+          quadroPendente = 0;
+          escreverGesto(alvoPendente);
+        });
+      }
     }
 
     function aoSoltar(e: PointerEvent) {
       if (arrastando) {
+        /* Um alvo ainda na fila é o último movimento do gesto: escreve agora,
+           senão a retomada leria a rolagem um quadro atrasada. */
+        if (quadroPendente) {
+          cancelAnimationFrame(quadroPendente);
+          quadroPendente = 0;
+          escreverGesto(alvoPendente);
+        }
         arrastando = false;
         if (trilho!.hasPointerCapture(e.pointerId)) trilho!.releasePointerCapture(e.pointerId);
         trilho!.classList.remove("obras__trilho--arrastando");
@@ -299,6 +354,7 @@ export default function ObrasArraste() {
 
     return () => {
       window.clearTimeout(ocioso);
+      cancelAnimationFrame(quadroPendente);
       trilho.removeEventListener("pointerdown", aoDescer);
       trilho.removeEventListener("pointermove", aoMover);
       trilho.removeEventListener("pointerup", aoSoltar);
