@@ -472,10 +472,22 @@ export default function FormularioContato() {
         ) : null}
       </div>
 
-      {/* GRUPO 4 — múltipla escolha, checkbox por baixo das pastilhas. */}
+      {/* GRUPO 4 — múltipla escolha, checkbox por baixo das pastilhas.
+
+          ══ O ERRO DO GRUPO VAI EM CADA INPUT, E NÃO SÓ NO FIELDSET ══
+
+          `aria-invalid` não é suportado em fieldset (papel `group`): o leitor
+          de tela ignorava, e quem tabulava para uma pastilha ouvia "Cozinha,
+          caixa de seleção" sem saber que o grupo estava com erro. Agora cada
+          input do grupo carrega `aria-invalid` e aponta, por
+          `aria-describedby`, para a MESMA mensagem — só enquanto o grupo
+          estiver com erro. O fieldset mantém o `aria-describedby`, para quem
+          navega pelo grupo inteiro.
+
+          O input é o controle real mesmo escondido: a pastilha o cobre com
+          `opacity: 0` (seção de pastilhas da folha), não com `display: none`. */}
       <fieldset
         className="form__grupo"
-        aria-invalid={erro.ambiente ? true : undefined}
         aria-describedby={erro.ambiente ? erroId("ambiente") : undefined}
       >
         <legend className="form__rotulo">Ambiente</legend>
@@ -488,6 +500,8 @@ export default function FormularioContato() {
                 name="ambiente"
                 value={op}
                 defaultChecked={v.ambiente.includes(op)}
+                aria-invalid={erro.ambiente ? true : undefined}
+                aria-describedby={erro.ambiente ? erroId("ambiente") : undefined}
               />
               <span>{op}</span>
             </label>
@@ -500,17 +514,24 @@ export default function FormularioContato() {
         ) : null}
       </fieldset>
 
-      {/* GRUPO 5 — escolha única, radio por baixo. */}
+      {/* GRUPO 5 — escolha única, radio por baixo. O erro vai em cada input
+          pelo mesmo motivo do grupo 4, logo acima. */}
       <fieldset
         className="form__grupo"
-        aria-invalid={erro.estagio ? true : undefined}
         aria-describedby={erro.estagio ? erroId("estagio") : undefined}
       >
         <legend className="form__rotulo">Estágio da obra</legend>
         <div className="form__pastilhas">
           {opcoesEstagio.map((op) => (
             <label className="form__pastilha" key={op}>
-              <input type="radio" name="estagio" value={op} defaultChecked={v.estagio === op} />
+              <input
+                type="radio"
+                name="estagio"
+                value={op}
+                defaultChecked={v.estagio === op}
+                aria-invalid={erro.estagio ? true : undefined}
+                aria-describedby={erro.estagio ? erroId("estagio") : undefined}
+              />
               <span>{op}</span>
             </label>
           ))}
